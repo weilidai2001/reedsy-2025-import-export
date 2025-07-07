@@ -46,6 +46,8 @@ router.post(
       await axios.post(`${config.schedulerUrl}/queue`, {
         jobId,
         jobType: "export",
+        direction: "export",
+        type: req.body.type,
       });
 
       const response: ExportJobResponse = { jobId };
@@ -77,6 +79,8 @@ router.post(
       await axios.post(`${config.schedulerUrl}/queue`, {
         jobId,
         jobType: "import",
+        direction: "import",
+        type: req.body.type,
       });
 
       const response: ImportJobResponse = { jobId };
