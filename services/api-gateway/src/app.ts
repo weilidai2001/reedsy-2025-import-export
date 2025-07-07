@@ -15,97 +15,66 @@ app.use("/status-page", statusRouter);
 app.use("/status-page-ui", statusFrontendRouter);
 app.use("/status-page-ui/static", express.static(path.join(__dirname, "./")));
 
-// Proxy /api/scheduler/* to Scheduler service
-app.use(
-  "/api/scheduler",
-  createProxyMiddleware({
+// DRY proxy setup
+interface ProxyConfig {
+  route: string;
+  target: string;
+  serviceName: string;
+  pathRewrite: { [key: string]: string };
+}
+
+const proxyConfigs: ProxyConfig[] = [
+  {
+    route: "/api/scheduler",
     target: config.schedulerUrl,
-    changeOrigin: true,
+    serviceName: "Scheduler",
     pathRewrite: { "^/api/scheduler": "" },
-    onProxyReq: (
-      proxyReq: import("http").ClientRequest,
-      req: Request,
-      res: Response
-    ) => {
-      logger.info(
-        `[Proxy] ${req.method} ${req.originalUrl} -> ${config.schedulerUrl}${req.url}`
-      );
-    },
-    onError: (err: Error, req: Request, res: Response) => {
-      logger.error(`[ProxyError] Scheduler: ${err.message}`);
-      res.status(502).send("Bad Gateway");
-    },
-  })
-);
-
-// Proxy /api/task-registry/* to Task Registry service
-app.use(
-  "/api/task-registry",
-  createProxyMiddleware({
+  },
+  {
+    route: "/api/task-registry",
     target: config.taskRegistryUrl,
-    changeOrigin: true,
+    serviceName: "TaskRegistry",
     pathRewrite: { "^/api/task-registry": "" },
-    onProxyReq: (
-      proxyReq: import("http").ClientRequest,
-      req: Request,
-      res: Response
-    ) => {
-      logger.info(
-        `[Proxy] ${req.method} ${req.originalUrl} -> ${config.taskRegistryUrl}${req.url}`
-      );
-    },
-    onError: (err: Error, req: Request, res: Response) => {
-      logger.error(`[ProxyError] TaskRegistry: ${err.message}`);
-      res.status(502).send("Bad Gateway");
-    },
-  })
-);
-
-// Proxy /api/handler/* to Handler service
-app.use(
-  "/api/handler",
-  createProxyMiddleware({
+  },
+  {
+    route: "/api/handler",
     target: config.handlerUrl,
-    changeOrigin: true,
+    serviceName: "Handler",
     pathRewrite: { "^/api/handler": "" },
-    onProxyReq: (
-      proxyReq: import("http").ClientRequest,
-      req: Request,
-      res: Response
-    ) => {
-      logger.info(
-        `[Proxy] ${req.method} ${req.originalUrl} -> ${config.handlerUrl}${req.url}`
-      );
-    },
-    onError: (err: Error, req: Request, res: Response) => {
-      logger.error(`[ProxyError] Handler: ${err.message}`);
-      res.status(502).send("Bad Gateway");
-    },
-  })
-);
-
-// Proxy /api/receptionist/* to Receptionist service
-app.use(
-  "/api/receptionist",
-  createProxyMiddleware({
+  },
+  {
+    route: "/api/receptionist",
     target: config.receptionistUrl,
-    changeOrigin: true,
+    serviceName: "Receptionist",
     pathRewrite: { "^/api/receptionist": "" },
-    onProxyReq: (
-      proxyReq: import("http").ClientRequest,
-      req: Request,
-      res: Response
-    ) => {
-      logger.info(
-        `[Proxy] ${req.method} ${req.originalUrl} -> ${config.receptionistUrl}${req.url}`
-      );
-    },
-    onError: (err: Error, req: Request, res: Response) => {
-      logger.error(`[ProxyError] Receptionist: ${err.message}`);
-      res.status(502).send("Bad Gateway");
-    },
-  })
-);
+  },
+];
+
+proxyConfigs.forEach(({ route, target, serviceName, pathRewrite }) => {
+  app.use(
+    route,
+    createProxyMiddleware({
+      target,
+      changeOrigin: true,
+      pathRewrite,
+      onProxyReq: (
+        proxyReq: import("http").ClientRequest,
+        req: Request,
+        res: Response
+      ) => {
+        const bodyLog = req.body && Object.keys(req.body).length > 0 ? ` | body: ${JSON.stringify(req.body)}` : '';
+        logger.info(
+          `[Proxy] ${req.method} ${req.originalUrl} -> ${target}${req.url}${bodyLog}`
+        );
+      },
+      onError: (err: Error, req: Request, res: Response) => {
+        logger.error(`[ProxyError] ${serviceName}: ${err.message}`);
+        res.status(502).send("Bad Gateway");
+      },
+    })
+  );
+});
+
 
 app.get("/", (req: Request, res: Response) => {
   logger.info("Root endpoint accessed");
