@@ -8,9 +8,18 @@
     "./services/task-registry",
     "./services/api-gateway"
   ],
+  "scripts": {
+    "dev": "concurrently --kill-others \"npm run receptionist:dev\" \"npm run scheduler:dev\" \"npm run handler:dev\" \"npm run task-registry:dev\" \"npm run api-gateway:dev\"",
+    "api-gateway:dev": "npm run dev --workspace services/api-gateway",
+    "handler:dev": "npm run dev --workspace services/handler",
+    "receptionist:dev": "npm run dev --workspace services/receptionist",
+    "scheduler:dev": "npm run dev --workspace services/scheduler",
+    "task-registry:dev": "npm run dev --workspace services/task-registry"
+  },
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/express-serve-static-core": "^4.19.6",
+    "concurrently": "^9.2.0",
     "typescript": "^5.0.0"
   }
 }

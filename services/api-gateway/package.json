@@ -4,6 +4,7 @@
   "main": "dist/server.js",
   "types": "dist/server.d.ts",
   "scripts": {
+    "dev": "ts-node src/server.ts",
     "start": "ts-node src/server.ts",
     "build": "tsc"
   },
