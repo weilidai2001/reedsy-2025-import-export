@@ -22,8 +22,14 @@ app.use(
     target: config.schedulerUrl,
     changeOrigin: true,
     pathRewrite: { "^/api/scheduler": "" },
-    onProxyReq: (proxyReq: import("http").ClientRequest, req: Request, res: Response) => {
-      logger.info(`[Proxy] ${req.method} ${req.originalUrl} -> ${config.schedulerUrl}${req.url}`);
+    onProxyReq: (
+      proxyReq: import("http").ClientRequest,
+      req: Request,
+      res: Response
+    ) => {
+      logger.info(
+        `[Proxy] ${req.method} ${req.originalUrl} -> ${config.schedulerUrl}${req.url}`
+      );
     },
     onError: (err: Error, req: Request, res: Response) => {
       logger.error(`[ProxyError] Scheduler: ${err.message}`);
@@ -39,11 +45,63 @@ app.use(
     target: config.taskRegistryUrl,
     changeOrigin: true,
     pathRewrite: { "^/api/task-registry": "" },
-    onProxyReq: (proxyReq: import("http").ClientRequest, req: Request, res: Response) => {
-      logger.info(`[Proxy] ${req.method} ${req.originalUrl} -> ${config.taskRegistryUrl}${req.url}`);
+    onProxyReq: (
+      proxyReq: import("http").ClientRequest,
+      req: Request,
+      res: Response
+    ) => {
+      logger.info(
+        `[Proxy] ${req.method} ${req.originalUrl} -> ${config.taskRegistryUrl}${req.url}`
+      );
     },
     onError: (err: Error, req: Request, res: Response) => {
       logger.error(`[ProxyError] TaskRegistry: ${err.message}`);
+      res.status(502).send("Bad Gateway");
+    },
+  })
+);
+
+// Proxy /api/handler/* to Handler service
+app.use(
+  "/api/handler",
+  createProxyMiddleware({
+    target: config.handlerUrl,
+    changeOrigin: true,
+    pathRewrite: { "^/api/handler": "" },
+    onProxyReq: (
+      proxyReq: import("http").ClientRequest,
+      req: Request,
+      res: Response
+    ) => {
+      logger.info(
+        `[Proxy] ${req.method} ${req.originalUrl} -> ${config.handlerUrl}${req.url}`
+      );
+    },
+    onError: (err: Error, req: Request, res: Response) => {
+      logger.error(`[ProxyError] Handler: ${err.message}`);
+      res.status(502).send("Bad Gateway");
+    },
+  })
+);
+
+// Proxy /api/receptionist/* to Receptionist service
+app.use(
+  "/api/receptionist",
+  createProxyMiddleware({
+    target: config.receptionistUrl,
+    changeOrigin: true,
+    pathRewrite: { "^/api/receptionist": "" },
+    onProxyReq: (
+      proxyReq: import("http").ClientRequest,
+      req: Request,
+      res: Response
+    ) => {
+      logger.info(
+        `[Proxy] ${req.method} ${req.originalUrl} -> ${config.receptionistUrl}${req.url}`
+      );
+    },
+    onError: (err: Error, req: Request, res: Response) => {
+      logger.error(`[ProxyError] Receptionist: ${err.message}`);
       res.status(502).send("Bad Gateway");
     },
   })
