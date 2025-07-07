@@ -5,7 +5,8 @@
     "./services/receptionist",
     "./services/scheduler",
     "./services/handler",
-    "./services/task-registry"
+    "./services/task-registry",
+    "./services/api-gateway"
   ],
   "devDependencies": {
     "@types/express": "^4.17.21",
