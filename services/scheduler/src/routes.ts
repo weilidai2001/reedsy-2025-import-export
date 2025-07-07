@@ -1,0 +1,43 @@
+import express from 'express';
+import { enqueue, dequeue, queues } from './queues';
+import { Job } from '../../shared/types';
+
+const router = express.Router();
+
+// Enqueue a job
+// @ts-ignore
+router.post('/queue', ((req: express.Request, res: express.Response) => {
+  const job: Job = req.body;
+  const validDirections = ["import", "export"];
+  const validTypes = ["epub", "pdf", "word", "wattpad", "evernote"];
+  if (!job.direction || !job.type || !validDirections.includes(job.direction) || !validTypes.includes(job.type)) {
+    return res.status(400).json({ error: 'Valid direction and type are required' });
+  }
+  enqueue({ ...job, direction: job.direction as "import" | "export", type: job.type as "epub" | "pdf" | "word" | "wattpad" | "evernote" });
+  res.status(201).json({ message: 'Job enqueued', job });
+}) as express.RequestHandler);
+
+// Dequeue a job
+// @ts-ignore
+router.post('/queue/dequeue', ((req: express.Request, res: express.Response) => {
+  const { direction, type } = req.body;
+  // Validate direction and type
+  const validDirections = ["import", "export"];
+  const validTypes = ["epub", "pdf", "word", "wattpad", "evernote"];
+  if (!direction || !type || !validDirections.includes(direction) || !validTypes.includes(type)) {
+    return res.status(400).json({ error: 'Valid direction and type are required' });
+  }
+  const job = dequeue(direction as "import" | "export", type as "epub" | "pdf" | "word" | "wattpad" | "evernote");
+  if (!job) {
+    return res.status(404).json({ error: 'No job available' });
+  }
+  res.json(job);
+}) as express.RequestHandler);
+
+// List all jobs in all queues
+// @ts-ignore
+router.get('/queue', ((req: express.Request, res: express.Response) => {
+  res.json(queues);
+}) as express.RequestHandler);
+
+export default router;

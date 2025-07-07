@@ -8,6 +8,8 @@
     "./services/logbook"
   ],
   "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/express-serve-static-core": "^4.19.6",
     "typescript": "^5.0.0"
   }
 }

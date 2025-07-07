@@ -1,4 +1,4 @@
-import { Job } from 'shared/types';
+import { Job } from '../../shared/types';
 
 // Dummy usage to verify import
 const testJob: Job = {
@@ -11,7 +11,7 @@ const testJob: Job = {
   resultUrl: '',
   createdAt: '',
   updatedAt: '',
-  startedAt: null
+  startedAt: undefined
 };
 
 console.log('Type import works:', !!testJob);
