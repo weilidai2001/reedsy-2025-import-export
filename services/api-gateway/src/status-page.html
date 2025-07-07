@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Status Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #fafbfc; margin: 0; padding: 2rem; }
+    h1 { font-size: 2rem; }
+    table { border-collapse: collapse; margin-top: 2rem; background: #fff; box-shadow: 0 2px 8px #eee; }
+    th, td { padding: 0.7rem 1.2rem; text-align: center; }
+    th { background: #f3f4f6; font-weight: 600; }
+    tr:nth-child(even) { background: #f9f9fa; }
+    .check { color: #1bbf4c; font-size: 1.5rem; }
+    .fail { color: #e23c3c; font-size: 1.5rem; }
+    .info { color: #2196f3; font-size: 1.5rem; }
+    .service-label { text-align: left; font-weight: 500; color: #2d3748; }
+  </style>
+</head>
+<body>
+  <h1>Status Page</h1>
+  <div id="status-table"></div>
+  <script>
+    async function fetchStatus() {
+      const res = await fetch('/status-page/status');
+      return await res.json();
+    }
+    function renderTable({ services, status }) {
+      let html = '<table><thead><tr><th>Service</th><th>Status</th></tr></thead><tbody>';
+      for (const svc of services) {
+        html += `<tr><td class="service-label">${svc.name}</td>`;
+        const st = status[svc.key];
+        if (st === true) html += '<td class="check">&#10004;</td>';
+        else if (st === false) html += '<td class="fail">&#10008;</td>';
+        else html += '<td class="info">&#9432;</td>';
+        html += '</tr>';
+      }
+      html += '</tbody></table>';
+      document.getElementById('status-table').innerHTML = html;
+    }
+    fetchStatus().then(renderTable);
+  </script>
+</body>
+</html>

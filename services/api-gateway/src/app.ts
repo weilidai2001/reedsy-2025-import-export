@@ -7,6 +7,14 @@ import { Request, Response } from "express";
 const app = express();
 app.use(express.json());
 
+// Status page router
+import statusRouter from "./status-page";
+import statusFrontendRouter from "./status-page-frontend";
+import path from "path";
+app.use("/status-page", statusRouter);
+app.use("/status-page-ui", statusFrontendRouter);
+app.use("/status-page-ui/static", express.static(path.join(__dirname, "./")));
+
 // Proxy /api/scheduler/* to Scheduler service
 app.use(
   "/api/scheduler",
