@@ -1,8 +1,10 @@
 // Entry point for Handler microservice
 import { JobAcquisitionManager } from './job-acquisition';
+import { LogBookClient } from './logbook-client';
 import logger from './logger';
 
-const jobAcquisitionManager = new JobAcquisitionManager();
+const logbookClient = new LogBookClient();
+const jobAcquisitionManager = new JobAcquisitionManager(logbookClient);
 jobAcquisitionManager.startPolling();
 
 process.on('SIGINT', () => {
