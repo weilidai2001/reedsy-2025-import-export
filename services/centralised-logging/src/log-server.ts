@@ -9,7 +9,7 @@ dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 const app = express();
 app.use(express.json());
 
-app.post("/log", (req, res) => {
+app.post("/logs", (req, res) => {
   console.log("Received log:", req.body);
   res.sendStatus(200);
 });
