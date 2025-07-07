@@ -6,15 +6,18 @@
     "./services/scheduler",
     "./services/handler",
     "./services/task-registry",
-    "./services/api-gateway"
+    "./services/api-gateway",
+    "./services/centralised-logging",
+    "./services/shared"
   ],
   "scripts": {
-    "dev": "concurrently --kill-others \"npm run receptionist:dev\" \"npm run scheduler:dev\" \"npm run handler:dev\" \"npm run task-registry:dev\" \"npm run api-gateway:dev\"",
+    "dev": "concurrently --kill-others \"npm run receptionist:dev\" \"npm run scheduler:dev\" \"npm run handler:dev\" \"npm run task-registry:dev\" \"npm run api-gateway:dev\" \"npm run centralised-logging:dev\"",
     "api-gateway:dev": "npm run dev --workspace services/api-gateway",
     "handler:dev": "npm run dev --workspace services/handler",
     "receptionist:dev": "npm run dev --workspace services/receptionist",
     "scheduler:dev": "npm run dev --workspace services/scheduler",
-    "task-registry:dev": "npm run dev --workspace services/task-registry"
+    "task-registry:dev": "npm run dev --workspace services/task-registry",
+    "centralised-logging:dev": "npm run dev --workspace services/centralised-logging"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",

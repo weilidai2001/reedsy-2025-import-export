@@ -7,7 +7,11 @@ if (!loggingServiceUrl) {
 }
 
 const parsedUrl = url.parse(loggingServiceUrl);
-const loggingHost = parsedUrl.hostname || "localhost";
+const loggingHost = parsedUrl.hostname;
+
+if (!loggingHost) {
+  throw new Error("LOGGING_SERVICE_URL host is not defined");
+}
 
 if (!parsedUrl.port) {
   throw new Error("LOGGING_SERVICE_URL port is not defined");

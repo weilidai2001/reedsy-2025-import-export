@@ -1,7 +1,0 @@
-{
-  "files": [],
-  "references": [
-    { "path": "./services/shared" },
-    { "path": "./services/receptionist" }
-  ]
-}
