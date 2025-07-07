@@ -37,6 +37,7 @@ router.post(
         {
           ...req.body,
           jobType: "export",
+          direction: "export",
         }
       );
       const jobId = (taskRegistryRes.data as { jobId: string }).jobId;
@@ -67,6 +68,7 @@ router.post(
         {
           ...req.body,
           jobType: "import",
+          direction: "import",
         }
       );
       const jobId = (taskRegistryRes.data as { jobId: string }).jobId;
