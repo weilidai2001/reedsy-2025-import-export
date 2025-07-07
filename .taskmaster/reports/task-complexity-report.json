@@ -27,10 +27,10 @@
 		},
 		{
 			"taskId": 3,
-			"taskTitle": "Implement LogBook Service",
+			"taskTitle": "Implement TaskRegistry Service",
 			"complexityScore": 7,
 			"recommendedSubtasks": 5,
-			"expansionPrompt": "Break down the 'Implement LogBook Service' task into subtasks covering: 1) Express app setup, 2) SQLite database setup with WAL mode, 3) Jobs table schema and CRUD operations, 4) API endpoint implementation, and 5) Swagger documentation",
+			"expansionPrompt": "Break down the 'Implement TaskRegistry Service' task into subtasks covering: 1) Express app setup, 2) SQLite database setup with WAL mode, 3) Jobs table schema and CRUD operations, 4) API endpoint implementation, and 5) Swagger documentation",
 			"reasoning": "This task involves setting up a database, implementing CRUD operations, and creating multiple API endpoints. It requires careful implementation of the persistence layer which is critical for the system's functionality."
 		},
 		{
@@ -54,7 +54,7 @@
 			"taskTitle": "Implement Receptionist Service",
 			"complexityScore": 5,
 			"recommendedSubtasks": 4,
-			"expansionPrompt": "Break down the 'Implement Receptionist Service' task into subtasks covering: 1) Express app setup, 2) API endpoint implementation for exports and imports, 3) Request validation and job creation logic, and 4) Communication with LogBook and Scheduler services",
+			"expansionPrompt": "Break down the 'Implement Receptionist Service' task into subtasks covering: 1) Express app setup, 2) API endpoint implementation for exports and imports, 3) Request validation and job creation logic, and 4) Communication with TaskRegistry and Scheduler services",
 			"reasoning": "The Receptionist service acts as the API gateway and requires implementing multiple endpoints with validation. It's moderately complex due to the need to coordinate with other services."
 		},
 		{
@@ -70,7 +70,7 @@
 			"taskTitle": "Implement Swagger Documentation",
 			"complexityScore": 4,
 			"recommendedSubtasks": 4,
-			"expansionPrompt": "Break down the 'Implement Swagger Documentation' task into subtasks covering: 1) Swagger setup for LogBook service, 2) Swagger setup for Scheduler service, 3) Swagger setup for Handler service, and 4) Swagger setup for Receptionist service",
+			"expansionPrompt": "Break down the 'Implement Swagger Documentation' task into subtasks covering: 1) Swagger setup for TaskRegistry service, 2) Swagger setup for Scheduler service, 3) Swagger setup for Handler service, and 4) Swagger setup for Receptionist service",
 			"reasoning": "This task involves creating OpenAPI specifications for each service. While not technically complex, it requires detailed documentation of all endpoints across multiple services."
 		},
 		{
@@ -78,7 +78,7 @@
 			"taskTitle": "Implement Horizontal Scaling Support",
 			"complexityScore": 7,
 			"recommendedSubtasks": 4,
-			"expansionPrompt": "Break down the 'Implement Horizontal Scaling Support' task into subtasks covering: 1) Making Receptionist service stateless, 2) Making Handler service stateless, 3) Implementing singleton pattern for Scheduler service, and 4) Implementing singleton pattern for LogBook service",
+			"expansionPrompt": "Break down the 'Implement Horizontal Scaling Support' task into subtasks covering: 1) Making Receptionist service stateless, 2) Making Handler service stateless, 3) Implementing singleton pattern for Scheduler service, and 4) Implementing singleton pattern for TaskRegistry service",
 			"reasoning": "This task involves architectural considerations for scalability. The complexity comes from ensuring services can scale appropriately while maintaining singleton behavior where needed."
 		},
 		{

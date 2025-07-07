@@ -3,9 +3,9 @@
 # Status: pending
 # Dependencies: 3, 4, 5, 6, 7
 # Priority: medium
-# Description: Ensure all services are horizontally scalable except for Scheduler and LogBook which should be singletons.
+# Description: Ensure all services are horizontally scalable except for Scheduler and TaskRegistry which should be singletons.
 # Details:
-Make Receptionist and Handler services stateless to support horizontal scaling. Implement singleton pattern for Scheduler and LogBook services to ensure only one instance runs at a time.
+Make Receptionist and Handler services stateless to support horizontal scaling. Implement singleton pattern for Scheduler and TaskRegistry services to ensure only one instance runs at a time.
 
 For Scheduler singleton:
 ```javascript
@@ -37,7 +37,7 @@ try {
 }
 ```
 
-Implement similar logic for LogBook service. Configure SQLite in WAL mode to support concurrent reads.
+Implement similar logic for TaskRegistry service. Configure SQLite in WAL mode to support concurrent reads.
 
 # Test Strategy:
-Test running multiple instances of each service. Verify Receptionist and Handler can scale horizontally. Verify only one instance of Scheduler and LogBook can run at a time. Test failover scenarios.
+Test running multiple instances of each service. Verify Receptionist and Handler can scale horizontally. Verify only one instance of Scheduler and TaskRegistry can run at a time. Test failover scenarios.

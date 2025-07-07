@@ -43,30 +43,30 @@ Test communication between services with various scenarios including network fai
 # Subtasks:
 ## 1. Scaffold POST /exports endpoint [pending]
 ### Dependencies: None
-### Description: Implement endpoint to submit new export jobs as per PRD. Validate input, create job in LogBook, send job to Scheduler, return jobId.
+### Description: Implement endpoint to submit new export jobs as per PRD. Validate input, create job in TaskRegistry, send job to Scheduler, return jobId.
 ### Details:
 - Accepts { bookId: string, type: 'epub' | 'pdf' }
 - Validates input
-- Calls LogBook to create job
+- Calls TaskRegistry to create job
 - Calls Scheduler to enqueue job
 - Returns { jobId: string }
 
 ## 2. Scaffold POST /imports endpoint [pending]
 ### Dependencies: None
-### Description: Implement endpoint to submit new import jobs as per PRD. Validate input, create job in LogBook, send job to Scheduler, return jobId.
+### Description: Implement endpoint to submit new import jobs as per PRD. Validate input, create job in TaskRegistry, send job to Scheduler, return jobId.
 ### Details:
 - Accepts { bookId: string, type: 'word' | 'pdf' | 'wattpad' | 'evernote', url: string }
 - Validates input
-- Calls LogBook to create job
+- Calls TaskRegistry to create job
 - Calls Scheduler to enqueue job
 - Returns { jobId: string }
 
 ## 3. Scaffold GET /exports and /imports endpoints [pending]
 ### Dependencies: None
-### Description: Implement endpoints to list export/import jobs grouped by state as per PRD. Query LogBook for job status.
+### Description: Implement endpoints to list export/import jobs grouped by state as per PRD. Query TaskRegistry for job status.
 ### Details:
 - Returns jobs grouped by state (pending, processing, finished, failed)
-- Calls LogBook to fetch jobs
+- Calls TaskRegistry to fetch jobs
 - Returns grouped job lists
 
 ## 4. Add Swagger UI at /docs [pending]
@@ -116,9 +116,9 @@ Test communication between services with various scenarios including network fai
 
 ## 10. Implement business logic for job creation/dispatch [pending]
 ### Dependencies: None
-### Description: Implement logic to validate input, create job in LogBook, and dispatch job to Scheduler for both import and export endpoints.
+### Description: Implement logic to validate input, create job in TaskRegistry, and dispatch job to Scheduler for both import and export endpoints.
 ### Details:
-- Integrate with LogBook and Scheduler services via HTTP
+- Integrate with TaskRegistry and Scheduler services via HTTP
 - Ensure jobs are correctly created and dispatched
 - Handle errors and edge cases
 

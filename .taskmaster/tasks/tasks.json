@@ -5,7 +5,7 @@
         "id": 1,
         "title": "Setup Project Structure",
         "description": "Initialize the project repository with the required directory structure and base configuration for all four services.",
-        "details": "Create the following structure:\n- src/\n  - receptionist/\n    - package.json\n  - scheduler/\n    - package.json\n  - handler/\n    - package.json\n  - logbook/\n    - package.json\n  - shared/\n    - types.ts\n\nSetup the root package.json with scripts for building and starting all services. Configure TypeScript for the project. Ensure all filenames use kebab-case as specified in the PRD. Initialize git repository with appropriate .gitignore file.",
+        "details": "Create the following structure:\n- src/\n  - receptionist/\n    - package.json\n  - scheduler/\n    - package.json\n  - handler/\n    - package.json\n  - task-registry/\n    - package.json\n  - shared/\n    - types.ts\n\nSetup the root package.json with scripts for building and starting all services. Configure TypeScript for the project. Ensure all filenames use kebab-case as specified in the PRD. Initialize git repository with appropriate .gitignore file.",
         "testStrategy": "Verify the directory structure is correctly set up. Ensure all package.json files are valid and can be installed. Test that the build scripts work correctly for each service.",
         "priority": "high",
         "dependencies": [],
@@ -56,8 +56,8 @@
           {
             "id": 5,
             "title": "Ensure independent service directories with Node.js config",
-            "description": "Ensure the project structure contains one folder for each service (receptionist, scheduler, handler, logbook), each with its own independent Node.js configuration (package.json, tsconfig.json, etc.) following kebab-case naming.",
-            "details": "For each service (receptionist, scheduler, handler, logbook), create a dedicated directory in kebab-case. Each directory must include its own package.json and tsconfig.json, allowing for independent configuration and builds. Shared code should reside in a separate 'shared' directory. Verify that all service directories are correctly isolated and independently runnable as Node.js TypeScript projects.",
+            "description": "Ensure the project structure contains one folder for each service (receptionist, scheduler, handler, task-registry), each with its own independent Node.js configuration (package.json, tsconfig.json, etc.) following kebab-case naming.",
+            "details": "For each service (receptionist, scheduler, handler, task-registry), create a dedicated directory in kebab-case. Each directory must include its own package.json and tsconfig.json, allowing for independent configuration and builds. Shared code should reside in a separate 'shared' directory. Verify that all service directories are correctly isolated and independently runnable as Node.js TypeScript projects.",
             "status": "done",
             "dependencies": [],
             "parentTaskId": 1
@@ -79,9 +79,9 @@
       },
       {
         "id": 3,
-        "title": "Implement LogBook Service",
-        "description": "Develop the LogBook service that will serve as the persistent job store using SQLite in WAL mode.",
-        "details": "Create an Express application for the LogBook service with the following endpoints:\n\n1. POST `/jobs` - Create a new job\n2. PATCH `/jobs/:id` - Update job state or result\n3. GET `/jobs?direction=import|export` - Return grouped job states\n4. (Optional) GET `/jobs/:id` - Fetch job detail\n\nImplement SQLite database with WAL mode:\n```javascript\nconst sqlite3 = require('sqlite3');\nconst db = new sqlite3.Database('logbook.sqlite');\ndb.run('PRAGMA journal_mode = WAL;');\n```\n\nCreate the jobs table with the required fields matching the Job type. Implement CRUD operations for jobs. Add Swagger UI at `/docs` endpoint for API documentation and testing.",
+        "title": "Implement TaskRegistry Service",
+        "description": "Develop the TaskRegistry service that will serve as the persistent job store using SQLite in WAL mode.",
+        "details": "Create an Express application for the TaskRegistry service with the following endpoints:\n\n1. POST `/jobs` - Create a new job\n2. PATCH `/jobs/:id` - Update job state or result\n3. GET `/jobs?direction=import|export` - Return grouped job states\n4. (Optional) GET `/jobs/:id` - Fetch job detail\n\nImplement SQLite database with WAL mode:\n```javascript\nconst sqlite3 = require('sqlite3');\nconst db = new sqlite3.Database('task-registry.sqlite');\ndb.run('PRAGMA journal_mode = WAL;');\n```\n\nCreate the jobs table with the required fields matching the Job type. Implement CRUD operations for jobs. Add Swagger UI at `/docs` endpoint for API documentation and testing.",
         "testStrategy": "Write integration tests for each endpoint. Test database operations with mock data. Verify WAL mode is correctly enabled. Test concurrent read/write operations to ensure data integrity.",
         "priority": "high",
         "dependencies": [
@@ -92,7 +92,7 @@
           {
             "id": 1,
             "title": "Set up Express application structure",
-            "description": "Create the basic Express.js application structure for the LogBook service",
+            "description": "Create the basic Express.js application structure for the TaskRegistry service",
             "dependencies": [],
             "details": "Initialize a new Node.js project with npm, install Express.js and required dependencies, set up the server configuration, implement basic middleware (CORS, body-parser, error handling), create folder structure for routes, controllers, models, and services, and implement a basic health check endpoint.",
             "status": "done",
@@ -101,7 +101,7 @@
           {
             "id": 2,
             "title": "Configure SQLite database with WAL mode",
-            "description": "Set up SQLite database with Write-Ahead Logging mode for the LogBook service",
+            "description": "Set up SQLite database with Write-Ahead Logging mode for the TaskRegistry service",
             "dependencies": [
               1
             ],
@@ -122,8 +122,8 @@
           },
           {
             "id": 4,
-            "title": "Develop LogBook API endpoints",
-            "description": "Implement all required API endpoints for the LogBook service",
+            "title": "Develop TaskRegistry API endpoints",
+            "description": "Implement all required API endpoints for the TaskRegistry service",
             "dependencies": [
               3
             ],
@@ -134,7 +134,7 @@
           {
             "id": 5,
             "title": "Add Swagger documentation",
-            "description": "Create comprehensive Swagger/OpenAPI documentation for the LogBook service API",
+            "description": "Create comprehensive Swagger/OpenAPI documentation for the TaskRegistry service API",
             "dependencies": [
               4
             ],
@@ -206,9 +206,9 @@
       {
         "id": 5,
         "title": "Implement Handler Service",
-        "description": "Develop the Handler service that will process jobs with simulated delays and update the LogBook.",
-        "details": "Create a Node.js application for the Handler service. Implement long-polling or subscription mechanism to receive jobs from the Scheduler. Process jobs with simulated delays as specified in the PRD:\n- epub: 10 seconds\n- pdf (export): 25 seconds\n- import (all types): 60 seconds\n\nImplement job processing logic:\n```javascript\nasync function processJob(job) {\n  // Update job state to processing in LogBook\n  await updateJobState(job.id, 'processing');\n  \n  // Simulate processing delay based on job type\n  const delay = getDelayForJobType(job.direction, job.type);\n  await new Promise(resolve => setTimeout(resolve, delay * 1000));\n  \n  // Generate a result URL\n  const resultUrl = `https://results.example.com/${job.id}.${job.type}`;\n  \n  // Update job as finished in LogBook\n  await updateJobResult(job.id, 'finished', resultUrl);\n}\n```\n\nImplement error handling and retries for failed jobs.",
-        "testStrategy": "Test job processing with various job types. Verify correct delays are applied. Test error handling and recovery. Verify LogBook updates are made correctly.",
+        "description": "Develop the Handler service that will process jobs with simulated delays and update the TaskRegistry.",
+        "details": "Create a Node.js application for the Handler service. Implement long-polling or subscription mechanism to receive jobs from the Scheduler. Process jobs with simulated delays as specified in the PRD:\n- epub: 10 seconds\n- pdf (export): 25 seconds\n- import (all types): 60 seconds\n\nImplement job processing logic:\n```javascript\nasync function processJob(job) {\n  // Update job state to processing in TaskRegistry\n  await updateJobState(job.id, 'processing');\n  \n  // Simulate processing delay based on job type\n  const delay = getDelayForJobType(job.direction, job.type);\n  await new Promise(resolve => setTimeout(resolve, delay * 1000));\n  \n  // Generate a result URL\n  const resultUrl = `https://results.example.com/${job.id}.${job.type}`;\n  \n  // Update job as finished in TaskRegistry\n  await updateJobResult(job.id, 'finished', resultUrl);\n}\n```\n\nImplement error handling and retries for failed jobs.",
+        "testStrategy": "Test job processing with various job types. Verify correct delays are applied. Test error handling and recovery. Verify TaskRegistry updates are made correctly.",
         "priority": "medium",
         "dependencies": [
           3,
@@ -243,7 +243,7 @@
             "dependencies": [
               2
             ],
-            "details": "1. Create job processor class with processing pipeline\n2. Implement configurable simulated delays based on job type\n3. Add progress tracking and reporting to LogBook service\n4. Implement job completion notification\n5. Create job cancellation handling\n6. Add concurrent job processing with configurable limits\n7. Implement proper state transitions during job lifecycle",
+            "details": "1. Create job processor class with processing pipeline\n2. Implement configurable simulated delays based on job type\n3. Add progress tracking and reporting to TaskRegistry service\n4. Implement job completion notification\n5. Create job cancellation handling\n6. Add concurrent job processing with configurable limits\n7. Implement proper state transitions during job lifecycle",
             "status": "pending",
             "testStrategy": ""
           },
@@ -254,7 +254,7 @@
             "dependencies": [
               3
             ],
-            "details": "1. Implement error classification (transient vs. permanent failures)\n2. Create exponential backoff retry mechanism\n3. Add configurable retry limits and delay parameters\n4. Implement dead letter queue for permanently failed jobs\n5. Add detailed error reporting to LogBook service\n6. Create recovery mechanisms for Handler service restarts\n7. Implement circuit breaker pattern for external service calls",
+            "details": "1. Implement error classification (transient vs. permanent failures)\n2. Create exponential backoff retry mechanism\n3. Add configurable retry limits and delay parameters\n4. Implement dead letter queue for permanently failed jobs\n5. Add detailed error reporting to TaskRegistry service\n6. Create recovery mechanisms for Handler service restarts\n7. Implement circuit breaker pattern for external service calls",
             "status": "pending",
             "testStrategy": ""
           }
@@ -264,8 +264,8 @@
         "id": 6,
         "title": "Implement Receptionist Service",
         "description": "Develop the Receptionist service that will serve as the public-facing REST API gateway.",
-        "details": "Create an Express application for the Receptionist service with the following endpoints:\n\n1. POST `/exports` - Submit a new export job\n2. POST `/imports` - Submit a new import job\n3. GET `/exports` - Get export job listings grouped by state\n4. GET `/imports` - Get import job listings grouped by state\n\nImplement request validation for all endpoints. Generate UUIDs for new jobs. Create jobs in LogBook via HTTP requests. Send jobs to Scheduler via HTTP requests. Add Swagger UI at `/docs` endpoint.\n\nExample implementation for POST `/exports`:\n```javascript\napp.post('/exports', async (req, res) => {\n  const { bookId, type } = req.body;\n  \n  // Validate request\n  if (!bookId || !['epub', 'pdf'].includes(type)) {\n    return res.status(400).json({ error: 'Invalid request' });\n  }\n  \n  // Generate job ID\n  const jobId = uuid();\n  \n  // Create job in LogBook\n  await axios.post('http://logbook:3000/jobs', {\n    id: jobId,\n    bookId,\n    direction: 'export',\n    type,\n    state: 'pending'\n  });\n  \n  // Send job to Scheduler\n  await axios.post('http://scheduler:3000/queue', {\n    id: jobId,\n    direction: 'export',\n    type\n  });\n  \n  return res.status(201).json({ jobId });\n});\n```",
-        "testStrategy": "Test all endpoints with valid and invalid requests. Verify job creation in LogBook. Verify job submission to Scheduler. Test error handling and edge cases.",
+        "details": "Create an Express application for the Receptionist service with the following endpoints:\n\n1. POST `/exports` - Submit a new export job\n2. POST `/imports` - Submit a new import job\n3. GET `/exports` - Get export job listings grouped by state\n4. GET `/imports` - Get import job listings grouped by state\n\nImplement request validation for all endpoints. Generate UUIDs for new jobs. Create jobs in TaskRegistry via HTTP requests. Send jobs to Scheduler via HTTP requests. Add Swagger UI at `/docs` endpoint.\n\nExample implementation for POST `/exports`:\n```javascript\napp.post('/exports', async (req, res) => {\n  const { bookId, type } = req.body;\n  \n  // Validate request\n  if (!bookId || !['epub', 'pdf'].includes(type)) {\n    return res.status(400).json({ error: 'Invalid request' });\n  }\n  \n  // Generate job ID\n  const jobId = uuid();\n  \n  // Create job in TaskRegistry\n  await axios.post('http://task-registry:3000/jobs', {\n    id: jobId,\n    bookId,\n    direction: 'export',\n    type,\n    state: 'pending'\n  });\n  \n  // Send job to Scheduler\n  await axios.post('http://scheduler:3000/queue', {\n    id: jobId,\n    direction: 'export',\n    type\n  });\n  \n  return res.status(201).json({ jobId });\n});\n```",
+        "testStrategy": "Test all endpoints with valid and invalid requests. Verify job creation in TaskRegistry. Verify job submission to Scheduler. Test error handling and edge cases.",
         "priority": "high",
         "dependencies": [
           3,
@@ -292,8 +292,8 @@
           {
             "id": 1,
             "title": "Scaffold POST /exports endpoint",
-            "description": "Implement endpoint to submit new export jobs as per PRD. Validate input, create job in LogBook, send job to Scheduler, return jobId.",
-            "details": "- Accepts { bookId: string, type: 'epub' | 'pdf' }\n- Validates input\n- Calls LogBook to create job\n- Calls Scheduler to enqueue job\n- Returns { jobId: string }",
+            "description": "Implement endpoint to submit new export jobs as per PRD. Validate input, create job in TaskRegistry, send job to Scheduler, return jobId.",
+            "details": "- Accepts { bookId: string, type: 'epub' | 'pdf' }\n- Validates input\n- Calls TaskRegistry to create job\n- Calls Scheduler to enqueue job\n- Returns { jobId: string }",
             "status": "pending",
             "dependencies": [],
             "parentTaskId": 7
@@ -301,8 +301,8 @@
           {
             "id": 2,
             "title": "Scaffold POST /imports endpoint",
-            "description": "Implement endpoint to submit new import jobs as per PRD. Validate input, create job in LogBook, send job to Scheduler, return jobId.",
-            "details": "- Accepts { bookId: string, type: 'word' | 'pdf' | 'wattpad' | 'evernote', url: string }\n- Validates input\n- Calls LogBook to create job\n- Calls Scheduler to enqueue job\n- Returns { jobId: string }",
+            "description": "Implement endpoint to submit new import jobs as per PRD. Validate input, create job in TaskRegistry, send job to Scheduler, return jobId.",
+            "details": "- Accepts { bookId: string, type: 'word' | 'pdf' | 'wattpad' | 'evernote', url: string }\n- Validates input\n- Calls TaskRegistry to create job\n- Calls Scheduler to enqueue job\n- Returns { jobId: string }",
             "status": "pending",
             "dependencies": [],
             "parentTaskId": 7
@@ -310,8 +310,8 @@
           {
             "id": 3,
             "title": "Scaffold GET /exports and /imports endpoints",
-            "description": "Implement endpoints to list export/import jobs grouped by state as per PRD. Query LogBook for job status.",
-            "details": "- Returns jobs grouped by state (pending, processing, finished, failed)\n- Calls LogBook to fetch jobs\n- Returns grouped job lists",
+            "description": "Implement endpoints to list export/import jobs grouped by state as per PRD. Query TaskRegistry for job status.",
+            "details": "- Returns jobs grouped by state (pending, processing, finished, failed)\n- Calls TaskRegistry to fetch jobs\n- Returns grouped job lists",
             "status": "pending",
             "dependencies": [],
             "parentTaskId": 7
@@ -373,8 +373,8 @@
           {
             "id": 10,
             "title": "Implement business logic for job creation/dispatch",
-            "description": "Implement logic to validate input, create job in LogBook, and dispatch job to Scheduler for both import and export endpoints.",
-            "details": "- Integrate with LogBook and Scheduler services via HTTP\n- Ensure jobs are correctly created and dispatched\n- Handle errors and edge cases",
+            "description": "Implement logic to validate input, create job in TaskRegistry, and dispatch job to Scheduler for both import and export endpoints.",
+            "details": "- Integrate with TaskRegistry and Scheduler services via HTTP\n- Ensure jobs are correctly created and dispatched\n- Handle errors and edge cases",
             "status": "pending",
             "dependencies": [],
             "parentTaskId": 7
@@ -400,9 +400,9 @@
       {
         "id": 9,
         "title": "Implement Horizontal Scaling Support",
-        "description": "Ensure all services are horizontally scalable except for Scheduler and LogBook which should be singletons.",
-        "details": "Make Receptionist and Handler services stateless to support horizontal scaling. Implement singleton pattern for Scheduler and LogBook services to ensure only one instance runs at a time.\n\nFor Scheduler singleton:\n```javascript\nconst lockfile = require('proper-lockfile');\nconst fs = require('fs');\n\ntry {\n  // Create lock file if it doesn't exist\n  if (!fs.existsSync('scheduler.lock')) {\n    fs.writeFileSync('scheduler.lock', '');\n  }\n  \n  // Try to acquire lock\n  const release = await lockfile.lock('scheduler.lock', { retries: 0 });\n  \n  // Start server if lock acquired\n  const server = app.listen(3000, () => {\n    console.log('Scheduler running on port 3000');\n  });\n  \n  // Release lock on shutdown\n  process.on('SIGTERM', async () => {\n    await release();\n    server.close();\n  });\n} catch (error) {\n  console.error('Another instance of Scheduler is already running');\n  process.exit(1);\n}\n```\n\nImplement similar logic for LogBook service. Configure SQLite in WAL mode to support concurrent reads.",
-        "testStrategy": "Test running multiple instances of each service. Verify Receptionist and Handler can scale horizontally. Verify only one instance of Scheduler and LogBook can run at a time. Test failover scenarios.",
+        "description": "Ensure all services are horizontally scalable except for Scheduler and TaskRegistry which should be singletons.",
+        "details": "Make Receptionist and Handler services stateless to support horizontal scaling. Implement singleton pattern for Scheduler and TaskRegistry services to ensure only one instance runs at a time.\n\nFor Scheduler singleton:\n```javascript\nconst lockfile = require('proper-lockfile');\nconst fs = require('fs');\n\ntry {\n  // Create lock file if it doesn't exist\n  if (!fs.existsSync('scheduler.lock')) {\n    fs.writeFileSync('scheduler.lock', '');\n  }\n  \n  // Try to acquire lock\n  const release = await lockfile.lock('scheduler.lock', { retries: 0 });\n  \n  // Start server if lock acquired\n  const server = app.listen(3000, () => {\n    console.log('Scheduler running on port 3000');\n  });\n  \n  // Release lock on shutdown\n  process.on('SIGTERM', async () => {\n    await release();\n    server.close();\n  });\n} catch (error) {\n  console.error('Another instance of Scheduler is already running');\n  process.exit(1);\n}\n```\n\nImplement similar logic for TaskRegistry service. Configure SQLite in WAL mode to support concurrent reads.",
+        "testStrategy": "Test running multiple instances of each service. Verify Receptionist and Handler can scale horizontally. Verify only one instance of Scheduler and TaskRegistry can run at a time. Test failover scenarios.",
         "priority": "medium",
         "dependencies": [
           3,
@@ -418,7 +418,7 @@
         "id": 10,
         "title": "Implement Build and Deployment Scripts",
         "description": "Create scripts for building and deploying all services.",
-        "details": "Implement npm scripts in the root package.json for building and starting all services. Create Docker configuration for containerized deployment.\n\nExample root package.json:\n```json\n{\n  \"name\": \"receptionist-system\",\n  \"version\": \"1.0.0\",\n  \"scripts\": {\n    \"build\": \"npm run build:shared && npm run build:logbook && npm run build:scheduler && npm run build:handler && npm run build:receptionist\",\n    \"build:shared\": \"cd src/shared && tsc\",\n    \"build:logbook\": \"cd src/logbook && npm install && npm run build\",\n    \"build:scheduler\": \"cd src/scheduler && npm install && npm run build\",\n    \"build:handler\": \"cd src/handler && npm install && npm run build\",\n    \"build:receptionist\": \"cd src/receptionist && npm install && npm run build\",\n    \"start\": \"concurrently \\\"npm run start:logbook\\\" \\\"npm run start:scheduler\\\" \\\"npm run start:handler\\\" \\\"npm run start:receptionist\\\"\",\n    \"start:logbook\": \"cd src/logbook && npm start\",\n    \"start:scheduler\": \"cd src/scheduler && npm start\",\n    \"start:handler\": \"cd src/handler && npm start\",\n    \"start:receptionist\": \"cd src/receptionist && npm start\"\n  },\n  \"devDependencies\": {\n    \"concurrently\": \"^7.0.0\",\n    \"typescript\": \"^4.5.5\"\n  }\n}\n```\n\nCreate Dockerfile for each service and a docker-compose.yml file for orchestrating the entire system.",
+        "details": "Implement npm scripts in the root package.json for building and starting all services. Create Docker configuration for containerized deployment.\n\nExample root package.json:\n```json\n{\n  \"name\": \"receptionist-system\",\n  \"version\": \"1.0.0\",\n  \"scripts\": {\n    \"build\": \"npm run build:shared && npm run build:task-registry && npm run build:scheduler && npm run build:handler && npm run build:receptionist\",\n    \"build:shared\": \"cd src/shared && tsc\",\n    \"build:task-registry\": \"cd src/task-registry && npm install && npm run build\",\n    \"build:scheduler\": \"cd src/scheduler && npm install && npm run build\",\n    \"build:handler\": \"cd src/handler && npm install && npm run build\",\n    \"build:receptionist\": \"cd src/receptionist && npm install && npm run build\",\n    \"start\": \"concurrently \\\"npm run start:task-registry\\\" \\\"npm run start:scheduler\\\" \\\"npm run start:handler\\\" \\\"npm run start:receptionist\\\"\",\n    \"start:task-registry\": \"cd src/task-registry && npm start\",\n    \"start:scheduler\": \"cd src/scheduler && npm start\",\n    \"start:handler\": \"cd src/handler && npm start\",\n    \"start:receptionist\": \"cd src/receptionist && npm start\"\n  },\n  \"devDependencies\": {\n    \"concurrently\": \"^7.0.0\",\n    \"typescript\": \"^4.5.5\"\n  }\n}\n```\n\nCreate Dockerfile for each service and a docker-compose.yml file for orchestrating the entire system.",
         "testStrategy": "Test build scripts to ensure all services can be built successfully. Test start scripts to verify all services start correctly. Test Docker builds and container orchestration.",
         "priority": "medium",
         "dependencies": [

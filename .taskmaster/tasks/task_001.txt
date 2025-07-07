@@ -13,7 +13,7 @@ Create the following structure:
     - package.json
   - handler/
     - package.json
-  - logbook/
+  - task-registry/
     - package.json
   - shared/
     - types.ts
@@ -78,7 +78,7 @@ For each service directory:
 
 ## 5. Ensure independent service directories with Node.js config [done]
 ### Dependencies: None
-### Description: Ensure the project structure contains one folder for each service (receptionist, scheduler, handler, logbook), each with its own independent Node.js configuration (package.json, tsconfig.json, etc.) following kebab-case naming.
+### Description: Ensure the project structure contains one folder for each service (receptionist, scheduler, handler, task-registry), each with its own independent Node.js configuration (package.json, tsconfig.json, etc.) following kebab-case naming.
 ### Details:
-For each service (receptionist, scheduler, handler, logbook), create a dedicated directory in kebab-case. Each directory must include its own package.json and tsconfig.json, allowing for independent configuration and builds. Shared code should reside in a separate 'shared' directory. Verify that all service directories are correctly isolated and independently runnable as Node.js TypeScript projects.
+For each service (receptionist, scheduler, handler, task-registry), create a dedicated directory in kebab-case. Each directory must include its own package.json and tsconfig.json, allowing for independent configuration and builds. Shared code should reside in a separate 'shared' directory. Verify that all service directories are correctly isolated and independently runnable as Node.js TypeScript projects.
 

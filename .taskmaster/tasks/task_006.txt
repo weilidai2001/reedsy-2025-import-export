@@ -12,7 +12,7 @@ Create an Express application for the Receptionist service with the following en
 3. GET `/exports` - Get export job listings grouped by state
 4. GET `/imports` - Get import job listings grouped by state
 
-Implement request validation for all endpoints. Generate UUIDs for new jobs. Create jobs in LogBook via HTTP requests. Send jobs to Scheduler via HTTP requests. Add Swagger UI at `/docs` endpoint.
+Implement request validation for all endpoints. Generate UUIDs for new jobs. Create jobs in TaskRegistry via HTTP requests. Send jobs to Scheduler via HTTP requests. Add Swagger UI at `/docs` endpoint.
 
 Example implementation for POST `/exports`:
 ```javascript
@@ -27,8 +27,8 @@ app.post('/exports', async (req, res) => {
   // Generate job ID
   const jobId = uuid();
   
-  // Create job in LogBook
-  await axios.post('http://logbook:3000/jobs', {
+  // Create job in TaskRegistry
+  await axios.post('http://task-registry:3000/jobs', {
     id: jobId,
     bookId,
     direction: 'export',
@@ -48,4 +48,4 @@ app.post('/exports', async (req, res) => {
 ```
 
 # Test Strategy:
-Test all endpoints with valid and invalid requests. Verify job creation in LogBook. Verify job submission to Scheduler. Test error handling and edge cases.
+Test all endpoints with valid and invalid requests. Verify job creation in TaskRegistry. Verify job submission to Scheduler. Test error handling and edge cases.

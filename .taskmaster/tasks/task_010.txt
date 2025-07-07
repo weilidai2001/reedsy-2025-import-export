@@ -13,14 +13,14 @@ Example root package.json:
   "name": "receptionist-system",
   "version": "1.0.0",
   "scripts": {
-    "build": "npm run build:shared && npm run build:logbook && npm run build:scheduler && npm run build:handler && npm run build:receptionist",
+    "build": "npm run build:shared && npm run build:task-registry && npm run build:scheduler && npm run build:handler && npm run build:receptionist",
     "build:shared": "cd src/shared && tsc",
-    "build:logbook": "cd src/logbook && npm install && npm run build",
+    "build:task-registry": "cd src/task-registry && npm install && npm run build",
     "build:scheduler": "cd src/scheduler && npm install && npm run build",
     "build:handler": "cd src/handler && npm install && npm run build",
     "build:receptionist": "cd src/receptionist && npm install && npm run build",
-    "start": "concurrently \"npm run start:logbook\" \"npm run start:scheduler\" \"npm run start:handler\" \"npm run start:receptionist\"",
-    "start:logbook": "cd src/logbook && npm start",
+    "start": "concurrently \"npm run start:task-registry\" \"npm run start:scheduler\" \"npm run start:handler\" \"npm run start:receptionist\"",
+    "start:task-registry": "cd src/task-registry && npm start",
     "start:scheduler": "cd src/scheduler && npm start",
     "start:handler": "cd src/handler && npm start",
     "start:receptionist": "cd src/receptionist && npm start"

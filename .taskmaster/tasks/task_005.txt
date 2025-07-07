@@ -3,7 +3,7 @@
 # Status: pending
 # Dependencies: 3, 4
 # Priority: medium
-# Description: Develop the Handler service that will process jobs with simulated delays and update the LogBook.
+# Description: Develop the Handler service that will process jobs with simulated delays and update the TaskRegistry.
 # Details:
 Create a Node.js application for the Handler service. Implement long-polling or subscription mechanism to receive jobs from the Scheduler. Process jobs with simulated delays as specified in the PRD:
 - epub: 10 seconds
@@ -13,7 +13,7 @@ Create a Node.js application for the Handler service. Implement long-polling or 
 Implement job processing logic:
 ```javascript
 async function processJob(job) {
-  // Update job state to processing in LogBook
+  // Update job state to processing in TaskRegistry
   await updateJobState(job.id, 'processing');
   
   // Simulate processing delay based on job type
@@ -23,7 +23,7 @@ async function processJob(job) {
   // Generate a result URL
   const resultUrl = `https://results.example.com/${job.id}.${job.type}`;
   
-  // Update job as finished in LogBook
+  // Update job as finished in TaskRegistry
   await updateJobResult(job.id, 'finished', resultUrl);
 }
 ```
@@ -31,7 +31,7 @@ async function processJob(job) {
 Implement error handling and retries for failed jobs.
 
 # Test Strategy:
-Test job processing with various job types. Verify correct delays are applied. Test error handling and recovery. Verify LogBook updates are made correctly.
+Test job processing with various job types. Verify correct delays are applied. Test error handling and recovery. Verify TaskRegistry updates are made correctly.
 
 # Subtasks:
 ## 1. Set up Handler Service structure [pending]
@@ -63,7 +63,7 @@ Test job processing with various job types. Verify correct delays are applied. T
 ### Details:
 1. Create job processor class with processing pipeline
 2. Implement configurable simulated delays based on job type
-3. Add progress tracking and reporting to LogBook service
+3. Add progress tracking and reporting to TaskRegistry service
 4. Implement job completion notification
 5. Create job cancellation handling
 6. Add concurrent job processing with configurable limits
@@ -77,7 +77,7 @@ Test job processing with various job types. Verify correct delays are applied. T
 2. Create exponential backoff retry mechanism
 3. Add configurable retry limits and delay parameters
 4. Implement dead letter queue for permanently failed jobs
-5. Add detailed error reporting to LogBook service
+5. Add detailed error reporting to TaskRegistry service
 6. Create recovery mechanisms for Handler service restarts
 7. Implement circuit breaker pattern for external service calls
 
