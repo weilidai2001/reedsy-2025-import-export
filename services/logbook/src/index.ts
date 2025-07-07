@@ -1,1 +1,1 @@
-// Entry point for Logbook microservice
+import './server';
