@@ -1,6 +1,6 @@
 # Task ID: 1
 # Title: Setup Project Structure
-# Status: pending
+# Status: done
 # Dependencies: None
 # Priority: high
 # Description: Initialize the project repository with the required directory structure and base configuration for all four services.
@@ -24,7 +24,7 @@ Setup the root package.json with scripts for building and starting all services.
 Verify the directory structure is correctly set up. Ensure all package.json files are valid and can be installed. Test that the build scripts work correctly for each service.
 
 # Subtasks:
-## 1. Create Directory Structure [pending]
+## 1. Create Directory Structure [done]
 ### Dependencies: None
 ### Description: Set up the main project directory and all required subdirectories for the microservices architecture
 ### Details:
@@ -39,7 +39,7 @@ Create the following directory structure:
   - docs/
 Ensure each service directory has appropriate subdirectories for src/, tests/, and config/
 
-## 2. Configure package.json for All Services [pending]
+## 2. Configure package.json for All Services [done]
 ### Dependencies: 1.1
 ### Description: Create and configure package.json files for each microservice and the root project
 ### Details:
@@ -50,7 +50,7 @@ For each service directory:
 4. Set up workspace configuration in root package.json if using a monorepo approach
 5. Ensure consistent versioning across services
 
-## 3. Set Up TypeScript Configuration [pending]
+## 3. Set Up TypeScript Configuration [done]
 ### Dependencies: 1.2
 ### Description: Configure TypeScript for all services with appropriate settings
 ### Details:
@@ -61,7 +61,7 @@ For each service directory:
 5. Create a base tsconfig.json in the root that can be extended by services
 6. Ensure consistent TypeScript settings across all services
 
-## 4. Initialize Git Repository with .gitignore [pending]
+## 4. Initialize Git Repository with .gitignore [done]
 ### Dependencies: 1.3
 ### Description: Set up version control for the project with appropriate ignore rules
 ### Details:
@@ -76,7 +76,7 @@ For each service directory:
 4. Create initial commit with the project structure
 5. Set up branch protection rules if using GitHub/GitLab
 
-## 5. Ensure independent service directories with Node.js config [pending]
+## 5. Ensure independent service directories with Node.js config [done]
 ### Dependencies: None
 ### Description: Ensure the project structure contains one folder for each service (receptionist, scheduler, handler, logbook), each with its own independent Node.js configuration (package.json, tsconfig.json, etc.) following kebab-case naming.
 ### Details:

@@ -87,7 +87,7 @@
         "dependencies": [
           2
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -95,7 +95,7 @@
             "description": "Create the basic Express.js application structure for the LogBook service",
             "dependencies": [],
             "details": "Initialize a new Node.js project with npm, install Express.js and required dependencies, set up the server configuration, implement basic middleware (CORS, body-parser, error handling), create folder structure for routes, controllers, models, and services, and implement a basic health check endpoint.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -106,7 +106,7 @@
               1
             ],
             "details": "Install SQLite dependencies, create database connection utility, configure the database to use WAL mode for better concurrency, implement connection pooling if needed, create database initialization script, and add database migration capabilities for future schema changes.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -117,7 +117,7 @@
               2
             ],
             "details": "Define Jobs table schema with appropriate columns (job_id, status, created_at, updated_at, etc.), implement data models, create repository layer with CRUD operations (create, read, update, delete, list), add transaction support, and implement proper error handling for database operations.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -128,7 +128,7 @@
               3
             ],
             "details": "Create route definitions, implement controller functions for each endpoint (create job, get job status, update job, list jobs, etc.), add input validation using a validation library, implement proper error responses, add pagination for list endpoints, and ensure proper HTTP status codes are used.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -139,7 +139,7 @@
               4
             ],
             "details": "Install Swagger UI and related dependencies, create OpenAPI specification document, document all endpoints with request/response schemas, add examples, implement Swagger UI endpoint for interactive documentation, and ensure documentation is complete and accurate for all API endpoints.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -155,7 +155,53 @@
           2
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Scaffold Scheduler Service",
+            "description": "Set up the initial project structure, TypeScript config, and Express boilerplate for the Scheduler microservice.",
+            "details": "- Create the scheduler directory under services/\n- Add package.json, tsconfig.json, and .gitignore\n- Set up Express app with a health check endpoint\n- Add Jest for testing\n- Ensure shared/types.ts is available for type imports\n- Use kebab-case for all files and directories\n",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 4
+          },
+          {
+            "id": 2,
+            "title": "Add/Configure TypeScript and Jest",
+            "description": "Add tsconfig.json, jest.config.js, and ensure TypeScript and Jest are configured for the Scheduler service.",
+            "details": "- Create tsconfig.json in services/scheduler\n- Add jest.config.js and configure Jest for TypeScript\n- Add test script to package.json\n- Ensure devDependencies include typescript, jest, ts-jest, @types/jest, @types/node\n- Use kebab-case for all files\n",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 4
+          },
+          {
+            "id": 3,
+            "title": "Set up Express app and entry points",
+            "description": "Add Express app boilerplate, server starter, and entry point for the Scheduler service.",
+            "details": "- Create src/app.ts with Express app and middleware\n- Create src/server.ts to start the app on a port\n- Create src/index.ts as entry point\n- Use kebab-case for all files\n",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 4
+          },
+          {
+            "id": 4,
+            "title": "Verify shared types import and paths",
+            "description": "Test import of types from services/shared/types.ts in Scheduler service to ensure path aliasing works.",
+            "details": "- Add sample import of Job type from shared/types.ts\n- Fix tsconfig.json paths if needed\n- Ensure no TypeScript errors\n",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 4
+          },
+          {
+            "id": 5,
+            "title": "Add health check endpoint and test",
+            "description": "Add a health check endpoint and test for the Scheduler service.",
+            "details": "- Add GET /health endpoint to app\n- Add Jest test to verify health endpoint returns 200 OK\n",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 4
+          }
+        ]
       },
       {
         "id": 5,
@@ -258,7 +304,7 @@
     ],
     "metadata": {
       "created": "2025-07-07T12:27:36.774Z",
-      "updated": "2025-07-07T13:05:17.908Z",
+      "updated": "2025-07-07T13:25:00.035Z",
       "description": "Tasks for master context"
     }
   }

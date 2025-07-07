@@ -4,8 +4,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "dev": "ts-node src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/server.js",
+    "test": "jest"
   },
   "dependencies": {
     "@types/express": "^5.0.3",
@@ -15,6 +17,8 @@
     "ts-jest": "^29.4.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "ts-node": "^10.0.0",
+    "@types/node": "^20.0.0"
   }
 }

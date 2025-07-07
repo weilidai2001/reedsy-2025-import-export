@@ -37,3 +37,55 @@ Implement job dispatching to Handler services. Add Swagger UI at `/docs` endpoin
 
 # Test Strategy:
 Test queue operations with various job types. Verify FIFO behavior. Test concurrent enqueue/dequeue operations. Verify job dispatching to Handler services works correctly.
+
+# Subtasks:
+## 1. Scaffold Scheduler Service [pending]
+### Dependencies: None
+### Description: Set up the initial project structure, TypeScript config, and Express boilerplate for the Scheduler microservice.
+### Details:
+- Create the scheduler directory under services/
+- Add package.json, tsconfig.json, and .gitignore
+- Set up Express app with a health check endpoint
+- Add Jest for testing
+- Ensure shared/types.ts is available for type imports
+- Use kebab-case for all files and directories
+
+
+## 2. Add/Configure TypeScript and Jest [pending]
+### Dependencies: None
+### Description: Add tsconfig.json, jest.config.js, and ensure TypeScript and Jest are configured for the Scheduler service.
+### Details:
+- Create tsconfig.json in services/scheduler
+- Add jest.config.js and configure Jest for TypeScript
+- Add test script to package.json
+- Ensure devDependencies include typescript, jest, ts-jest, @types/jest, @types/node
+- Use kebab-case for all files
+
+
+## 3. Set up Express app and entry points [pending]
+### Dependencies: None
+### Description: Add Express app boilerplate, server starter, and entry point for the Scheduler service.
+### Details:
+- Create src/app.ts with Express app and middleware
+- Create src/server.ts to start the app on a port
+- Create src/index.ts as entry point
+- Use kebab-case for all files
+
+
+## 4. Verify shared types import and paths [pending]
+### Dependencies: None
+### Description: Test import of types from services/shared/types.ts in Scheduler service to ensure path aliasing works.
+### Details:
+- Add sample import of Job type from shared/types.ts
+- Fix tsconfig.json paths if needed
+- Ensure no TypeScript errors
+
+
+## 5. Add health check endpoint and test [pending]
+### Dependencies: None
+### Description: Add a health check endpoint and test for the Scheduler service.
+### Details:
+- Add GET /health endpoint to app
+- Add Jest test to verify health endpoint returns 200 OK
+
+

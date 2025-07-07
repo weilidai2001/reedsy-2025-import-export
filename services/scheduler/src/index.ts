@@ -1,1 +1,1 @@
-// Entry point for Scheduler microservice
+import './server';
