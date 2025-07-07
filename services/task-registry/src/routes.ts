@@ -48,4 +48,9 @@ router.get('/jobs/:id', (req, res) => {
   });
 });
 
+// GET /health - Health check endpoint
+router.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
 export default router;
