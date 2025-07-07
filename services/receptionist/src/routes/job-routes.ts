@@ -8,8 +8,6 @@ import {
   ImportJobResponse,
   JobListResponse,
 } from "../types";
-import { config } from "../config";
-import logger from "../logger";
 import { validate } from "../middleware/validate";
 
 const router = Router();
@@ -33,7 +31,7 @@ router.post(
     try {
       // Create job in TaskRegistry
       const taskRegistryRes = await axios.post(
-        `${config.taskRegistryUrl}/jobs`,
+        `${process.env.TASK_REGISTRY_URL}/jobs`,
         {
           ...req.body,
           jobType: "export",
@@ -43,7 +41,7 @@ router.post(
       const jobId = (taskRegistryRes.data as { jobId: string }).jobId;
 
       // Send job to Scheduler
-      await axios.post(`${config.schedulerUrl}/queue`, {
+      await axios.post(`${process.env.SCHEDULER_URL}/queue`, {
         jobId,
         jobType: "export",
         direction: "export",
@@ -66,7 +64,7 @@ router.post(
     try {
       // Create job in TaskRegistry
       const taskRegistryRes = await axios.post(
-        `${config.taskRegistryUrl}/jobs`,
+        `${process.env.TASK_REGISTRY_URL}/jobs`,
         {
           ...req.body,
           jobType: "import",
@@ -76,7 +74,7 @@ router.post(
       const jobId = (taskRegistryRes.data as { jobId: string }).jobId;
 
       // Send job to Scheduler
-      await axios.post(`${config.schedulerUrl}/queue`, {
+      await axios.post(`${process.env.SCHEDULER_URL}/queue`, {
         jobId,
         jobType: "import",
         direction: "import",
@@ -97,7 +95,7 @@ router.get(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const taskRegistryRes = await axios.get(
-        `${config.taskRegistryUrl}/jobs?type=export`
+        `${process.env.TASK_REGISTRY_URL}/jobs?type=export`
       );
       const jobs = taskRegistryRes.data as JobListResponse;
       res.json(jobs);
@@ -113,7 +111,7 @@ router.get(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const taskRegistryRes = await axios.get(
-        `${config.taskRegistryUrl}/jobs?type=import`
+        `${process.env.TASK_REGISTRY_URL}/jobs?type=import`
       );
       const jobs = taskRegistryRes.data as JobListResponse;
       res.json(jobs);
@@ -124,7 +122,7 @@ router.get(
 );
 
 // Health check endpoint
-router.get('/health', (req: Request, res: Response) => {
+router.get("/health", (req: Request, res: Response) => {
   res.status(200).json({ status: "ok" });
 });
 

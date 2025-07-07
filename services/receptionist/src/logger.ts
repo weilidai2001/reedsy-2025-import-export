@@ -1,15 +1,18 @@
 import winston from "winston";
 import url from "url";
-import { loadRootEnv } from "@reedsy/shared/load-env";
 
-// Load environment variables from project root
-loadRootEnv();
+const loggingServiceUrl = process.env.LOGGING_SERVICE_URL;
+if (!loggingServiceUrl) {
+  throw new Error("LOGGING_SERVICE_URL is not defined");
+}
 
-const loggingServiceUrl =
-  process.env.LOGGING_SERVICE_URL || "http://localhost:4000";
 const parsedUrl = url.parse(loggingServiceUrl);
 const loggingHost = parsedUrl.hostname || "localhost";
-const loggingPort = parsedUrl.port ? parseInt(parsedUrl.port, 10) : 4000;
+
+if (!parsedUrl.port) {
+  throw new Error("LOGGING_SERVICE_URL port is not defined");
+}
+const loggingPort = parseInt(parsedUrl.port, 10);
 
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || "info",
