@@ -1,6 +1,8 @@
 import app from './app';
+import logger from './logger';
+import { config } from './config';
 
-const PORT = process.env.PORT || 3003;
+const PORT = config.port;
 app.listen(PORT, () => {
-  console.log(`Handler service listening on port ${PORT}`);
+  logger.info(`Handler service listening on port ${PORT}`);
 });
