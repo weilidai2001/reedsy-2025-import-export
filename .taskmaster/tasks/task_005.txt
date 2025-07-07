@@ -32,3 +32,52 @@ Implement error handling and retries for failed jobs.
 
 # Test Strategy:
 Test job processing with various job types. Verify correct delays are applied. Test error handling and recovery. Verify LogBook updates are made correctly.
+
+# Subtasks:
+## 1. Set up Handler Service structure [pending]
+### Dependencies: None
+### Description: Create the basic structure for the Handler Service including project setup, configuration, and core interfaces
+### Details:
+1. Create a new directory 'handler-service' with proper TypeScript configuration
+2. Set up package.json with required dependencies (express, axios, etc.)
+3. Define interfaces for Job, JobStatus, and other core types
+4. Implement configuration loading for environment variables
+5. Create basic service structure with health check endpoint
+6. Set up logging infrastructure
+
+## 2. Implement job polling and subscription mechanism [pending]
+### Dependencies: 5.1
+### Description: Create the system to poll the Scheduler service for new jobs and maintain subscriptions
+### Details:
+1. Implement polling mechanism to fetch jobs from Scheduler service
+2. Create subscription manager to track active job subscriptions
+3. Implement job queue for processing jobs in order
+4. Add configurable polling interval
+5. Implement job status tracking
+6. Add logging for job acquisition events
+7. Create mechanism to acknowledge job receipt to Scheduler
+
+## 3. Develop job processing with simulated delays [pending]
+### Dependencies: 5.2
+### Description: Implement the core job processing logic with appropriate simulated processing delays
+### Details:
+1. Create job processor class with processing pipeline
+2. Implement configurable simulated delays based on job type
+3. Add progress tracking and reporting to LogBook service
+4. Implement job completion notification
+5. Create job cancellation handling
+6. Add concurrent job processing with configurable limits
+7. Implement proper state transitions during job lifecycle
+
+## 4. Implement error handling and retry logic [pending]
+### Dependencies: 5.3
+### Description: Add robust error handling and retry mechanisms for failed jobs
+### Details:
+1. Implement error classification (transient vs. permanent failures)
+2. Create exponential backoff retry mechanism
+3. Add configurable retry limits and delay parameters
+4. Implement dead letter queue for permanently failed jobs
+5. Add detailed error reporting to LogBook service
+6. Create recovery mechanisms for Handler service restarts
+7. Implement circuit breaker pattern for external service calls
+

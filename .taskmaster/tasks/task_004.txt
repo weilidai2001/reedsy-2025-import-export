@@ -1,6 +1,6 @@
 # Task ID: 4
 # Title: Implement Scheduler Service
-# Status: pending
+# Status: done
 # Dependencies: 2
 # Priority: high
 # Description: Develop the Scheduler service that will manage in-memory FIFO queues for different job types and dispatch jobs to Handlers.
@@ -39,7 +39,7 @@ Implement job dispatching to Handler services. Add Swagger UI at `/docs` endpoin
 Test queue operations with various job types. Verify FIFO behavior. Test concurrent enqueue/dequeue operations. Verify job dispatching to Handler services works correctly.
 
 # Subtasks:
-## 1. Scaffold Scheduler Service [pending]
+## 1. Scaffold Scheduler Service [done]
 ### Dependencies: None
 ### Description: Set up the initial project structure, TypeScript config, and Express boilerplate for the Scheduler microservice.
 ### Details:
@@ -51,7 +51,7 @@ Test queue operations with various job types. Verify FIFO behavior. Test concurr
 - Use kebab-case for all files and directories
 
 
-## 2. Add/Configure TypeScript and Jest [pending]
+## 2. Add/Configure TypeScript and Jest [done]
 ### Dependencies: None
 ### Description: Add tsconfig.json, jest.config.js, and ensure TypeScript and Jest are configured for the Scheduler service.
 ### Details:
@@ -62,7 +62,7 @@ Test queue operations with various job types. Verify FIFO behavior. Test concurr
 - Use kebab-case for all files
 
 
-## 3. Set up Express app and entry points [pending]
+## 3. Set up Express app and entry points [done]
 ### Dependencies: None
 ### Description: Add Express app boilerplate, server starter, and entry point for the Scheduler service.
 ### Details:
@@ -72,7 +72,7 @@ Test queue operations with various job types. Verify FIFO behavior. Test concurr
 - Use kebab-case for all files
 
 
-## 4. Verify shared types import and paths [pending]
+## 4. Verify shared types import and paths [done]
 ### Dependencies: None
 ### Description: Test import of types from services/shared/types.ts in Scheduler service to ensure path aliasing works.
 ### Details:
@@ -81,7 +81,7 @@ Test queue operations with various job types. Verify FIFO behavior. Test concurr
 - Ensure no TypeScript errors
 
 
-## 5. Add health check endpoint and test [pending]
+## 5. Add health check endpoint and test [done]
 ### Dependencies: None
 ### Description: Add a health check endpoint and test for the Scheduler service.
 ### Details:

@@ -288,7 +288,98 @@
           6
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Scaffold POST /exports endpoint",
+            "description": "Implement endpoint to submit new export jobs as per PRD. Validate input, create job in LogBook, send job to Scheduler, return jobId.",
+            "details": "- Accepts { bookId: string, type: 'epub' | 'pdf' }\n- Validates input\n- Calls LogBook to create job\n- Calls Scheduler to enqueue job\n- Returns { jobId: string }",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 2,
+            "title": "Scaffold POST /imports endpoint",
+            "description": "Implement endpoint to submit new import jobs as per PRD. Validate input, create job in LogBook, send job to Scheduler, return jobId.",
+            "details": "- Accepts { bookId: string, type: 'word' | 'pdf' | 'wattpad' | 'evernote', url: string }\n- Validates input\n- Calls LogBook to create job\n- Calls Scheduler to enqueue job\n- Returns { jobId: string }",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 3,
+            "title": "Scaffold GET /exports and /imports endpoints",
+            "description": "Implement endpoints to list export/import jobs grouped by state as per PRD. Query LogBook for job status.",
+            "details": "- Returns jobs grouped by state (pending, processing, finished, failed)\n- Calls LogBook to fetch jobs\n- Returns grouped job lists",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 4,
+            "title": "Add Swagger UI at /docs",
+            "description": "Expose OpenAPI/Swagger UI for Receptionist API documentation and testing.",
+            "details": "- Use swagger-ui-express or similar\n- Document all endpoints as per PRD\n- Serve docs at /docs",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 5,
+            "title": "Add health check endpoint",
+            "description": "Implement a health check endpoint for service monitoring.",
+            "details": "- Add GET /health endpoint\n- Should return basic service status",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 6,
+            "title": "Add config loading",
+            "description": "Implement configuration loading for environment variables and config files.",
+            "details": "- Use dotenv or similar for env loading\n- Provide config interface for service",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 7,
+            "title": "Add basic logging",
+            "description": "Integrate beginner-friendly logging library for structured logs.",
+            "details": "- Use winston or pino (with simple config)\n- Add request/response logging\n- Log errors and important events",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 8,
+            "title": "Implement API error handling",
+            "description": "Add middleware for consistent API error responses and validation errors.",
+            "details": "- Return structured error objects\n- Handle validation and internal errors\n- Log errors appropriately",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 9,
+            "title": "Define typed interfaces for requests/responses",
+            "description": "Define and export TypeScript interfaces/types for all API requests and responses as per PRD.",
+            "details": "- Define types for import/export job requests and responses\n- Use throughout codebase for type safety",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 10,
+            "title": "Implement business logic for job creation/dispatch",
+            "description": "Implement logic to validate input, create job in LogBook, and dispatch job to Scheduler for both import and export endpoints.",
+            "details": "- Integrate with LogBook and Scheduler services via HTTP\n- Ensure jobs are correctly created and dispatched\n- Handle errors and edge cases",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          }
+        ]
       },
       {
         "id": 8,
