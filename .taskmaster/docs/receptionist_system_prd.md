@@ -7,7 +7,7 @@ This system handles the import and export of digital books in batch format. It i
 - **Receptionist** — Public-facing REST API gateway
 - **Scheduler** — In-memory queue manager
 - **Handler** — Workers that process jobs
-- **LogBook** — Persistent job store (wrapped around SQLite)
+- **TaskRegistry** — Persistent job store (wrapped around SQLite)
 
 The system is horizontally scalable, decoupled, and each service communicates via HTTP.
 
@@ -20,7 +20,7 @@ The system is horizontally scalable, decoupled, and each service communicates vi
 ```mermaid
 flowchart TD
   subgraph Shared Volume
-    SQLITE[(logbook.sqlite<br/>WAL file)]
+    SQLITE[(task-registry.sqlite<br/>WAL file)]
   end
 
   subgraph Cluster
@@ -29,14 +29,14 @@ flowchart TD
     SCHEDULER(Scheduler)
     HANDLER1(Handler-A)
     HANDLER2(Handler-B)
-    LOGBOOK(LogBook Service)
+    TASKREGISTRY(TaskRegistry Service)
   end
 
-  LOGBOOK -. R/W .-> SQLITE
-  RECEPTIONIST1 -- HTTP --> LOGBOOK
-  RECEPTIONIST2 -- HTTP --> LOGBOOK
-  HANDLER1      -- HTTP --> LOGBOOK
-  HANDLER2      -- HTTP --> LOGBOOK
+  TASKREGISTRY -. R/W .-> SQLITE
+  RECEPTIONIST1 -- HTTP --> TASKREGISTRY
+  RECEPTIONIST2 -- HTTP --> TASKREGISTRY
+  HANDLER1      -- HTTP --> TASKREGISTRY
+  HANDLER2      -- HTTP --> TASKREGISTRY
 
   RECEPTIONIST1 -- HTTP --> SCHEDULER
   RECEPTIONIST2 -- HTTP --> SCHEDULER
@@ -51,7 +51,7 @@ flowchart TD
 ### 1. Receptionist
 
 - Framework: Express
-- Role: Accepts and validates requests, creates job records in LogBook, sends jobs to Scheduler
+- Role: Accepts and validates requests, creates job records in TaskRegistry, sends jobs to Scheduler
 - Exposes Swagger UI at `/docs`
 
 #### Endpoints
@@ -136,7 +136,7 @@ Response: `204 No Content`
 ### 3. Handler
 
 - Framework: Node.js
-- Role: Long-poll or subscribe to Scheduler, process job with simulated delay, update LogBook
+- Role: Long-poll or subscribe to Scheduler, process job with simulated delay, update TaskRegistry
 - Not exposed via HTTP
 
 #### Processing times
@@ -149,7 +149,7 @@ Response: `204 No Content`
 
 ---
 
-### 4. LogBook
+### 4. TaskRegistry
 
 - Framework: Express
 - DB: SQLite (WAL mode)
@@ -230,11 +230,11 @@ type Job = {
 - All filenames must use **kebab-case**
 - All services are Express-based
 - Swagger UI is served at `/docs` on each service for testing and documentation
-- SQLite is wrapped and isolated inside the LogBook service
+- SQLite is wrapped and isolated inside the TaskRegistry service
 - Queue implementation is in-memory with BullMQ-style interface, no Redis or 3rd-party queues
 - the source code is in the `src` directory
 - each service is in a separate directory under src with their independent package.json
 - the services are built and run using `npm run build` and `npm run start`
-- the services are horizontally scalable, i.e. stateless, except scheduler and logbook
+- the services are horizontally scalable, i.e. stateless, except scheduler and task-registry
 - the scheduler is a singleton, i.e. it should only run one instance at a time
-- the logbook is a singleton, i.e. it should only run one instance at a time
+- the task-registry is a singleton, i.e. it should only run one instance at a time
