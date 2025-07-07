@@ -1,6 +1,5 @@
 // TaskRegistry client for updating job state and results
 import axios from "axios";
-import { config } from "./config";
 import logger from "./logger";
 import { JobStatus } from "./types";
 
@@ -8,7 +7,7 @@ export class TaskRegistryClient {
   private url: string;
 
   constructor() {
-    this.url = config.taskRegistryUrl;
+    this.url = process.env.TASK_REGISTRY_URL!;
   }
 
   public async updateJobState(jobId: string, status: JobStatus): Promise<void> {

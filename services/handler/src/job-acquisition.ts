@@ -8,14 +8,12 @@ import { TaskRegistryClient } from "./task-registry-client";
 
 export class JobAcquisitionManager {
   private pollingInterval: number;
-  private schedulerUrl: string;
   private isPolling: boolean = false;
   private activeJobs: Set<string> = new Set();
   private taskRegistryClient: TaskRegistryClient;
 
   constructor(taskRegistryClient: TaskRegistryClient) {
     this.pollingInterval = config.pollingInterval;
-    this.schedulerUrl = config.schedulerUrl;
     this.taskRegistryClient = taskRegistryClient;
   }
 
@@ -36,7 +34,7 @@ export class JobAcquisitionManager {
       try {
         logger.debug("Polling Scheduler for new jobs...");
         const response = await axios.get<Job[]>(
-          `${this.schedulerUrl}/jobs/available`
+          `${process.env.SCHEDULER_URL}/jobs/available`
         );
         const jobs = response.data;
         if (jobs.length > 0) {
@@ -59,7 +57,7 @@ export class JobAcquisitionManager {
 
   private async acknowledgeJob(jobId: string) {
     try {
-      await axios.post(`${this.schedulerUrl}/jobs/${jobId}/ack`);
+      await axios.post(`${process.env.SCHEDULER_URL}/jobs/${jobId}/ack`);
       logger.debug(`Acknowledged job ${jobId} to Scheduler.`);
     } catch (error) {
       logger.error(`Failed to acknowledge job ${jobId}: ${error}`);

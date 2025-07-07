@@ -1,4 +1,8 @@
-// Entry point for Handler microservice
+import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
+
 import { JobAcquisitionManager } from "./job-acquisition";
 import { TaskRegistryClient } from "./task-registry-client";
 import logger from "./logger";
