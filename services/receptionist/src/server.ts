@@ -3,12 +3,12 @@ import { config } from './config';
 import logger from './logger';
 
 process.on('uncaughtException', (err) => {
-  logger.error({ err }, 'Uncaught Exception');
+  logger.error('Uncaught Exception', { err });
   process.exit(1);
 });
 
 process.on('unhandledRejection', (reason) => {
-  logger.error({ reason }, 'Unhandled Rejection');
+  logger.error('Unhandled Rejection', { reason });
   process.exit(1);
 });
 
@@ -20,6 +20,6 @@ try {
     logger.info(`Receptionist service listening on port ${PORT}`);
   });
 } catch (err) {
-  logger.error({ err }, 'Error starting server');
+  logger.error('Error starting server', { err });
   process.exit(1);
 }

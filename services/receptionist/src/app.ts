@@ -10,7 +10,7 @@ app.use(express.json());
 
 // Request logging middleware
 app.use((req, res, next) => {
-  logger.info({ method: req.method, url: req.url, body: req.body }, 'Incoming request');
+  logger.info('Incoming request', { method: req.method, url: req.url, body: req.body });
   next();
 });
 

@@ -1,0 +1,7 @@
+{
+  "name": "@reedsy/shared",
+  "version": "1.0.0",
+  "main": "../../dist/shared/index.js",
+  "types": "../../dist/shared/index.d.ts",
+  "private": true
+}
