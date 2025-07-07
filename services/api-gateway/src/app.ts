@@ -1,19 +1,33 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import logger from "./logger";
 import { config } from "./config";
 import { createProxyMiddleware } from "http-proxy-middleware";
-import { Request, Response } from "express";
 
 const app = express();
-app.use(express.json());
-
 // Status page router
 import statusRouter from "./status-page";
 import statusFrontendRouter from "./status-page-frontend";
 import path from "path";
-app.use("/status-page", statusRouter);
-app.use("/status-page-ui", statusFrontendRouter);
+
+// Only use express.json() for status-page and related endpoints
+app.use("/status-page", express.json(), statusRouter);
+app.use("/status-page-ui", express.json(), statusFrontendRouter);
 app.use("/status-page-ui/static", express.static(path.join(__dirname, "./")));
+
+// Parse JSON bodies for all /api routes
+app.use("/api", express.json());
+
+// Log body for all /api requests (before proxy)
+app.use("/api", (req, res, next) => {
+  if (req.body && Object.keys(req.body).length > 0) {
+    logger.info(
+      `[RequestBody] ${req.method} ${req.originalUrl} | body: ${JSON.stringify(
+        req.body
+      )}`
+    );
+  }
+  next();
+});
 
 // DRY proxy setup
 interface ProxyConfig {
@@ -62,7 +76,21 @@ proxyConfigs.forEach(({ route, target, serviceName, pathRewrite }) => {
         req: Request,
         res: Response
       ) => {
-        const bodyLog = req.body && Object.keys(req.body).length > 0 ? ` | body: ${JSON.stringify(req.body)}` : '';
+        // Forward body for POST/PUT requests
+        if (
+          (req.method === "POST" || req.method === "PUT") &&
+          req.body &&
+          Object.keys(req.body).length > 0
+        ) {
+          const bodyData = JSON.stringify(req.body);
+          proxyReq.setHeader("Content-Type", "application/json");
+          proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
+          proxyReq.write(bodyData);
+        }
+        const bodyLog =
+          req.body && Object.keys(req.body).length > 0
+            ? ` | body: ${JSON.stringify(req.body)}`
+            : "";
         logger.info(
           `[Proxy] ${req.method} ${req.originalUrl} -> ${target}${req.url}${bodyLog}`
         );
@@ -74,7 +102,6 @@ proxyConfigs.forEach(({ route, target, serviceName, pathRewrite }) => {
     })
   );
 });
-
 
 app.get("/", (req: Request, res: Response) => {
   logger.info("Root endpoint accessed");
