@@ -1,6 +1,8 @@
-import app from './app';
+import app from "./app";
+import logger from "./logger";
+import { getPortFromUrl } from "../../shared/url-util";
 
-const PORT = process.env.PORT || 3002;
+const PORT = getPortFromUrl(process.env.SCHEDULER_URL);
 app.listen(PORT, () => {
-  console.log(`Scheduler service listening on port ${PORT}`);
+  logger.info(`Scheduler service listening on port ${PORT}`);
 });
