@@ -154,14 +154,14 @@
         "dependencies": [
           2
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
             "title": "Scaffold Scheduler Service",
             "description": "Set up the initial project structure, TypeScript config, and Express boilerplate for the Scheduler microservice.",
             "details": "- Create the scheduler directory under services/\n- Add package.json, tsconfig.json, and .gitignore\n- Set up Express app with a health check endpoint\n- Add Jest for testing\n- Ensure shared/types.ts is available for type imports\n- Use kebab-case for all files and directories\n",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 4
           },
@@ -170,7 +170,7 @@
             "title": "Add/Configure TypeScript and Jest",
             "description": "Add tsconfig.json, jest.config.js, and ensure TypeScript and Jest are configured for the Scheduler service.",
             "details": "- Create tsconfig.json in services/scheduler\n- Add jest.config.js and configure Jest for TypeScript\n- Add test script to package.json\n- Ensure devDependencies include typescript, jest, ts-jest, @types/jest, @types/node\n- Use kebab-case for all files\n",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 4
           },
@@ -179,7 +179,7 @@
             "title": "Set up Express app and entry points",
             "description": "Add Express app boilerplate, server starter, and entry point for the Scheduler service.",
             "details": "- Create src/app.ts with Express app and middleware\n- Create src/server.ts to start the app on a port\n- Create src/index.ts as entry point\n- Use kebab-case for all files\n",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 4
           },
@@ -188,7 +188,7 @@
             "title": "Verify shared types import and paths",
             "description": "Test import of types from services/shared/types.ts in Scheduler service to ensure path aliasing works.",
             "details": "- Add sample import of Job type from shared/types.ts\n- Fix tsconfig.json paths if needed\n- Ensure no TypeScript errors\n",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 4
           },
@@ -197,7 +197,7 @@
             "title": "Add health check endpoint and test",
             "description": "Add a health check endpoint and test for the Scheduler service.",
             "details": "- Add GET /health endpoint to app\n- Add Jest test to verify health endpoint returns 200 OK\n",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 4
           }
@@ -215,7 +215,50 @@
           4
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Handler Service structure",
+            "description": "Create the basic structure for the Handler Service including project setup, configuration, and core interfaces",
+            "dependencies": [],
+            "details": "1. Create a new directory 'handler-service' with proper TypeScript configuration\n2. Set up package.json with required dependencies (express, axios, etc.)\n3. Define interfaces for Job, JobStatus, and other core types\n4. Implement configuration loading for environment variables\n5. Create basic service structure with health check endpoint\n6. Set up logging infrastructure",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement job polling and subscription mechanism",
+            "description": "Create the system to poll the Scheduler service for new jobs and maintain subscriptions",
+            "dependencies": [
+              1
+            ],
+            "details": "1. Implement polling mechanism to fetch jobs from Scheduler service\n2. Create subscription manager to track active job subscriptions\n3. Implement job queue for processing jobs in order\n4. Add configurable polling interval\n5. Implement job status tracking\n6. Add logging for job acquisition events\n7. Create mechanism to acknowledge job receipt to Scheduler",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Develop job processing with simulated delays",
+            "description": "Implement the core job processing logic with appropriate simulated processing delays",
+            "dependencies": [
+              2
+            ],
+            "details": "1. Create job processor class with processing pipeline\n2. Implement configurable simulated delays based on job type\n3. Add progress tracking and reporting to LogBook service\n4. Implement job completion notification\n5. Create job cancellation handling\n6. Add concurrent job processing with configurable limits\n7. Implement proper state transitions during job lifecycle",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement error handling and retry logic",
+            "description": "Add robust error handling and retry mechanisms for failed jobs",
+            "dependencies": [
+              3
+            ],
+            "details": "1. Implement error classification (transient vs. permanent failures)\n2. Create exponential backoff retry mechanism\n3. Add configurable retry limits and delay parameters\n4. Implement dead letter queue for permanently failed jobs\n5. Add detailed error reporting to LogBook service\n6. Create recovery mechanisms for Handler service restarts\n7. Implement circuit breaker pattern for external service calls",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
       },
       {
         "id": 6,
@@ -304,7 +347,7 @@
     ],
     "metadata": {
       "created": "2025-07-07T12:27:36.774Z",
-      "updated": "2025-07-07T13:25:00.035Z",
+      "updated": "2025-07-07T14:18:30.266Z",
       "description": "Tasks for master context"
     }
   }
