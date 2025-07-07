@@ -4,19 +4,19 @@ import logger from "./logger";
 import { config } from "./config";
 import { Job } from "./types";
 
-import { LogBookClient } from "./logbook-client";
+import { TaskRegistryClient } from "./task-registry-client";
 
 export class JobAcquisitionManager {
   private pollingInterval: number;
   private schedulerUrl: string;
   private isPolling: boolean = false;
   private activeJobs: Set<string> = new Set();
-  private logbook: LogBookClient;
+  private taskRegistryClient: TaskRegistryClient;
 
-  constructor(logbook: LogBookClient) {
+  constructor(taskRegistryClient: TaskRegistryClient) {
     this.pollingInterval = config.pollingInterval;
     this.schedulerUrl = config.schedulerUrl;
-    this.logbook = logbook;
+    this.taskRegistryClient = taskRegistryClient;
   }
 
   public startPolling() {
@@ -72,16 +72,20 @@ export class JobAcquisitionManager {
 
   private async processJob(job: Job) {
     try {
-      await this.logbook.updateJobState(job.id, "processing");
+      await this.taskRegistryClient.updateJobState(job.id, "processing");
       logger.info(`Processing job ${job.id} (${job.direction} ${job.type})`);
       const delay = this.getDelayForJobType(job.direction, job.type);
       await new Promise((resolve) => setTimeout(resolve, delay * 1000));
       const resultUrl = `https://results.example.com/${job.id}.${job.type}`;
-      await this.logbook.updateJobResult(job.id, "finished", resultUrl);
+      await this.taskRegistryClient.updateJobResult(
+        job.id,
+        "finished",
+        resultUrl
+      );
       logger.info(`Job ${job.id} finished. Result: ${resultUrl}`);
     } catch (error) {
       logger.error(`Failed to process job ${job.id}: ${error}`);
-      await this.logbook.updateJobState(job.id, "failed");
+      await this.taskRegistryClient.updateJobState(job.id, "failed");
     }
   }
 

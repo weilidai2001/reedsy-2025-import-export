@@ -2,12 +2,12 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "commonjs",
-    "outDir": "dist/logbook",
+    "outDir": "dist/task-registry",
     "rootDir": "../",
-  "baseUrl": "./",
-  "paths": {
-    "shared/*": ["../shared/*"]
-  },
+    "baseUrl": "./",
+    "paths": {
+      "shared/*": ["../shared/*"]
+    },
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true

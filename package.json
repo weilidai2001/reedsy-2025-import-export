@@ -5,7 +5,7 @@
     "./services/receptionist",
     "./services/scheduler",
     "./services/handler",
-    "./services/logbook"
+    "./services/task-registry"
   ],
   "devDependencies": {
     "@types/express": "^4.17.21",
