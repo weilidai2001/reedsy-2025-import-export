@@ -61,4 +61,9 @@ router.get("/queue", ((req: express.Request, res: express.Response) => {
   res.json(queues);
 }) as express.RequestHandler);
 
+// Health check endpoint
+router.get('/health', (req: express.Request, res: express.Response) => {
+  res.status(200).json({ status: "ok" });
+});
+
 export default router;
