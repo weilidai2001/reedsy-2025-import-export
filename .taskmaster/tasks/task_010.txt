@@ -1,0 +1,38 @@
+# Task ID: 10
+# Title: Implement Build and Deployment Scripts
+# Status: pending
+# Dependencies: 1, 2, 3, 4, 5, 6, 7, 8, 9
+# Priority: medium
+# Description: Create scripts for building and deploying all services.
+# Details:
+Implement npm scripts in the root package.json for building and starting all services. Create Docker configuration for containerized deployment.
+
+Example root package.json:
+```json
+{
+  "name": "receptionist-system",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "npm run build:shared && npm run build:logbook && npm run build:scheduler && npm run build:handler && npm run build:receptionist",
+    "build:shared": "cd src/shared && tsc",
+    "build:logbook": "cd src/logbook && npm install && npm run build",
+    "build:scheduler": "cd src/scheduler && npm install && npm run build",
+    "build:handler": "cd src/handler && npm install && npm run build",
+    "build:receptionist": "cd src/receptionist && npm install && npm run build",
+    "start": "concurrently \"npm run start:logbook\" \"npm run start:scheduler\" \"npm run start:handler\" \"npm run start:receptionist\"",
+    "start:logbook": "cd src/logbook && npm start",
+    "start:scheduler": "cd src/scheduler && npm start",
+    "start:handler": "cd src/handler && npm start",
+    "start:receptionist": "cd src/receptionist && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0",
+    "typescript": "^4.5.5"
+  }
+}
+```
+
+Create Dockerfile for each service and a docker-compose.yml file for orchestrating the entire system.
+
+# Test Strategy:
+Test build scripts to ensure all services can be built successfully. Test start scripts to verify all services start correctly. Test Docker builds and container orchestration.

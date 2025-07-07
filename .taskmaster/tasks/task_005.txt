@@ -1,0 +1,34 @@
+# Task ID: 5
+# Title: Implement Handler Service
+# Status: pending
+# Dependencies: 3, 4
+# Priority: medium
+# Description: Develop the Handler service that will process jobs with simulated delays and update the LogBook.
+# Details:
+Create a Node.js application for the Handler service. Implement long-polling or subscription mechanism to receive jobs from the Scheduler. Process jobs with simulated delays as specified in the PRD:
+- epub: 10 seconds
+- pdf (export): 25 seconds
+- import (all types): 60 seconds
+
+Implement job processing logic:
+```javascript
+async function processJob(job) {
+  // Update job state to processing in LogBook
+  await updateJobState(job.id, 'processing');
+  
+  // Simulate processing delay based on job type
+  const delay = getDelayForJobType(job.direction, job.type);
+  await new Promise(resolve => setTimeout(resolve, delay * 1000));
+  
+  // Generate a result URL
+  const resultUrl = `https://results.example.com/${job.id}.${job.type}`;
+  
+  // Update job as finished in LogBook
+  await updateJobResult(job.id, 'finished', resultUrl);
+}
+```
+
+Implement error handling and retries for failed jobs.
+
+# Test Strategy:
+Test job processing with various job types. Verify correct delays are applied. Test error handling and recovery. Verify LogBook updates are made correctly.

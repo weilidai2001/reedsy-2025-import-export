@@ -1,0 +1,265 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Setup Project Structure",
+        "description": "Initialize the project repository with the required directory structure and base configuration for all four services.",
+        "details": "Create the following structure:\n- src/\n  - receptionist/\n    - package.json\n  - scheduler/\n    - package.json\n  - handler/\n    - package.json\n  - logbook/\n    - package.json\n  - shared/\n    - types.ts\n\nSetup the root package.json with scripts for building and starting all services. Configure TypeScript for the project. Ensure all filenames use kebab-case as specified in the PRD. Initialize git repository with appropriate .gitignore file.",
+        "testStrategy": "Verify the directory structure is correctly set up. Ensure all package.json files are valid and can be installed. Test that the build scripts work correctly for each service.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Directory Structure",
+            "description": "Set up the main project directory and all required subdirectories for the microservices architecture",
+            "dependencies": [],
+            "details": "Create the following directory structure:\n- root/\n  - auth-service/\n  - user-service/\n  - product-service/\n  - order-service/\n  - gateway/\n  - shared/\n  - docs/\nEnsure each service directory has appropriate subdirectories for src/, tests/, and config/",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Configure package.json for All Services",
+            "description": "Create and configure package.json files for each microservice and the root project",
+            "dependencies": [
+              1
+            ],
+            "details": "For each service directory:\n1. Initialize package.json with appropriate name, version, description\n2. Add common dependencies (express, typescript, etc.)\n3. Configure scripts for development, testing, building\n4. Set up workspace configuration in root package.json if using a monorepo approach\n5. Ensure consistent versioning across services",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Set Up TypeScript Configuration",
+            "description": "Configure TypeScript for all services with appropriate settings",
+            "dependencies": [
+              2
+            ],
+            "details": "1. Create tsconfig.json files for each service\n2. Configure compiler options (target, module, outDir, etc.)\n3. Set up path aliases if needed\n4. Configure type definitions\n5. Create a base tsconfig.json in the root that can be extended by services\n6. Ensure consistent TypeScript settings across all services",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Initialize Git Repository with .gitignore",
+            "description": "Set up version control for the project with appropriate ignore rules",
+            "dependencies": [
+              3
+            ],
+            "details": "1. Initialize git repository in the root directory\n2. Create comprehensive .gitignore file including:\n   - node_modules\n   - build/dist directories\n   - environment files (.env)\n   - logs\n   - IDE-specific files\n3. Add .gitattributes if needed\n4. Create initial commit with the project structure\n5. Set up branch protection rules if using GitHub/GitLab",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Ensure independent service directories with Node.js config",
+            "description": "Ensure the project structure contains one folder for each service (receptionist, scheduler, handler, logbook), each with its own independent Node.js configuration (package.json, tsconfig.json, etc.) following kebab-case naming.",
+            "details": "For each service (receptionist, scheduler, handler, logbook), create a dedicated directory in kebab-case. Each directory must include its own package.json and tsconfig.json, allowing for independent configuration and builds. Shared code should reside in a separate 'shared' directory. Verify that all service directories are correctly isolated and independently runnable as Node.js TypeScript projects.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 1
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Implement Shared Types",
+        "description": "Create a shared types module that will be used across all services to ensure type consistency.",
+        "details": "Create a types.ts file in the shared directory with the following types as specified in the PRD:\n\n```typescript\ntype JobDirection = \"import\" | \"export\";\ntype JobType = \"epub\" | \"pdf\" | \"word\" | \"wattpad\" | \"evernote\";\ntype JobState = \"pending\" | \"processing\" | \"finished\" | \"failed\";\n\ntype Job = {\n  id: string;\n  bookId: string;\n  direction: JobDirection;\n  type: JobType;\n  state: JobState;\n  sourceUrl?: string;\n  resultUrl?: string;\n  createdAt: string;\n  updatedAt: string;\n  startedAt?: string;\n};\n```\n\nEnsure this module can be imported by all services.",
+        "testStrategy": "Write unit tests to verify type definitions are correct and can be imported properly. Test with sample data to ensure type checking works as expected.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Implement LogBook Service",
+        "description": "Develop the LogBook service that will serve as the persistent job store using SQLite in WAL mode.",
+        "details": "Create an Express application for the LogBook service with the following endpoints:\n\n1. POST `/jobs` - Create a new job\n2. PATCH `/jobs/:id` - Update job state or result\n3. GET `/jobs?direction=import|export` - Return grouped job states\n4. (Optional) GET `/jobs/:id` - Fetch job detail\n\nImplement SQLite database with WAL mode:\n```javascript\nconst sqlite3 = require('sqlite3');\nconst db = new sqlite3.Database('logbook.sqlite');\ndb.run('PRAGMA journal_mode = WAL;');\n```\n\nCreate the jobs table with the required fields matching the Job type. Implement CRUD operations for jobs. Add Swagger UI at `/docs` endpoint for API documentation and testing.",
+        "testStrategy": "Write integration tests for each endpoint. Test database operations with mock data. Verify WAL mode is correctly enabled. Test concurrent read/write operations to ensure data integrity.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Express application structure",
+            "description": "Create the basic Express.js application structure for the LogBook service",
+            "dependencies": [],
+            "details": "Initialize a new Node.js project with npm, install Express.js and required dependencies, set up the server configuration, implement basic middleware (CORS, body-parser, error handling), create folder structure for routes, controllers, models, and services, and implement a basic health check endpoint.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Configure SQLite database with WAL mode",
+            "description": "Set up SQLite database with Write-Ahead Logging mode for the LogBook service",
+            "dependencies": [
+              1
+            ],
+            "details": "Install SQLite dependencies, create database connection utility, configure the database to use WAL mode for better concurrency, implement connection pooling if needed, create database initialization script, and add database migration capabilities for future schema changes.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement Jobs table schema and CRUD operations",
+            "description": "Design and implement the Jobs table schema and create data access layer with CRUD operations",
+            "dependencies": [
+              2
+            ],
+            "details": "Define Jobs table schema with appropriate columns (job_id, status, created_at, updated_at, etc.), implement data models, create repository layer with CRUD operations (create, read, update, delete, list), add transaction support, and implement proper error handling for database operations.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Develop LogBook API endpoints",
+            "description": "Implement all required API endpoints for the LogBook service",
+            "dependencies": [
+              3
+            ],
+            "details": "Create route definitions, implement controller functions for each endpoint (create job, get job status, update job, list jobs, etc.), add input validation using a validation library, implement proper error responses, add pagination for list endpoints, and ensure proper HTTP status codes are used.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Add Swagger documentation",
+            "description": "Create comprehensive Swagger/OpenAPI documentation for the LogBook service API",
+            "dependencies": [
+              4
+            ],
+            "details": "Install Swagger UI and related dependencies, create OpenAPI specification document, document all endpoints with request/response schemas, add examples, implement Swagger UI endpoint for interactive documentation, and ensure documentation is complete and accurate for all API endpoints.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Implement Scheduler Service",
+        "description": "Develop the Scheduler service that will manage in-memory FIFO queues for different job types and dispatch jobs to Handlers.",
+        "details": "Create an Express application for the Scheduler service with a BullMQ-like interface. Implement the POST `/queue` endpoint to enqueue jobs. Create separate in-memory queues for each job type (epub, pdf, word, wattpad, evernote).\n\nImplement queue management logic:\n```javascript\nconst queues = {\n  import: {\n    word: [],\n    pdf: [],\n    wattpad: [],\n    evernote: []\n  },\n  export: {\n    epub: [],\n    pdf: []\n  }\n};\n\n// Enqueue function\nfunction enqueue(job) {\n  queues[job.direction][job.type].push(job);\n}\n\n// Dequeue function\nfunction dequeue(direction, type) {\n  return queues[direction][type].shift();\n}\n```\n\nImplement job dispatching to Handler services. Add Swagger UI at `/docs` endpoint.",
+        "testStrategy": "Test queue operations with various job types. Verify FIFO behavior. Test concurrent enqueue/dequeue operations. Verify job dispatching to Handler services works correctly.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Implement Handler Service",
+        "description": "Develop the Handler service that will process jobs with simulated delays and update the LogBook.",
+        "details": "Create a Node.js application for the Handler service. Implement long-polling or subscription mechanism to receive jobs from the Scheduler. Process jobs with simulated delays as specified in the PRD:\n- epub: 10 seconds\n- pdf (export): 25 seconds\n- import (all types): 60 seconds\n\nImplement job processing logic:\n```javascript\nasync function processJob(job) {\n  // Update job state to processing in LogBook\n  await updateJobState(job.id, 'processing');\n  \n  // Simulate processing delay based on job type\n  const delay = getDelayForJobType(job.direction, job.type);\n  await new Promise(resolve => setTimeout(resolve, delay * 1000));\n  \n  // Generate a result URL\n  const resultUrl = `https://results.example.com/${job.id}.${job.type}`;\n  \n  // Update job as finished in LogBook\n  await updateJobResult(job.id, 'finished', resultUrl);\n}\n```\n\nImplement error handling and retries for failed jobs.",
+        "testStrategy": "Test job processing with various job types. Verify correct delays are applied. Test error handling and recovery. Verify LogBook updates are made correctly.",
+        "priority": "medium",
+        "dependencies": [
+          3,
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Implement Receptionist Service",
+        "description": "Develop the Receptionist service that will serve as the public-facing REST API gateway.",
+        "details": "Create an Express application for the Receptionist service with the following endpoints:\n\n1. POST `/exports` - Submit a new export job\n2. POST `/imports` - Submit a new import job\n3. GET `/exports` - Get export job listings grouped by state\n4. GET `/imports` - Get import job listings grouped by state\n\nImplement request validation for all endpoints. Generate UUIDs for new jobs. Create jobs in LogBook via HTTP requests. Send jobs to Scheduler via HTTP requests. Add Swagger UI at `/docs` endpoint.\n\nExample implementation for POST `/exports`:\n```javascript\napp.post('/exports', async (req, res) => {\n  const { bookId, type } = req.body;\n  \n  // Validate request\n  if (!bookId || !['epub', 'pdf'].includes(type)) {\n    return res.status(400).json({ error: 'Invalid request' });\n  }\n  \n  // Generate job ID\n  const jobId = uuid();\n  \n  // Create job in LogBook\n  await axios.post('http://logbook:3000/jobs', {\n    id: jobId,\n    bookId,\n    direction: 'export',\n    type,\n    state: 'pending'\n  });\n  \n  // Send job to Scheduler\n  await axios.post('http://scheduler:3000/queue', {\n    id: jobId,\n    direction: 'export',\n    type\n  });\n  \n  return res.status(201).json({ jobId });\n});\n```",
+        "testStrategy": "Test all endpoints with valid and invalid requests. Verify job creation in LogBook. Verify job submission to Scheduler. Test error handling and edge cases.",
+        "priority": "high",
+        "dependencies": [
+          3,
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Implement Service Communication",
+        "description": "Set up HTTP communication between services and ensure proper error handling and retries.",
+        "details": "Implement HTTP client with retry logic for inter-service communication. Use axios or similar library for HTTP requests. Configure appropriate timeouts and error handling.\n\nExample implementation:\n```javascript\nconst axios = require('axios');\nconst axiosRetry = require('axios-retry');\n\nconst client = axios.create({\n  timeout: 5000\n});\n\naxiosRetry(client, {\n  retries: 3,\n  retryDelay: axiosRetry.exponentialDelay,\n  retryCondition: (error) => {\n    return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.response.status >= 500;\n  }\n});\n\nasync function makeRequest(url, method, data) {\n  try {\n    const response = await client[method](url, data);\n    return response.data;\n  } catch (error) {\n    console.error(`Error making ${method} request to ${url}:`, error);\n    throw error;\n  }\n}\n```\n\nImplement health check endpoints for each service to monitor availability.",
+        "testStrategy": "Test communication between services with various scenarios including network failures. Verify retry logic works correctly. Test timeout handling. Verify health check endpoints.",
+        "priority": "medium",
+        "dependencies": [
+          3,
+          4,
+          5,
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Implement Swagger Documentation",
+        "description": "Add Swagger UI to all services for API documentation and testing.",
+        "details": "Implement Swagger documentation for all services using swagger-ui-express and OpenAPI specifications. Create OpenAPI specification files for each service describing all endpoints, request/response schemas, and examples.\n\nExample implementation:\n```javascript\nconst swaggerUi = require('swagger-ui-express');\nconst swaggerDocument = require('./swagger.json');\n\napp.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));\n```\n\nCreate swagger.json files for each service with complete API documentation. Ensure all endpoints, parameters, request bodies, and responses are properly documented.",
+        "testStrategy": "Verify Swagger UI is accessible at /docs for each service. Test that all endpoints are properly documented. Verify that API calls can be made directly from the Swagger UI.",
+        "priority": "medium",
+        "dependencies": [
+          3,
+          4,
+          5,
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Implement Horizontal Scaling Support",
+        "description": "Ensure all services are horizontally scalable except for Scheduler and LogBook which should be singletons.",
+        "details": "Make Receptionist and Handler services stateless to support horizontal scaling. Implement singleton pattern for Scheduler and LogBook services to ensure only one instance runs at a time.\n\nFor Scheduler singleton:\n```javascript\nconst lockfile = require('proper-lockfile');\nconst fs = require('fs');\n\ntry {\n  // Create lock file if it doesn't exist\n  if (!fs.existsSync('scheduler.lock')) {\n    fs.writeFileSync('scheduler.lock', '');\n  }\n  \n  // Try to acquire lock\n  const release = await lockfile.lock('scheduler.lock', { retries: 0 });\n  \n  // Start server if lock acquired\n  const server = app.listen(3000, () => {\n    console.log('Scheduler running on port 3000');\n  });\n  \n  // Release lock on shutdown\n  process.on('SIGTERM', async () => {\n    await release();\n    server.close();\n  });\n} catch (error) {\n  console.error('Another instance of Scheduler is already running');\n  process.exit(1);\n}\n```\n\nImplement similar logic for LogBook service. Configure SQLite in WAL mode to support concurrent reads.",
+        "testStrategy": "Test running multiple instances of each service. Verify Receptionist and Handler can scale horizontally. Verify only one instance of Scheduler and LogBook can run at a time. Test failover scenarios.",
+        "priority": "medium",
+        "dependencies": [
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Implement Build and Deployment Scripts",
+        "description": "Create scripts for building and deploying all services.",
+        "details": "Implement npm scripts in the root package.json for building and starting all services. Create Docker configuration for containerized deployment.\n\nExample root package.json:\n```json\n{\n  \"name\": \"receptionist-system\",\n  \"version\": \"1.0.0\",\n  \"scripts\": {\n    \"build\": \"npm run build:shared && npm run build:logbook && npm run build:scheduler && npm run build:handler && npm run build:receptionist\",\n    \"build:shared\": \"cd src/shared && tsc\",\n    \"build:logbook\": \"cd src/logbook && npm install && npm run build\",\n    \"build:scheduler\": \"cd src/scheduler && npm install && npm run build\",\n    \"build:handler\": \"cd src/handler && npm install && npm run build\",\n    \"build:receptionist\": \"cd src/receptionist && npm install && npm run build\",\n    \"start\": \"concurrently \\\"npm run start:logbook\\\" \\\"npm run start:scheduler\\\" \\\"npm run start:handler\\\" \\\"npm run start:receptionist\\\"\",\n    \"start:logbook\": \"cd src/logbook && npm start\",\n    \"start:scheduler\": \"cd src/scheduler && npm start\",\n    \"start:handler\": \"cd src/handler && npm start\",\n    \"start:receptionist\": \"cd src/receptionist && npm start\"\n  },\n  \"devDependencies\": {\n    \"concurrently\": \"^7.0.0\",\n    \"typescript\": \"^4.5.5\"\n  }\n}\n```\n\nCreate Dockerfile for each service and a docker-compose.yml file for orchestrating the entire system.",
+        "testStrategy": "Test build scripts to ensure all services can be built successfully. Test start scripts to verify all services start correctly. Test Docker builds and container orchestration.",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-07-07T12:27:36.774Z",
+      "updated": "2025-07-07T12:27:36.774Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
