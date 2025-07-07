@@ -1,0 +1,13 @@
+{
+  "name": "reedsy-2025-import-export",
+  "private": true,
+  "workspaces": [
+    "./receptionist",
+    "./scheduler",
+    "./handler",
+    "./logbook"
+  ],
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
