@@ -18,7 +18,7 @@ app.use("/status-page-ui/static", express.static(path.join(__dirname, "./")));
 app.use("/api", express.json());
 
 // Log body for all /api requests (before proxy)
-app.use("/api", (req, res, next) => {
+app.use("/api", (req: Request, res: Response, next) => {
   if (req.body && Object.keys(req.body).length > 0) {
     logger.info(
       `[RequestBody] ${req.method} ${req.originalUrl} | body: ${JSON.stringify(
@@ -28,6 +28,7 @@ app.use("/api", (req, res, next) => {
   }
   next();
 });
+
 
 // DRY proxy setup
 interface ProxyConfig {
@@ -71,6 +72,22 @@ proxyConfigs.forEach(({ route, target, serviceName, pathRewrite }) => {
       target,
       changeOrigin: true,
       pathRewrite,
+      onProxyRes: (proxyRes, req, res) => {
+        let body = Buffer.from("");
+        proxyRes.on("data", function(chunk) {
+          body = Buffer.concat([body, chunk]);
+        });
+        proxyRes.on("end", function() {
+          let responseBody = body.toString();
+          // Truncate if too long
+          if (responseBody.length > 1000) {
+            responseBody = responseBody.slice(0, 1000) + '... [truncated]';
+          }
+          logger.info(
+            `[ProxyResponse] ${req.method} ${req.originalUrl} <- ${proxyRes.statusCode} | body: ${responseBody}`
+          );
+        });
+      },
       onProxyReq: (
         proxyReq: import("http").ClientRequest,
         req: Request,
