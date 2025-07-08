@@ -1,6 +1,6 @@
 import * as express from "express";
 import { enqueueJob, dequeueJob, getAllJobs } from "./queue-manager";
-import { Job } from "../../shared/types";
+import { Job } from "./types";
 
 const router = express.Router();
 
@@ -46,7 +46,7 @@ router.get("/queue", ((req: express.Request, res: express.Response) => {
 }) as express.RequestHandler);
 
 // Health check endpoint
-router.get('/health', (req: express.Request, res: express.Response) => {
+router.get("/health", (req: express.Request, res: express.Response) => {
   res.status(200).json({ status: "ok" });
 });
 

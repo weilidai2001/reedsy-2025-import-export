@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Job } from "../../shared/types";
+import { Job } from "./types";
 import { processJob } from "./job-processor";
 import { state } from "./job-state";
 import logger from "./logger";

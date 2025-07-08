@@ -1,4 +1,4 @@
-import { Job } from "../../shared/types";
+import { Job } from "./types";
 
 // Single FIFO queue for all jobs
 const queue: Job[] = [];

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "ts-node src/index.ts",
     "build": "tsc",
-    "start": "node dist/task-registry/task-registry/server.js"
+    "start": "node dist/task-registry/task-registry/server.js",
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@types/cors": "^2.8.19",

@@ -1,11 +1,11 @@
 // Core interfaces for Handler Service
 
-export type JobDirection = 'import' | 'export';
-export type JobType = 'epub' | 'pdf' | 'word' | 'wattpad' | 'evernote';
-export type JobState = 'pending' | 'processing' | 'finished' | 'failed';
+export type JobDirection = "import" | "export";
+export type JobType = "epub" | "pdf" | "word" | "wattpad" | "evernote";
+export type JobState = "pending" | "processing" | "finished" | "failed";
 
 export interface Job {
-  id: string;
+  requestId: string;
   bookId: string;
   direction: JobDirection;
   type: JobType;

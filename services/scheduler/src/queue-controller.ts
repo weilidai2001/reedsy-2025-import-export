@@ -1,10 +1,9 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
 import { enqueueJob, dequeueJob, getAllJobs } from "./queue-manager";
 import { updateMetrics } from "./scheduler-state";
-import { Job } from "../../shared/types";
-import axios from "axios";
+import { Job } from "./types";
 import logger from "./logger";
 
 export const queueRouter = express.Router();
@@ -15,7 +14,7 @@ const EnqueueSchema = z.object({
   type: z.enum(["epub", "pdf", "word", "wattpad", "evernote"]),
 });
 
-queueRouter.post("/", (req, res) => {
+queueRouter.post("/", (req: Request, res: Response) => {
   logger.info("Received job enqueue request", { body: req.body });
 
   const parsed = EnqueueSchema.safeParse(req.body);

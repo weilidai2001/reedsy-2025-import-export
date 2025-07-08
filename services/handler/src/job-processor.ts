@@ -1,4 +1,4 @@
-import { Job } from "../../shared/types";
+import { Job } from "./types";
 import { state } from "./job-state";
 
 const SIMULATED_PROCESS_TIMES: Record<string, number> = {

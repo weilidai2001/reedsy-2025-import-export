@@ -1,4 +1,4 @@
-import { Job, JobType } from "../../shared/types";
+import { Job, JobType } from "./types";
 import { state } from "./job-state";
 
 const SIMULATED_PROCESS_TIMES: Record<JobType, number> = {
@@ -10,7 +10,7 @@ const SIMULATED_PROCESS_TIMES: Record<JobType, number> = {
 };
 
 export async function processJob(job: Job): Promise<void> {
-  state.currentJob = job.id;
+  state.currentJob = job.requestId;
 
   const duration = SIMULATED_PROCESS_TIMES[job.type];
   if (!duration) throw new Error(`Unsupported job type: ${job.type}`);
