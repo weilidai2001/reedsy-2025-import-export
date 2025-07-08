@@ -135,7 +135,7 @@ const createJob = async (
     res.status(201).json(response);
   } catch (err: any) {
     logger.error(`Error creating ${direction} job`, err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "internal server error" });
   }
 };
 
