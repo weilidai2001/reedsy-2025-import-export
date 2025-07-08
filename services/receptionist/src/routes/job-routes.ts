@@ -8,7 +8,7 @@ import {
   ImportJobResponse,
   JobListResponse,
 } from "../types";
-import { Job, validateJobSchema } from "../../../shared/types";
+import { Job, JobSchema as validateJobSchema } from "../../../shared/types";
 import { validate } from "../middleware/validate";
 import logger from "../logger";
 
@@ -59,6 +59,7 @@ router.post(
         });
         logger.error(parsed.error.format());
         res.status(400).json({ error: parsed.error.format() });
+        return; // Add return statement to prevent further execution
       }
 
       // Ensure parsed.data exists before proceeding
@@ -114,6 +115,7 @@ router.post(
         });
         logger.error(parsed.error.format());
         res.status(400).json({ error: parsed.error.format() });
+        return; // Add return statement to prevent further execution
       }
 
       // Ensure parsed.data exists before proceeding
