@@ -9,21 +9,11 @@ import {
   selectJobsByDirection,
   updateJob,
 } from "./persistence-util";
-import { Job } from "./types";
-
-// Define schemas locally to avoid module resolution issues
-const TaskRegistryCreateJobSchema = z.object({
-  requestId: z.string().uuid(),
-  bookId: z.string().uuid(),
-  direction: z.enum(["import", "export"]),
-  type: z.enum(["epub", "pdf", "word", "wattpad", "evernote"]),
-  sourceUrl: z.string().optional(),
-});
-
-const TaskRegistryUpdateJobSchema = z.object({
-  state: z.enum(["pending", "processing", "finished", "failed"]),
-  resultUrl: z.string().optional(),
-});
+import {
+  Job,
+  TaskRegistryCreateJobSchema,
+  TaskRegistryUpdateJobSchema,
+} from "./types";
 
 const router = express.Router();
 

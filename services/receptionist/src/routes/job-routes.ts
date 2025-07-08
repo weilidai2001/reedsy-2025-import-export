@@ -161,7 +161,7 @@ router.post(
 router.get("/exports", async (req: Request, res: Response) => {
   try {
     const taskRegistryRes = await axios.get(
-      `${process.env.TASK_REGISTRY_URL}/jobs?type=export`
+      `${process.env.TASK_REGISTRY_URL}/jobs?direction=export`
     );
     const jobs = taskRegistryRes.data as JobListResponse;
     res.json(jobs);
@@ -174,7 +174,7 @@ router.get("/exports", async (req: Request, res: Response) => {
 router.get("/imports", async (req: Request, res: Response) => {
   try {
     const taskRegistryRes = await axios.get(
-      `${process.env.TASK_REGISTRY_URL}/jobs?type=import`
+      `${process.env.TASK_REGISTRY_URL}/jobs?direction=import`
     );
     const jobs = taskRegistryRes.data as JobListResponse;
     res.json(jobs);
