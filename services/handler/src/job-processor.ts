@@ -1,7 +1,7 @@
-import { Job, JobType } from "../../shared/types";
+import { Job } from "../../shared/types";
 import { state } from "./job-state";
 
-const SIMULATED_PROCESS_TIMES: Record<JobType, number> = {
+const SIMULATED_PROCESS_TIMES: Record<string, number> = {
   epub: 10000,
   pdf: 25000,
   word: 60000,
@@ -12,7 +12,7 @@ const SIMULATED_PROCESS_TIMES: Record<JobType, number> = {
 export async function processJob(job: Job): Promise<void> {
   state.currentJob = job.requestId;
 
-  const duration = SIMULATED_PROCESS_TIMES[job.type as JobType];
+  const duration = SIMULATED_PROCESS_TIMES[job.type];
   if (!duration) throw new Error(`Unsupported job type: ${job.type}`);
 
   await new Promise((resolve) => setTimeout(resolve, duration));

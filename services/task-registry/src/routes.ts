@@ -1,12 +1,6 @@
 import express, { Request, Response } from "express";
 import { createJob, updateJob, getJobById, listJobs } from "./models";
 import { z, ZodError } from "zod";
-import {
-  Job,
-  JobDirection,
-  JobType,
-  JobState,
-} from "../../shared/types";
 import logger from "./logger";
 
 // Define schemas locally to avoid module resolution issues
@@ -39,11 +33,11 @@ router.post("/jobs", (req: Request, res: Response) => {
     }
 
     const now = new Date().toISOString();
-    const job: Job = {
+    const job = {
       ...validatedData.data,
       createdAt: now,
       updatedAt: now,
-      state: "pending" as JobState,
+      state: "pending",
     };
 
     logger.info("Creating job:", job);

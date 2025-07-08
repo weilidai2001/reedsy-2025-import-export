@@ -7,17 +7,24 @@ import {
   ImportJobResponse,
   JobListResponse,
 } from "../types";
-import {
-  Job,
-  JobSchema,
-  JobSchema as validateJobSchema,
-} from "../../../shared/types";
 import { validate } from "../middleware/validate";
 import logger from "../logger";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
 
 const router = Router();
+
+const JobSchema = z.object({
+  requestId: z.string(),
+  bookId: z.string(),
+  direction: z.enum(["import", "export"]),
+  type: z.enum(["epub", "pdf", "word", "wattpad", "evernote"]),
+  state: z.enum(["pending", "processing", "finished", "failed"]),
+  sourceUrl: z.string().optional(),
+  resultUrl: z.string().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
 
 const exportJobSchema = z.object({
   bookId: z.string(),
