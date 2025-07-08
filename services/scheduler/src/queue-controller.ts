@@ -10,7 +10,7 @@ import logger from "./logger";
 export const queueRouter = express.Router();
 
 const EnqueueSchema = z.object({
-  id: z.string().uuid(),
+  requestId: z.string().uuid(),
   direction: z.enum(["import", "export"]),
   type: z.enum(["epub", "pdf", "word", "wattpad", "evernote"]),
 });
@@ -34,14 +34,14 @@ queueRouter.post("/", (req, res) => {
   };
 
   logger.info("Enqueuing job", {
-    jobId: job.id,
+    jobId: job.requestId,
     direction: job.direction,
     type: job.type,
   });
   enqueueJob(job);
-  updateMetrics("enqueue", job.id);
+  updateMetrics("enqueue", job.requestId);
 
-  logger.info("Job enqueued successfully", { jobId: job.id });
+  logger.info("Job enqueued successfully", { jobId: job.requestId });
   return res.sendStatus(204);
 });
 
@@ -55,13 +55,13 @@ queueRouter.post("/dequeue", (req, res) => {
   }
 
   logger.info("Dequeuing job", {
-    jobId: job.id,
+    jobId: job.requestId,
     direction: job.direction,
     type: job.type,
   });
-  updateMetrics("dequeue", job.id);
+  updateMetrics("dequeue", job.requestId);
 
-  logger.info("Job dequeued successfully", { jobId: job.id });
+  logger.info("Job dequeued successfully", { jobId: job.requestId });
   return res.json(job);
 });
 

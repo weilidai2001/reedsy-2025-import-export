@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Job, JobState, validateJobSchema } from "../../shared/types";
+import { Job, JobSchema, JobState } from "../../shared/types";
 import { processJob } from "./job-processor";
 import { state } from "./job-state";
 import logger from "./logger";
@@ -11,16 +11,18 @@ const REGISTRY_URL = process.env.TASK_REGISTRY_URL!;
 
 // Validate that required environment variables are set
 function validateEnvironment() {
-  const requiredVars = ['SCHEDULER_URL', 'TASK_REGISTRY_URL'];
-  const missing = requiredVars.filter(varName => !process.env[varName]);
-  
+  const requiredVars = ["SCHEDULER_URL", "TASK_REGISTRY_URL"];
+  const missing = requiredVars.filter((varName) => !process.env[varName]);
+
   if (missing.length > 0) {
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+    throw new Error(
+      `Missing required environment variables: ${missing.join(", ")}`
+    );
   }
-  
-  logger.info('Environment validated', { 
+
+  logger.info("Environment validated", {
     schedulerUrl: SCHEDULER_URL,
-    registryUrl: REGISTRY_URL
+    registryUrl: REGISTRY_URL,
   });
 }
 
@@ -29,12 +31,14 @@ export async function startPollingLoop() {
   try {
     validateEnvironment();
   } catch (err: any) {
-    logger.error('Environment validation failed', { error: err?.message || String(err) });
+    logger.error("Environment validation failed", {
+      error: err?.message || String(err),
+    });
     throw err; // Stop the polling loop if environment is not properly configured
   }
 
-  logger.info('Starting job polling loop');
-  
+  logger.info("Starting job polling loop");
+
   while (true) {
     if (!state.isIdle) {
       await delay(1000);
@@ -43,67 +47,78 @@ export async function startPollingLoop() {
 
     try {
       // Step 1: Check for available jobs
-      logger.debug('Checking for available jobs', { url: `${SCHEDULER_URL}/queue` });
+      logger.debug("Checking for available jobs", {
+        url: `${SCHEDULER_URL}/queue`,
+      });
       let jobs;
       try {
         const response = await axios.get(`${SCHEDULER_URL}/queue`, {
           timeout: 5000, // Add timeout to prevent hanging requests
-          validateStatus: (status) => status === 200 // Only accept 200 status
+          validateStatus: (status) => status === 200, // Only accept 200 status
         });
         jobs = response.data;
       } catch (queueErr: any) {
         const status = queueErr.response?.status;
         const data = queueErr.response?.data;
-        
-        logger.error('Failed to fetch queue', { 
+
+        logger.error("Failed to fetch queue", {
           error: queueErr?.message || String(queueErr),
           status,
           data,
-          url: `${SCHEDULER_URL}/queue`
+          url: `${SCHEDULER_URL}/queue`,
         });
-        
+
         await delay(ERROR_RETRY_INTERVAL_MS);
         continue;
       }
-      
+
       // Check if there are jobs available
       if (!Array.isArray(jobs) || jobs.length === 0) {
-        logger.debug('No jobs available');
+        logger.debug("No jobs available");
         await delay(POLL_INTERVAL_MS);
         continue;
       }
 
       // Step 2: Dequeue a job
-      logger.info('Jobs available, attempting to dequeue', { count: jobs.length });
+      logger.info("Jobs available, attempting to dequeue", {
+        count: jobs.length,
+      });
       let job;
       try {
-        const response = await axios.post(`${SCHEDULER_URL}/queue/dequeue`, {}, {
-          timeout: 5000,
-          validateStatus: (status) => status === 200
-        });
+        const response = await axios.post(
+          `${SCHEDULER_URL}/queue/dequeue`,
+          {},
+          {
+            timeout: 5000,
+            validateStatus: (status) => status === 200,
+          }
+        );
         job = response.data;
       } catch (dequeueErr: any) {
         const status = dequeueErr.response?.status;
         const data = dequeueErr.response?.data;
-        
-        logger.error('Failed to dequeue job', { 
+
+        logger.error("Failed to dequeue job", {
           error: dequeueErr?.message || String(dequeueErr),
           status,
           data,
-          url: `${SCHEDULER_URL}/queue/dequeue`
+          url: `${SCHEDULER_URL}/queue/dequeue`,
         });
-        
+
         await delay(ERROR_RETRY_INTERVAL_MS);
         continue;
       }
 
       // Step 3: Validate job schema
-      const parsed = validateJobSchema.safeParse(job);
+      const parsed = JobSchema.safeParse(job);
       if (!parsed.success) {
-        logger.error('Invalid job schema', { 
-          jobId: typeof job === 'object' && job !== null && 'id' in job ? job.id : 'unknown', 
+        logger.error("Invalid job schema", {
+          jobId:
+            typeof job === "object" && job !== null && "id" in job
+              ? job.id
+              : "unknown",
           errors: parsed.error.format(),
-          job: JSON.stringify(job)
+          job: JSON.stringify(job),
         });
         await delay(POLL_INTERVAL_MS);
         continue;
@@ -112,21 +127,21 @@ export async function startPollingLoop() {
       // Step 4: Process the job
       await handleJob(parsed.data);
     } catch (err: any) {
-      const requestUrl = err.config?.url || 'unknown';
-      const requestMethod = err.config?.method?.toUpperCase() || 'unknown';
+      const requestUrl = err.config?.url || "unknown";
+      const requestMethod = err.config?.method?.toUpperCase() || "unknown";
       const responseData = err.response?.data || {};
       const status = err.response?.status;
-      
-      logger.error('Polling error', { 
-        service: 'Handler',
+
+      logger.error("Polling error", {
+        service: "Handler",
         error: err?.message || String(err),
         status,
         statusText: err.response?.statusText,
         requestUrl,
         requestMethod,
-        responseData
+        responseData,
       });
-      
+
       await delay(ERROR_RETRY_INTERVAL_MS);
     }
   }
@@ -137,32 +152,32 @@ async function handleJob(job: Job) {
   const start = Date.now();
 
   logger.info("Starting job", {
-    jobId: job.id,
+    jobId: job.requestId,
     type: job.type,
     direction: job.direction,
     state: "startingProcessing",
   });
 
-  await patchJobState(job.id, "processing");
+  await patchJobState(job.requestId, "processing");
 
   try {
     await processJob(job);
     const duration = Date.now() - start;
-    await patchJobState(job.id, "finished");
+    await patchJobState(job.requestId, "finished");
 
-    state.recordSuccess(job.id, duration);
+    state.recordSuccess(job.requestId, duration);
     logger.info("Finished job", {
-      jobId: job.id,
+      jobId: job.requestId,
       type: job.type,
       direction: job.direction,
       state: "finishedProcessing",
     });
   } catch (err: any) {
     const duration = Date.now() - start;
-    await patchJobState(job.id, "failed");
-    state.recordFailure(job.id, duration, err);
+    await patchJobState(job.requestId, "failed");
+    state.recordFailure(job.requestId, duration, err);
     logger.error("Failed job", {
-      jobId: job.id,
+      jobId: job.requestId,
       error: err?.message || String(err),
     });
   } finally {
@@ -176,23 +191,27 @@ function delay(ms: number) {
 
 async function patchJobState(id: string, state: JobState) {
   try {
-    await axios.patch(`${REGISTRY_URL}/jobs/${id}`, { state }, {
-      timeout: 5000,
-      validateStatus: (status) => status >= 200 && status < 300
-    });
-    logger.debug('Updated job state', { jobId: id, state });
+    await axios.patch(
+      `${REGISTRY_URL}/jobs/${id}`,
+      { state },
+      {
+        timeout: 5000,
+        validateStatus: (status) => status >= 200 && status < 300,
+      }
+    );
+    logger.debug("Updated job state", { jobId: id, state });
   } catch (err: any) {
     const status = err.response?.status;
     const data = err.response?.data;
-    
-    logger.error('Failed to update job state', { 
-      jobId: id, 
+
+    logger.error("Failed to update job state", {
+      jobId: id,
       state,
       error: err?.message || String(err),
       status,
-      data
+      data,
     });
-    
+
     // Re-throw to be handled by the caller
     throw err;
   }
