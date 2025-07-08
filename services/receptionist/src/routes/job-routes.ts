@@ -110,42 +110,7 @@ router.post(
   }
 );
 
-// POST /imports
-router.post(
-  "/imports",
-  validate(importJobSchema),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      // Create job in TaskRegistry
-      const taskRegistryRes = await axios.post(
-        `${process.env.TASK_REGISTRY_URL}/jobs`,
-        {
-          ...req.body,
-          jobType: "import",
-          direction: "import",
-        }
-      );
-      const jobId = (taskRegistryRes.data as { jobId: string }).jobId;
 
-      // Send job to Scheduler
-      await axios.post(`${process.env.SCHEDULER_URL}/queue`, {
-        jobId,
-        jobType: "import",
-        direction: "import",
-        type: req.body.type,
-        bookId: req.body.bookId,
-        state: "pending",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-
-      const response: ImportJobResponse = { jobId };
-      res.status(201).json(response);
-    } catch (err) {
-      next(err);
-    }
-  }
-);
 
 // GET /exports
 router.get(
