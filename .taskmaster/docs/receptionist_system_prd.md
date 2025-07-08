@@ -4,12 +4,14 @@
 
 This system handles the import and export of digital books in batch format. It is composed of four core services:
 
-- **Receptionist** — Public-facing REST API gateway
+- **API Gateway** — Entry point for all client requests, provides load balancing, rate limiting, and bot filtering
+- **Receptionist** — Public-facing REST API gateway (behind API Gateway)
 - **Scheduler** — In-memory queue manager
 - **Handler** — Workers that process jobs
-- **TaskRegistry** — Persistent job store (wrapped around SQLite)
+- **TaskRegistry** — In-memory job store with ORM-like interface
+- **Central Logging Service** — NodeJS+Express service for collecting logs from all services
 
-The system is horizontally scalable, decoupled, and each service communicates via HTTP.
+The system is horizontally scalable, decoupled, and each service communicates via HTTP. All logs are piped to the Central Logging Service, simulating a real microservices architecture.
 
 ---
 
@@ -19,11 +21,16 @@ The system is horizontally scalable, decoupled, and each service communicates vi
 
 ```mermaid
 flowchart TD
-  subgraph Shared Volume
-    SQLITE[(task-registry.sqlite<br/>WAL file)]
+  subgraph External
+    CLIENT(Client)
+  end
+
+  subgraph Infra
+    LOGGING[Central Logging Service]
   end
 
   subgraph Cluster
+    GATEWAY(API Gateway)
     RECEPTIONIST1(Receptionist-1)
     RECEPTIONIST2(Receptionist-2)
     SCHEDULER(Scheduler)
@@ -32,29 +39,48 @@ flowchart TD
     TASKREGISTRY(TaskRegistry Service)
   end
 
-  TASKREGISTRY -. R/W .-> SQLITE
-  RECEPTIONIST1 -- HTTP --> TASKREGISTRY
-  RECEPTIONIST2 -- HTTP --> TASKREGISTRY
-  HANDLER1      -- HTTP --> TASKREGISTRY
-  HANDLER2      -- HTTP --> TASKREGISTRY
+  CLIENT -- HTTP --> GATEWAY
+  GATEWAY -- HTTP --> RECEPTIONIST1
+  GATEWAY -- HTTP --> RECEPTIONIST2
 
-  RECEPTIONIST1 -- HTTP --> SCHEDULER
-  RECEPTIONIST2 -- HTTP --> SCHEDULER
-  SCHEDULER     -- dispatch --> HANDLER1
-  SCHEDULER     -- dispatch --> HANDLER2
+  RECEPTIONIST1 -- HTTP POST --> TASKREGISTRY
+  RECEPTIONIST2 -- HTTP POST --> TASKREGISTRY
+  HANDLER1      -- HTTP POST --> TASKREGISTRY
+  HANDLER2      -- HTTP POST --> TASKREGISTRY
+
+  RECEPTIONIST1 -- HTTP POST --> SCHEDULER
+  RECEPTIONIST2 -- HTTP POST --> SCHEDULER
+  SCHEDULER     -- HTTP GET (Poll) --> HANDLER1
+  SCHEDULER     -- HTTP GET (Poll) --> HANDLER2
+
+  RECEPTIONIST1 -- HTTP (Log) --> LOGGING
+  RECEPTIONIST2 -- HTTP (Log) --> LOGGING
+  SCHEDULER -- HTTP (Log) --> LOGGING
+  HANDLER1 -- HTTP (Log) --> LOGGING
+  HANDLER2 -- HTTP (Log) --> LOGGING
+  TASKREGISTRY -- HTTP (Log) --> LOGGING
 ```
+
+---
 
 ---
 
 ## Services
 
-### 1. Receptionist
+### 1. API Gateway
+
+- Framework: Express (NodeJS)
+- Role: Entry point for all client requests. Handles load balancing between Receptionist instances, provides rate limiting and bot filtering for security. Forwards valid requests to Receptionist.
+- (Optional) Could provide API keys or JWT validation.
+
+---
+
+### 2. Receptionist
 
 - Framework: Express
-- Role: Accepts and validates requests, creates job records in TaskRegistry, sends jobs to Scheduler
+- Role: Accepts and validates requests from API Gateway, creates job records in TaskRegistry, sends jobs to Scheduler
 - Exposes Swagger UI at `/docs`
-
-#### Endpoints
+- All logs are piped to Central Logging Service
 
 ##### POST `/exports`
 
@@ -110,10 +136,11 @@ Grouped job listings by state:
 
 ---
 
-### 2. Scheduler
+### 3. Scheduler
 
 - Framework: Express
 - Role: In-memory FIFO queue per job type. BullMQ-like interface. Dispatches to Handlers.
+- All logs are piped to Central Logging Service
 
 #### Endpoint
 
@@ -133,11 +160,12 @@ Response: `204 No Content`
 
 ---
 
-### 3. Handler
+### 4. Handler
 
 - Framework: Node.js
 - Role: Long-poll or subscribe to Scheduler, process job with simulated delay, update TaskRegistry
 - Not exposed via HTTP
+- All logs are piped to Central Logging Service
 
 #### Processing times
 
@@ -149,11 +177,12 @@ Response: `204 No Content`
 
 ---
 
-### 4. TaskRegistry
+### 5. TaskRegistry
 
 - Framework: Express
-- DB: SQLite (WAL mode)
-- Role: Owns the job table, handles create/update/query
+- DB: In-memory database with ORM-like interface (no SQLite)
+- Role: Owns the job table in memory, handles create/update/query
+- All logs are piped to Central Logging Service
 
 #### Endpoints
 
@@ -224,13 +253,37 @@ type Job = {
 
 ---
 
+## Central Logging Service
+
+- Framework: Express (NodeJS)
+- Role: Receives logs from all services via HTTP (e.g., POST `/logs`). Stores logs in memory or streams to disk for development/testing. Provides endpoints for querying logs (optional).
+- All services should use a common logging interface/library to send logs to this service.
+- Example log format:
+
+```json
+{
+  "timestamp": "2025-07-08T19:35:36+01:00",
+  "service": "receptionist",
+  "level": "info",
+  "message": "Job created",
+  "meta": { "jobId": "uuid" }
+}
+```
+
+---
+
 ## Notes
 
 - All APIs are HTTP/JSON
 - All filenames must use **kebab-case**
 - All services are Express-based
 - Swagger UI is served at `/docs` on each service for testing and documentation
-- SQLite is wrapped and isolated inside the TaskRegistry service
+- TaskRegistry uses an in-memory DB with ORM-like interface (no SQLite or external DB)
+- Central Logging Service receives logs from all services via HTTP
+- API Gateway is the entry point for all client traffic, providing load balancing, rate limiting, and bot filtering
+- All filenames must use **kebab-case**
+- All services are Express-based
+- Swagger UI is served at `/docs` on each service for testing and documentation
 - Queue implementation is in-memory with BullMQ-style interface, no Redis or 3rd-party queues
 - the source code is in the `src` directory
 - each service is in a separate directory under src with their independent package.json
