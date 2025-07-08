@@ -8,7 +8,9 @@ import {
   ImportJobResponse,
   JobListResponse,
 } from "../types";
+import { Job } from "../../../shared/types";
 import { validate } from "../middleware/validate";
+import logger from "../logger";
 
 const router = Router();
 
@@ -28,6 +30,7 @@ router.post(
   "/exports",
   validate(exportJobSchema),
   async (req: Request, res: Response, next: NextFunction) => {
+    logger.info("Received job enqueue request", { body: req.body });
     try {
       // Create job in TaskRegistry
       const taskRegistryRes = await axios.post(
@@ -40,15 +43,66 @@ router.post(
       );
       const jobId = (taskRegistryRes.data as { jobId: string }).jobId;
 
-      // Send job to Scheduler
-      await axios.post(`${process.env.SCHEDULER_URL}/queue`, {
-        jobId,
-        jobType: "export",
+      const payloadToScheduler: Job = {
+        id: jobId,
         direction: "export",
         type: req.body.type,
-      });
+        bookId: req.body.bookId,
+        state: "pending",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      logger.info("Enqueuing job", payloadToScheduler);
+
+      // Send job to Scheduler
+      await axios.post(
+        `${process.env.SCHEDULER_URL}/queue`,
+        payloadToScheduler
+      );
 
       const response: ExportJobResponse = { jobId };
+      res.status(201).json(response);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+// POST /imports
+router.post(
+  "/imports",
+  validate(importJobSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Create job in TaskRegistry
+      const taskRegistryRes = await axios.post(
+        `${process.env.TASK_REGISTRY_URL}/jobs`,
+        {
+          ...req.body,
+          jobType: "import",
+          direction: "import",
+        }
+      );
+      const jobId = (taskRegistryRes.data as { jobId: string }).jobId;
+
+      const payloadToScheduler: Job = {
+        id: jobId,
+        direction: "import",
+        type: req.body.type,
+        bookId: req.body.bookId,
+        state: "pending",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Send job to Scheduler
+      await axios.post(
+        `${process.env.SCHEDULER_URL}/queue`,
+        payloadToScheduler
+      );
+
+      const response: ImportJobResponse = { jobId };
       res.status(201).json(response);
     } catch (err) {
       next(err);
@@ -79,6 +133,10 @@ router.post(
         jobType: "import",
         direction: "import",
         type: req.body.type,
+        bookId: req.body.bookId,
+        state: "pending",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       });
 
       const response: ImportJobResponse = { jobId };
