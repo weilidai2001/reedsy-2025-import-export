@@ -34,14 +34,14 @@ queueRouter.post("/", (req, res) => {
   };
 
   logger.info("Enqueuing job", {
-    jobId: job.requestId,
+    requestId: job.requestId,
     direction: job.direction,
     type: job.type,
   });
   enqueueJob(job);
   updateMetrics("enqueue", job.requestId);
 
-  logger.info("Job enqueued successfully", { jobId: job.requestId });
+  logger.info("Job enqueued successfully", { requestId: job.requestId });
   return res.sendStatus(204);
 });
 
@@ -55,13 +55,13 @@ queueRouter.post("/dequeue", (req, res) => {
   }
 
   logger.info("Dequeuing job", {
-    jobId: job.requestId,
+    requestId: job.requestId,
     direction: job.direction,
     type: job.type,
   });
   updateMetrics("dequeue", job.requestId);
 
-  logger.info("Job dequeued successfully", { jobId: job.requestId });
+  logger.info("Job dequeued successfully", { requestId: job.requestId });
   return res.json(job);
 });
 
