@@ -11,7 +11,7 @@
     "./services/shared"
   ],
   "scripts": {
-    "dev": "concurrently --kill-others \"npm run receptionist:dev\" \"npm run scheduler:dev\" \"npm run task-registry:dev\"",
+    "dev": "concurrently --kill-others \"npm run receptionist:dev\" \"npm run scheduler:dev\" \"npm run task-registry:dev\" \"npm run handler:dev\"",
     "api-gateway:dev": "npm run dev --workspace services/api-gateway",
     "handler:dev": "npm run dev --workspace services/handler",
     "receptionist:dev": "npm run dev --workspace services/receptionist",
