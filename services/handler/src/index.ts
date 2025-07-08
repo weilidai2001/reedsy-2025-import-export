@@ -10,8 +10,12 @@ import { startPollingLoop } from "./job-runner";
 import { getPortFromUrl } from "../../shared/url-util";
 
 const app = createServer();
-app.listen(getPortFromUrl(process.env.HANDLER_URL), () => {
-  logger.info(`Handler Service running on port ${process.env.HANDLER_PORT}`);
+const PORT = getPortFromUrl(process.env.HANDLER_URL);
+if (!PORT) {
+  throw new Error("HANDLER_URL is not defined");
+}
+app.listen(PORT, () => {
+  logger.info(`Handler Service running ${process.env.HANDLER_URL}`);
 });
 
 startPollingLoop();
