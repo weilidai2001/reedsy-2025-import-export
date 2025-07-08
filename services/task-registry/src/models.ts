@@ -1,5 +1,4 @@
 import db from "./db";
-import type { Job } from "../../shared/types";
 
 // Define the Job interface explicitly to match the database schema
 interface DbJob {
