@@ -36,16 +36,3 @@ export const JobSchema = z.object({
 
 // Extract the Job type from the schema
 export type Job = z.infer<typeof JobSchema>;
-
-export const TaskRegistryCreateJobSchema = z.object({
-  requestId: z.string().uuid(),
-  bookId: z.string().uuid(),
-  direction: JobDirectionEnum,
-  type: JobTypeEnum,
-  sourceUrl: z.string().optional(),
-});
-
-export const TaskRegistryUpdateJobSchema = z.object({
-  state: JobStateEnum,
-  resultUrl: z.string().optional(),
-});

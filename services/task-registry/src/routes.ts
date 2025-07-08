@@ -1,28 +1,27 @@
 import express, { Request, Response } from "express";
 import { createJob, updateJob, getJobById, listJobs } from "./models";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import {
   Job,
-  JobDirectionEnum,
-  JobTypeEnum,
-  JobStateEnum,
+  JobDirection,
+  JobType,
+  JobState,
 } from "../../shared/types";
+import logger from "./logger";
 
-// Define schemas locally to avoid module resolution issues with ts-node
+// Define schemas locally to avoid module resolution issues
 const TaskRegistryCreateJobSchema = z.object({
   requestId: z.string().uuid(),
   bookId: z.string().uuid(),
-  direction: JobDirectionEnum,
-  type: JobTypeEnum,
+  direction: z.enum(["import", "export"]),
+  type: z.enum(["epub", "pdf", "word", "wattpad", "evernote"]),
   sourceUrl: z.string().optional(),
 });
 
 const TaskRegistryUpdateJobSchema = z.object({
-  state: JobStateEnum,
+  state: z.enum(["pending", "processing", "finished", "failed"]),
   resultUrl: z.string().optional(),
 });
-import { ZodError } from "zod";
-import logger from "./logger";
 
 const router = express.Router();
 
@@ -44,7 +43,7 @@ router.post("/jobs", (req: Request, res: Response) => {
       ...validatedData.data,
       createdAt: now,
       updatedAt: now,
-      state: "pending",
+      state: "pending" as JobState,
     };
 
     logger.info("Creating job:", job);

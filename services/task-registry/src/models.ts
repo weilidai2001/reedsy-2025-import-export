@@ -1,6 +1,19 @@
 import db from "./db";
 import type { Job } from "../../shared/types";
 
+// Define the Job interface explicitly to match the database schema
+interface DbJob {
+  requestId: string;
+  bookId: string;
+  direction: string;
+  type: string;
+  state: string;
+  sourceUrl?: string;
+  resultUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export function initializeJobsTable() {
   db.run(`CREATE TABLE IF NOT EXISTS jobs (
     requestId TEXT PRIMARY KEY,
@@ -16,18 +29,18 @@ export function initializeJobsTable() {
   );`);
 }
 
-export function createJob(job: Job, callback: (err: Error | null) => void) {
+export function createJob(job: DbJob, callback: (err: Error | null) => void) {
   const stmt = db.prepare(`INSERT INTO jobs (
     requestId, bookId, direction, type, state, sourceUrl, resultUrl, createdAt, updatedAt
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`);
   stmt.run(
     job.requestId,
     job.bookId,
     job.direction,
     job.type,
     job.state,
-    job.sourceUrl,
-    job.resultUrl,
+    job.sourceUrl || null,
+    job.resultUrl || null,
     job.createdAt,
     job.updatedAt,
     callback
@@ -37,7 +50,7 @@ export function createJob(job: Job, callback: (err: Error | null) => void) {
 
 export function updateJob(
   id: string,
-  updates: Partial<Job>,
+  updates: Partial<DbJob>,
   callback: (err: Error | null) => void
 ) {
   const fields = Object.keys(updates)
@@ -50,20 +63,20 @@ export function updateJob(
 
 export function getJobById(
   id: string,
-  callback: (err: Error | null, job?: Job) => void
+  callback: (err: Error | null, job?: DbJob) => void
 ) {
   db.get(
     "SELECT * FROM jobs WHERE requestId = ?",
     [id],
     (err: Error | null, row: unknown) => {
-      callback(err, row as Job);
+      callback(err, row as DbJob);
     }
   );
 }
 
 export function listJobs(
   direction?: string,
-  callback?: (err: Error | null, jobs?: Job[]) => void
+  callback?: (err: Error | null, jobs?: DbJob[]) => void
 ) {
   let sql = "SELECT * FROM jobs";
   const params: string[] = [];
@@ -72,6 +85,6 @@ export function listJobs(
     params.push(direction);
   }
   db.all(sql, params, (err: Error | null, rows: unknown[]) => {
-    if (callback) callback(err, rows as Job[]);
+    if (callback) callback(err, rows as DbJob[]);
   });
 }
