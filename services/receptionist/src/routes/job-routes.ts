@@ -1,5 +1,4 @@
-import { Router, Request, Response, NextFunction } from "express";
-import Joi from "joi";
+import { Router, Request, Response } from "express";
 import axios from "axios";
 import {
   ExportJobRequest,
@@ -8,79 +7,134 @@ import {
   ImportJobResponse,
   JobListResponse,
 } from "../types";
-import { Job, JobSchema as validateJobSchema } from "../../../shared/types";
+import {
+  Job,
+  JobSchema,
+  JobSchema as validateJobSchema,
+} from "../../../shared/types";
 import { validate } from "../middleware/validate";
 import logger from "../logger";
+import { z } from "zod";
+import { v4 as uuidv4 } from "uuid";
 
 const router = Router();
 
-const exportJobSchema = Joi.object<ExportJobRequest>({
-  bookId: Joi.string().required(),
-  type: Joi.string().valid("epub", "pdf").required(),
+const exportJobSchema = z.object({
+  bookId: z.string(),
+  type: z.enum(["epub", "pdf"]),
 });
 
-const importJobSchema = Joi.object<ImportJobRequest>({
-  bookId: Joi.string().required(),
-  type: Joi.string().valid("word", "pdf", "wattpad", "evernote").required(),
-  url: Joi.string().uri().required(),
+const importJobSchema = z.object({
+  bookId: z.string(),
+  type: z.enum(["word", "pdf", "wattpad", "evernote"]),
+  url: z.string().url(),
 });
+
+const TaskRegistryCreateJobSchema = z.object({
+  requestId: z.string().uuid(),
+  bookId: z.string().uuid(),
+  direction: z.enum(["import", "export"]),
+  type: z.enum(["epub", "pdf", "word", "wattpad", "evernote"]),
+  sourceUrl: z.string().optional(),
+});
+
+/**
+ * Creates a job in the TaskRegistry and queues it in the Scheduler
+ * @param direction The direction of the job (import or export)
+ */
+const createJob = async (
+  req: Request,
+  res: Response,
+  direction: "import" | "export"
+) => {
+  logger.info(`Received ${direction} job request`, { body: req.body });
+  try {
+    // Prepare job data based on direction
+    let jobData: any;
+
+    if (direction === "export") {
+      jobData = {
+        requestId: uuidv4(),
+        bookId: req.body.bookId,
+        direction: "export",
+        type: req.body.type,
+        sourceUrl: undefined,
+      };
+    } else {
+      // import
+      jobData = {
+        ...req.body,
+        direction: "import",
+      };
+    }
+
+    // Validate job data for TaskRegistry
+    const parsed = TaskRegistryCreateJobSchema.safeParse(jobData);
+    if (!parsed.success) {
+      logger.error("Invalid job schema", {
+        errors: parsed.error.format(),
+        job: JSON.stringify(jobData),
+      });
+      res.status(400).json({ error: parsed.error.format() });
+      return;
+    }
+
+    logger.info(`Validated ${direction} job data`, parsed.data);
+
+    // Create job in TaskRegistry
+    const taskRegistryRes = await axios.post(
+      `${process.env.TASK_REGISTRY_URL}/jobs`,
+      parsed.data
+    );
+
+    logger.info(
+      `${
+        direction.charAt(0).toUpperCase() + direction.slice(1)
+      } job created in TaskRegistry`,
+      taskRegistryRes.data
+    );
+
+    // Validate TaskRegistry response
+    const parsedTaskRegistryRes = JobSchema.safeParse(taskRegistryRes.data);
+    if (!parsedTaskRegistryRes.success) {
+      logger.error("Invalid job schema from TaskRegistry", {
+        errors: parsedTaskRegistryRes.error.format(),
+        job: JSON.stringify(taskRegistryRes.data),
+      });
+      res.status(400).json({ error: parsedTaskRegistryRes.error.format() });
+      return;
+    }
+
+    logger.info(
+      `${
+        direction.charAt(0).toUpperCase() + direction.slice(1)
+      } job created in TaskRegistry`,
+      parsedTaskRegistryRes.data
+    );
+
+    // Send job to Scheduler
+    await axios.post(
+      `${process.env.SCHEDULER_URL}/queue`,
+      parsedTaskRegistryRes.data
+    );
+
+    // Return response based on job type
+    const response = {
+      jobId: parsedTaskRegistryRes.data.requestId,
+    };
+    res.status(201).json(response);
+  } catch (err: any) {
+    logger.error(`Error creating ${direction} job`, err);
+    res.status(500).json({ error: err.message });
+  }
+};
 
 // POST /exports
 router.post(
   "/exports",
   validate(exportJobSchema),
   async (req: Request, res: Response) => {
-    logger.info("Received job enqueue request", { body: req.body });
-    try {
-      // Create job in TaskRegistry
-      const taskRegistryRes = await axios.post(
-        `${process.env.TASK_REGISTRY_URL}/jobs`,
-        {
-          ...req.body,
-          jobType: "export",
-          direction: "export",
-        }
-      );
-
-      logger.info("Job created in TaskRegistry", taskRegistryRes.data);
-
-      // validate taskRegistryRes.data is a type of Job
-      const parsed = validateJobSchema.safeParse(taskRegistryRes.data);
-      if (!parsed.success) {
-        logger.error("Invalid job schema", {
-          jobId:
-            typeof taskRegistryRes.data === "object" &&
-            taskRegistryRes.data !== null &&
-            "id" in taskRegistryRes.data
-              ? taskRegistryRes.data.id
-              : "unknown",
-          errors: parsed.error.format(),
-          job: JSON.stringify(taskRegistryRes.data),
-        });
-        logger.error(parsed.error.format());
-        res.status(400).json({ error: parsed.error.format() });
-        return; // Add return statement to prevent further execution
-      }
-
-      // Ensure parsed.data exists before proceeding
-      if (!parsed.data) {
-        logger.error("Parsed data is undefined");
-        res
-          .status(500)
-          .json({ error: "Internal server error processing job data" });
-        return;
-      }
-
-      logger.info("Enqueuing job", parsed.data);
-
-      // Send job to Scheduler
-      await axios.post(`${process.env.SCHEDULER_URL}/queue`, parsed.data);
-
-      const response: ExportJobResponse = { jobId: parsed.data.id };
-      res.status(201).json(response);
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
-    }
+    await createJob(req, res, "export");
   }
 );
 
@@ -89,51 +143,7 @@ router.post(
   "/imports",
   validate(importJobSchema),
   async (req: Request, res: Response) => {
-    try {
-      // Create job in TaskRegistry
-      const taskRegistryRes = await axios.post(
-        `${process.env.TASK_REGISTRY_URL}/jobs`,
-        {
-          ...req.body,
-          jobType: "import",
-          direction: "import",
-        }
-      );
-
-      // validate taskRegistryRes.data is a type of Job
-      const parsed = validateJobSchema.safeParse(taskRegistryRes.data);
-      if (!parsed.success) {
-        logger.error("Invalid job schema", {
-          jobId:
-            typeof taskRegistryRes.data === "object" &&
-            taskRegistryRes.data !== null &&
-            "id" in taskRegistryRes.data
-              ? taskRegistryRes.data.id
-              : "unknown",
-          errors: parsed.error.format(),
-          job: JSON.stringify(taskRegistryRes.data),
-        });
-        logger.error(parsed.error.format());
-        res.status(400).json({ error: parsed.error.format() });
-        return; // Add return statement to prevent further execution
-      }
-
-      // Ensure parsed.data exists before proceeding
-      if (!parsed.data) {
-        logger.error("Parsed data is undefined");
-        res
-          .status(500)
-          .json({ error: "Internal server error processing job data" });
-        return;
-      }
-
-      const payloadToScheduler: Job = parsed.data;
-
-      const response: ImportJobResponse = { jobId: payloadToScheduler.id };
-      res.status(201).json(response);
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
-    }
+    await createJob(req, res, "import");
   }
 );
 
