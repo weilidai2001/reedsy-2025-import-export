@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import router from "./routes";
 import { initializeJobsTable } from "./models";
@@ -12,8 +12,6 @@ initializeJobsTable();
 setupSwagger(app);
 
 app.use("/", router);
-
-import { Request, Response } from "express";
 
 app.get("/health", (req: Request, res: Response) => {
   res.status(200).json({ status: "ok" });

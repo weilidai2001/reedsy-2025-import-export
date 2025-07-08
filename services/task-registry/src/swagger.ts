@@ -16,13 +16,14 @@ const swaggerDocument = {
           required: true,
           content: {
             "application/json": {
-              schema: { $ref: "#/components/schemas/Job" },
+              schema: { $ref: "#/components/schemas/CreateJob" },
             },
           },
         },
         responses: {
           201: { description: "Job created" },
-          500: { description: "Error" },
+          400: { description: "Validation error" },
+          500: { description: "Internal server error" },
         },
       },
       get: {
@@ -37,7 +38,15 @@ const swaggerDocument = {
         ],
         responses: {
           200: { description: "List of jobs" },
-          500: { description: "Error" },
+          500: { description: "Internal server error" },
+        },
+      },
+    },
+    "/health": {
+      get: {
+        summary: "Health check endpoint",
+        responses: {
+          200: { description: "Service is healthy" },
         },
       },
     },
@@ -54,12 +63,12 @@ const swaggerDocument = {
         ],
         responses: {
           200: { description: "Job details" },
-          404: { description: "Not found" },
-          500: { description: "Error" },
+          404: { description: "Job not found" },
+          500: { description: "Internal server error" },
         },
       },
       patch: {
-        summary: "Update job",
+        summary: "Update job state or result",
         parameters: [
           {
             name: "id",
@@ -72,14 +81,15 @@ const swaggerDocument = {
           required: true,
           content: {
             "application/json": {
-              schema: { $ref: "#/components/schemas/Job" },
+              schema: { $ref: "#/components/schemas/UpdateJob" },
             },
           },
         },
         responses: {
           200: { description: "Job updated" },
-          404: { description: "Not found" },
-          500: { description: "Error" },
+          400: { description: "Validation error" },
+          404: { description: "Job not found" },
+          500: { description: "Internal server error" },
         },
       },
     },
@@ -89,8 +99,8 @@ const swaggerDocument = {
       Job: {
         type: "object",
         properties: {
-          id: { type: "string" },
-          bookId: { type: "string" },
+          requestId: { type: "string", format: "uuid" },
+          bookId: { type: "string", format: "uuid" },
           direction: { type: "string", enum: ["import", "export"] },
           type: {
             type: "string",
@@ -102,12 +112,11 @@ const swaggerDocument = {
           },
           sourceUrl: { type: "string" },
           resultUrl: { type: "string" },
-          createdAt: { type: "string" },
-          updatedAt: { type: "string" },
-          startedAt: { type: "string" },
+          createdAt: { type: "string", format: "date-time" },
+          updatedAt: { type: "string", format: "date-time" },
         },
         required: [
-          "id",
+          "requestId",
           "bookId",
           "direction",
           "type",
@@ -115,6 +124,31 @@ const swaggerDocument = {
           "createdAt",
           "updatedAt",
         ],
+      },
+      CreateJob: {
+        type: "object",
+        properties: {
+          requestId: { type: "string", format: "uuid" },
+          bookId: { type: "string", format: "uuid" },
+          direction: { type: "string", enum: ["import", "export"] },
+          type: {
+            type: "string",
+            enum: ["epub", "pdf", "word", "wattpad", "evernote"],
+          },
+          sourceUrl: { type: "string" },
+        },
+        required: ["requestId", "bookId", "direction", "type"],
+      },
+      UpdateJob: {
+        type: "object",
+        properties: {
+          state: {
+            type: "string",
+            enum: ["pending", "processing", "finished", "failed"],
+          },
+          resultUrl: { type: "string" },
+        },
+        required: ["state"],
       },
     },
   },

@@ -44,3 +44,8 @@ export const TaskRegistryCreateJobSchema = z.object({
   type: JobTypeEnum,
   sourceUrl: z.string().optional(),
 });
+
+export const TaskRegistryUpdateJobSchema = z.object({
+  state: JobStateEnum,
+  resultUrl: z.string().optional(),
+});
