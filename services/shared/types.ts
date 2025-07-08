@@ -1,9 +1,20 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // Define the enum values once using Zod
 export const JobDirectionEnum = z.enum(["import", "export"]);
-export const JobTypeEnum = z.enum(["epub", "pdf", "word", "wattpad", "evernote"]);
-export const JobStateEnum = z.enum(["pending", "processing", "finished", "failed"]);
+export const JobTypeEnum = z.enum([
+  "epub",
+  "pdf",
+  "word",
+  "wattpad",
+  "evernote",
+]);
+export const JobStateEnum = z.enum([
+  "pending",
+  "processing",
+  "finished",
+  "failed",
+]);
 
 // Extract TypeScript types from the Zod schemas
 export type JobDirection = z.infer<typeof JobDirectionEnum>;
@@ -21,7 +32,6 @@ export const JobSchema = z.object({
   resultUrl: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
-  startedAt: z.string().optional(),
 });
 
 // Extract the Job type from the schema
