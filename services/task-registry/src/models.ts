@@ -1,5 +1,5 @@
 import db from "./db";
-import { Job } from "shared/types";
+import { Job } from "../../shared/types";
 
 export function initializeJobsTable() {
   db.run(`CREATE TABLE IF NOT EXISTS jobs (

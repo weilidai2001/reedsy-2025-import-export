@@ -6,7 +6,7 @@ import {
   TaskRegistryUpdateJobSchema,
 } from "../../shared/types";
 import { ZodError } from "zod";
-import { v4 as uuidv4 } from "uuid";
+import logger from "./logger";
 
 const router = express.Router();
 
@@ -14,16 +14,24 @@ const router = express.Router();
 router.post("/jobs", (req: Request, res: Response) => {
   try {
     // Validate request body against schema
-    const validatedData = TaskRegistryCreateJobSchema.parse(req.body);
+    const validatedData = TaskRegistryCreateJobSchema.safeParse(req.body);
+
+    if (!validatedData.success) {
+      return res.status(400).json({
+        error: "Validation error",
+        details: validatedData.error.format(),
+      });
+    }
 
     const now = new Date().toISOString();
     const job: Job = {
-      ...validatedData,
+      ...validatedData.data,
       createdAt: now,
       updatedAt: now,
       state: "pending",
     };
 
+    logger.info("Creating job:", job);
     createJob(job, (err) => {
       if (err) return res.status(500).json({ error: err.message });
       res.status(201).json(job);
@@ -35,6 +43,7 @@ router.post("/jobs", (req: Request, res: Response) => {
         details: error.errors,
       });
     }
+    logger.error("Internal server error", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -43,9 +52,16 @@ router.post("/jobs", (req: Request, res: Response) => {
 router.patch("/jobs/:id", (req: Request, res: Response) => {
   try {
     // Validate request body against schema
-    const validatedData = TaskRegistryUpdateJobSchema.parse(req.body);
+    const validatedData = TaskRegistryUpdateJobSchema.safeParse(req.body);
 
-    updateJob(req.params.id, validatedData, (err) => {
+    if (!validatedData.success) {
+      return res.status(400).json({
+        error: "Validation error",
+        details: validatedData.error.format(),
+      });
+    }
+
+    updateJob(req.params.id, validatedData.data, (err) => {
       if (err) return res.status(500).json({ error: err.message });
       getJobById(req.params.id, (err, job) => {
         if (err || !job)
@@ -60,6 +76,7 @@ router.patch("/jobs/:id", (req: Request, res: Response) => {
         details: error.errors,
       });
     }
+    logger.error("Internal server error", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });

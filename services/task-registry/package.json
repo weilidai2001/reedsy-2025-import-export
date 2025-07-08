@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "ts-node src/index.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/task-registry/task-registry/server.js"
   },
   "dependencies": {
     "@types/cors": "^2.8.19",
@@ -20,7 +20,8 @@
     "sqlite3": "^5.1.7",
     "swagger-ui-express": "^5.0.1",
     "ts-jest": "^29.4.0",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^24.0.10",
