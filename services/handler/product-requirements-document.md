@@ -23,8 +23,14 @@ The Handler Service is responsible for processing of book import and export jobs
 ### 2. Job Processing
 
 - Upon receiving a job, the Handler must:
+  - Ensure the job payload is valid using Zod schema defined in `shared/types.ts`.
+  - Log the job ID, type, state ("startingProcessing") and direction. Job ID should be it's own metadata when sending to logger, called jobId.
   - Send a `PATCH` request to `{{TaskRegistryUrl}}/jobs/{{jobId}}` with the job payload, setting `state` to `"processing"`.
   - Process the job according to its type and direction.
+  - Change the service status to `isIdle` to `false` when processing a job.
+  - After completing the job processing, send a `PATCH` request to `{{TaskRegistryUrl}}/jobs/{{jobId}}` with the job payload, setting `state` to `"finished"`.
+  - Log the job ID, type, state ("finishedProcessing") and direction.
+  - Change the service status to `isIdle` to `true` when no job is being processed.
 
 #### Job Types and Processing Times
 
@@ -42,6 +48,8 @@ The Handler Service is responsible for processing of book import and export jobs
 - `JobType`: `"epub"`, `"pdf"`, `"word"`, `"wattpad"`, `"evernote"`
 
 #### Job Schema
+
+Defined in `shared/types.ts`.
 
 ```typescript
 export type JobDirection = "import" | "export";
