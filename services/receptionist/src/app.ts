@@ -12,7 +12,7 @@ app.use((req, res, next) => {
   logger.info("Incoming request", {
     method: req.method,
     url: req.url,
-    body: req.body,
+    body: JSON.stringify(req.body),
   });
   next();
 });
