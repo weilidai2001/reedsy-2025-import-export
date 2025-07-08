@@ -166,7 +166,8 @@ router.get("/exports", async (req: Request, res: Response) => {
     const jobs = taskRegistryRes.data as JobListResponse;
     res.json(jobs);
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    logger.error(`Error fetching exports`, err);
+    res.status(500).json({ error: "internal server error" });
   }
 });
 
@@ -179,7 +180,8 @@ router.get("/imports", async (req: Request, res: Response) => {
     const jobs = taskRegistryRes.data as JobListResponse;
     res.json(jobs);
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    logger.error(`Error fetching imports`, err);
+    res.status(500).json({ error: "internal server error" });
   }
 });
 
