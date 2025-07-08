@@ -23,7 +23,7 @@ export type JobState = z.infer<typeof JobStateEnum>;
 
 // Define the Job schema using Zod
 export const JobSchema = z.object({
-  id: z.string(),
+  requestId: z.string(),
   bookId: z.string(),
   direction: JobDirectionEnum,
   type: JobTypeEnum,
@@ -37,5 +37,10 @@ export const JobSchema = z.object({
 // Extract the Job type from the schema
 export type Job = z.infer<typeof JobSchema>;
 
-// Export the validation schema (renamed for clarity)
-export const validateJobSchema = JobSchema;
+export const TaskRegistryCreateJobSchema = z.object({
+  requestId: z.string().uuid(),
+  bookId: z.string().uuid(),
+  direction: JobDirectionEnum,
+  type: JobTypeEnum,
+  sourceUrl: z.string().optional(),
+});

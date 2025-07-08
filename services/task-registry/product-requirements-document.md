@@ -32,6 +32,7 @@ src/
 
 ```json
 {
+  "requestId": "string-uuid",
   "bookId": "string-uuid",
   "direction": "import" | "export",
   "type": "epub" | "pdf" | "word" | "wattpad" | "evernote",
