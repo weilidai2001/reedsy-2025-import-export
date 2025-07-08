@@ -19,13 +19,13 @@ export const updateJob = (
 };
 
 export const selectAllJobs = () => {
-  return Jobs.findAll();
+  return Jobs.findAll()?.map((job) => job.toJSON());
 };
 
 export const selectJobsByDirection = (direction: Job["direction"]) => {
-  return Jobs.findMany({ where: { direction } });
+  return Jobs.findMany({ where: { direction } })?.map((job) => job.toJSON());
 };
 
 export const selectJobById = (requestId: Job["requestId"]) => {
-  return Jobs.findOne({ where: { requestId } });
+  return Jobs.findOne({ where: { requestId } })?.toJSON();
 };

@@ -34,6 +34,10 @@ class JobRecord {
     this.data.resultUrl = url;
   }
 
+  toJSON(): Job {
+    return this.data;
+  }
+
   async save(): Promise<void> {
     const index = db.findIndex((j) => j.requestId === this.data.requestId);
     if (index !== -1) {

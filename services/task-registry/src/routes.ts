@@ -4,6 +4,7 @@ import { z, ZodError } from "zod";
 import logger from "./logger";
 import {
   insertJob,
+  selectAllJobs,
   selectJobById,
   selectJobsByDirection,
   updateJob,
@@ -45,8 +46,11 @@ router.post("/jobs", (req: Request, res: Response) => {
     };
 
     logger.info("Creating job:", job);
+
     insertJob(job);
-    res.status(201).json(job);
+
+    const createdJob = selectJobById(job.requestId);
+    res.status(201).json(createdJob);
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({
@@ -91,9 +95,10 @@ router.patch("/jobs/:id", (req: Request, res: Response) => {
 
 // GET /jobs?direction=import|export - Return grouped job states
 router.get("/jobs", (req: Request, res: Response) => {
-  const jobs = selectJobsByDirection(
-    req.query.direction as "import" | "export"
-  );
+  const jobs = req.query.direction
+    ? selectJobsByDirection(req.query.direction as "import" | "export")
+    : selectAllJobs();
+
   res.json(jobs);
 });
 
