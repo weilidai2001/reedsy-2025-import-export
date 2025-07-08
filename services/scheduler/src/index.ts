@@ -3,4 +3,6 @@ import dotenv from "dotenv";
 
 dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
-import "./server";
+import { startServer } from "./server";
+
+startServer();

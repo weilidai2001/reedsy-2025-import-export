@@ -1,5 +1,5 @@
-import express from "express";
-import { enqueue, dequeue, queues } from "./queues";
+import * as express from "express";
+import { enqueueJob, dequeueJob, getAllJobs } from "./queue-manager";
 import { Job } from "../../shared/types";
 
 const router = express.Router();
@@ -19,7 +19,7 @@ router.post("/queue", ((req: express.Request, res: express.Response) => {
       .status(400)
       .json({ error: "Valid direction and type are required" });
   }
-  enqueue({
+  enqueueJob({
     ...job,
     direction: job.direction as "import" | "export",
     type: job.type as "epub" | "pdf" | "word" | "wattpad" | "evernote",
@@ -32,33 +32,17 @@ router.post("/queue/dequeue", ((
   req: express.Request,
   res: express.Response
 ) => {
-  const { direction, type } = req.body;
-  // Validate direction and type
-  const validDirections = ["import", "export"];
-  const validTypes = ["epub", "pdf", "word", "wattpad", "evernote"];
-  if (
-    !direction ||
-    !type ||
-    !validDirections.includes(direction) ||
-    !validTypes.includes(type)
-  ) {
-    return res
-      .status(400)
-      .json({ error: "Valid direction and type are required" });
-  }
-  const job = dequeue(
-    direction as "import" | "export",
-    type as "epub" | "pdf" | "word" | "wattpad" | "evernote"
-  );
+  // With the simplified queue, we don't need to specify direction and type for dequeue
+  const job = dequeueJob();
   if (!job) {
     return res.status(404).json({ error: "No job available" });
   }
   res.json(job);
 }) as express.RequestHandler);
 
-// List all jobs in all queues
+// List all jobs in the queue
 router.get("/queue", ((req: express.Request, res: express.Response) => {
-  res.json(queues);
+  res.json(getAllJobs());
 }) as express.RequestHandler);
 
 // Health check endpoint

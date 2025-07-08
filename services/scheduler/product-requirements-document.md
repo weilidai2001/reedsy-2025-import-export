@@ -117,9 +117,11 @@ Jobs are validated before entering the queue. Malformed or duplicate job IDs are
 
 ## In-Memory Queue Design
 
-- Uses JavaScript `Map<string, Queue<Job>>` per job direction/type.
-- FIFO queue implemented using array push/shift semantics.
-- Queue is ephemeral and not persisted to disk.
+- Queue is a single FIFO array (Job[])
+- enqueue: queue.push(job)
+- dequeue: queue.shift()
+- Jobs are ephemeral and not persisted to disk
+- No sharding by job type or direction
 
 ## Metrics
 

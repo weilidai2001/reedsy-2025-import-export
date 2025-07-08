@@ -1,8 +1,34 @@
-import app from "./app";
 import logger from "./logger";
 import { getPortFromUrl } from "../../shared/url-util";
 
+import express, { Request, Response } from "express";
+import { queueRouter } from "./queue-controller";
+import { schedulerStateRouter } from "./scheduler-state";
+import router from "./routes";
+import { setupSwagger } from "./swagger";
+
 const PORT = getPortFromUrl(process.env.SCHEDULER_URL);
-app.listen(PORT, () => {
-  logger.info(`Scheduler service listening on port ${PORT}`);
+
+const app = express();
+app.use(express.json());
+
+// Set up routes
+app.use("/queue", queueRouter);
+app.use("/status", schedulerStateRouter);
+app.use("/", router);
+
+// Set up Swagger
+setupSwagger(app);
+
+// Root endpoint - if not handled by router
+app.get("/", (req: Request, res: Response) => {
+  res.send("Scheduler Service Running");
 });
+
+export function startServer() {
+  app.listen(PORT, () => {
+    logger.info(`Scheduler service running on ${process.env.SCHEDULER_URL}`);
+  });
+}
+
+export default app;
