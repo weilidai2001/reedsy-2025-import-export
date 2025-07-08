@@ -1,8 +1,21 @@
-import app from './app';
-import logger from './logger';
-import { config } from './config';
+import express from "express";
+import { state } from "./job-state";
 
-const PORT = config.port;
-app.listen(PORT, () => {
-  logger.info(`Handler service listening on port ${PORT}`);
-});
+export function createServer() {
+  const app = express();
+
+  app.get("/status", (_req, res) => {
+    res.json({
+      jobsProcessed: state.jobsProcessed,
+      jobsSucceeded: state.jobsSucceeded,
+      jobsFailed: state.jobsFailed,
+      currentJob: state.currentJob,
+      lastJobDurationMs: state.lastJobDurationMs,
+      lastJobError: state.lastJobError,
+      isIdle: state.isIdle,
+      lastJobSuccess: state.lastJobSuccess,
+    });
+  });
+
+  return app;
+}

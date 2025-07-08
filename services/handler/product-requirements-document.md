@@ -12,6 +12,17 @@ The Handler Service is responsible for processing of book import and export jobs
 - Provide real-time operational metrics via a status endpoint.
 - Ensure reliability and observability for job processing.
 
+## Top level modules
+
+```
+src/
+├── index.ts                ← app entry point
+├── server.ts               ← Express app + /status
+├── job-runner.ts           ← main loop: poll, process, loop
+├── job-processor.ts        ← job type/direction simulation logic
+└── job-state.ts            ← holds in-memory state like isIdle, counters
+```
+
 ## Functional Requirements
 
 ### 1. Job Polling and Retrieval

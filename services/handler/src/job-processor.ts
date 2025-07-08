@@ -12,7 +12,7 @@ const SIMULATED_PROCESS_TIMES: Record<JobType, number> = {
 export async function processJob(job: Job): Promise<void> {
   state.currentJob = job.id;
 
-  const duration = SIMULATED_PROCESS_TIMES[job.type];
+  const duration = SIMULATED_PROCESS_TIMES[job.type as JobType];
   if (!duration) throw new Error(`Unsupported job type: ${job.type}`);
 
   await new Promise((resolve) => setTimeout(resolve, duration));

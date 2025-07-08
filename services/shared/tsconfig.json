@@ -5,7 +5,9 @@
     "declarationMap": true,
     "emitDeclarationOnly": true,
     "rootDir": "./",
-    "outDir": "../../dist/shared"
+    "outDir": "../../dist/shared",
+    "esModuleInterop": true,
+    "moduleResolution": "node"
   },
   "include": ["types.ts"]
 }

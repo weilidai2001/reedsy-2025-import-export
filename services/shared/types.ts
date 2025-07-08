@@ -1,16 +1,31 @@
-export type JobDirection = "import" | "export";
-export type JobType = "epub" | "pdf" | "word" | "wattpad" | "evernote";
-export type JobState = "pending" | "processing" | "finished" | "failed";
+import { z } from 'zod';
 
-export type Job = {
-  id: string;
-  bookId: string;
-  direction: JobDirection;
-  type: JobType;
-  state: JobState;
-  sourceUrl?: string;
-  resultUrl?: string;
-  createdAt: string;
-  updatedAt: string;
-  startedAt?: string;
-};
+// Define the enum values once using Zod
+export const JobDirectionEnum = z.enum(["import", "export"]);
+export const JobTypeEnum = z.enum(["epub", "pdf", "word", "wattpad", "evernote"]);
+export const JobStateEnum = z.enum(["pending", "processing", "finished", "failed"]);
+
+// Extract TypeScript types from the Zod schemas
+export type JobDirection = z.infer<typeof JobDirectionEnum>;
+export type JobType = z.infer<typeof JobTypeEnum>;
+export type JobState = z.infer<typeof JobStateEnum>;
+
+// Define the Job schema using Zod
+export const JobSchema = z.object({
+  id: z.string(),
+  bookId: z.string(),
+  direction: JobDirectionEnum,
+  type: JobTypeEnum,
+  state: JobStateEnum,
+  sourceUrl: z.string().optional(),
+  resultUrl: z.string().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  startedAt: z.string().optional(),
+});
+
+// Extract the Job type from the schema
+export type Job = z.infer<typeof JobSchema>;
+
+// Export the validation schema (renamed for clarity)
+export const validateJobSchema = JobSchema;
