@@ -70,8 +70,11 @@ const createJob = async (
     } else {
       // import
       jobData = {
-        ...req.body,
+        requestId: uuidv4(),
         direction: "import",
+        type: req.body.type,
+        sourceUrl: req.body.url,
+        bookId: req.body.bookId,
       };
     }
 
