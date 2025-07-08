@@ -57,26 +57,14 @@ const createJob = async (
   logger.info(`Received ${direction} job request`, { body: req.body });
   try {
     // Prepare job data based on direction
-    let jobData: any;
+    const jobData: any = {
+      requestId: uuidv4(),
+      bookId: req.body.bookId,
+      direction,
+      type: req.body.type,
+      sourceUrl: direction === "import" ? req.body.url : undefined,
+    };
 
-    if (direction === "export") {
-      jobData = {
-        requestId: uuidv4(),
-        bookId: req.body.bookId,
-        direction: "export",
-        type: req.body.type,
-        sourceUrl: undefined,
-      };
-    } else {
-      // import
-      jobData = {
-        requestId: uuidv4(),
-        direction: "import",
-        type: req.body.type,
-        sourceUrl: req.body.url,
-        bookId: req.body.bookId,
-      };
-    }
 
     // Validate job data for TaskRegistry
     const parsed = TaskRegistryCreateJobSchema.safeParse(jobData);
