@@ -1,10 +1,26 @@
 import express, { Request, Response } from "express";
 import { createJob, updateJob, getJobById, listJobs } from "./models";
+import { z } from "zod";
 import {
   Job,
-  TaskRegistryCreateJobSchema,
-  TaskRegistryUpdateJobSchema,
+  JobDirectionEnum,
+  JobTypeEnum,
+  JobStateEnum,
 } from "../../shared/types";
+
+// Define schemas locally to avoid module resolution issues with ts-node
+const TaskRegistryCreateJobSchema = z.object({
+  requestId: z.string().uuid(),
+  bookId: z.string().uuid(),
+  direction: JobDirectionEnum,
+  type: JobTypeEnum,
+  sourceUrl: z.string().optional(),
+});
+
+const TaskRegistryUpdateJobSchema = z.object({
+  state: JobStateEnum,
+  resultUrl: z.string().optional(),
+});
 import { ZodError } from "zod";
 import logger from "./logger";
 
