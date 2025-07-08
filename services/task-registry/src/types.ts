@@ -8,8 +8,8 @@ export const JobSchema = z.object({
   state: z.enum(["pending", "processing", "finished", "failed"]),
   sourceUrl: z.string().optional(),
   resultUrl: z.string().optional(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
 });
 
 export type Job = z.infer<typeof JobSchema>;

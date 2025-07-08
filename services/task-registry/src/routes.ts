@@ -1,7 +1,14 @@
 import express, { Request, Response } from "express";
-import { createJob, updateJob, getJobById, listJobs } from "./models";
+
 import { z, ZodError } from "zod";
 import logger from "./logger";
+import {
+  insertJob,
+  selectJobById,
+  selectJobsByDirection,
+  updateJob,
+} from "./persistence-util";
+import { Job } from "./types";
 
 // Define schemas locally to avoid module resolution issues
 const TaskRegistryCreateJobSchema = z.object({
@@ -32,19 +39,14 @@ router.post("/jobs", (req: Request, res: Response) => {
       });
     }
 
-    const now = new Date().toISOString();
-    const job = {
+    const job: Job = {
       ...validatedData.data,
-      createdAt: now,
-      updatedAt: now,
       state: "pending",
     };
 
     logger.info("Creating job:", job);
-    createJob(job, (err) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.status(201).json(job);
-    });
+    insertJob(job);
+    res.status(201).json(job);
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({
@@ -70,14 +72,11 @@ router.patch("/jobs/:id", (req: Request, res: Response) => {
       });
     }
 
-    updateJob(req.params.id, validatedData.data, (err) => {
-      if (err) return res.status(500).json({ error: err.message });
-      getJobById(req.params.id, (err, job) => {
-        if (err || !job)
-          return res.status(404).json({ error: "Job not found" });
-        res.json(job);
-      });
+    updateJob({
+      requestId: req.params.id,
+      ...validatedData.data,
     });
+    res.json(validatedData.data);
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({
@@ -92,18 +91,17 @@ router.patch("/jobs/:id", (req: Request, res: Response) => {
 
 // GET /jobs?direction=import|export - Return grouped job states
 router.get("/jobs", (req: Request, res: Response) => {
-  listJobs(req.query.direction as string, (err, jobs) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(jobs);
-  });
+  const jobs = selectJobsByDirection(
+    req.query.direction as "import" | "export"
+  );
+  res.json(jobs);
 });
 
 // GET /jobs/:id - Fetch job detail
 router.get("/jobs/:id", (req: Request, res: Response) => {
-  getJobById(req.params.id, (err, job) => {
-    if (err || !job) return res.status(404).json({ error: "Job not found" });
-    res.json(job);
-  });
+  const job = selectJobById(req.params.id);
+  if (!job) return res.status(404).json({ error: "Job not found" });
+  res.json(job);
 });
 
 // GET /health - Health check endpoint
