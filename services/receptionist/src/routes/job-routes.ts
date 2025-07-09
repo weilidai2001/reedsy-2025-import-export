@@ -3,9 +3,13 @@ import axios from "axios";
 import { exportJobSchema, importJobSchema } from "../types";
 import { validate } from "../middleware/validate";
 import logger from "../logger";
-import { registerNewJob } from "../clients/task-registry-client";
+import {
+  getJobsByDirection,
+  registerNewJob,
+} from "../clients/task-registry-client";
 import { addJobToScheduler } from "../clients/scheduler-client";
 import { initialiseJob } from "../transform/jobs-transformer";
+import { groupJobsByState } from "../transform/jobs-transformer";
 
 const router = Router();
 
@@ -58,11 +62,8 @@ router.post(
 // GET /exports
 router.get("/exports", async (req: Request, res: Response) => {
   try {
-    const taskRegistryRes = await axios.get(
-      `${process.env.TASK_REGISTRY_URL}/jobs?direction=export`
-    );
-    const jobs = taskRegistryRes.data;
-    res.json(jobs);
+    const jobs = await getJobsByDirection("export");
+    res.json(groupJobsByState(jobs));
   } catch (err: any) {
     logger.error(`Error fetching exports`, err);
     res.status(500).json({ error: "internal server error" });
@@ -72,11 +73,8 @@ router.get("/exports", async (req: Request, res: Response) => {
 // GET /imports
 router.get("/imports", async (req: Request, res: Response) => {
   try {
-    const taskRegistryRes = await axios.get(
-      `${process.env.TASK_REGISTRY_URL}/jobs?direction=import`
-    );
-    const jobs = taskRegistryRes.data;
-    res.json(jobs);
+    const jobs = await getJobsByDirection("import");
+    res.json(groupJobsByState(jobs));
   } catch (err: any) {
     logger.error(`Error fetching imports`, err);
     res.status(500).json({ error: "internal server error" });

@@ -6,6 +6,7 @@ import {
 } from "../types";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
+import groupBy from "lodash.groupby";
 
 export const initialiseJob = (
   partialJob: z.infer<typeof exportJobSchema> | z.infer<typeof importJobSchema>,
@@ -24,4 +25,8 @@ export const initialiseJob = (
     updatedAt: now,
   };
   return jobData;
+};
+
+export const groupJobsByState = (jobs: Job[]) => {
+  return groupBy(jobs, "state");
 };
