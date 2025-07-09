@@ -24,6 +24,7 @@ const createJob = async (
 ) => {
   logger.info(`Received ${direction} job request`, { body: req.body });
   try {
+    const now = new Date().toISOString();
     // Prepare job data based on direction
     const jobData: Job = {
       requestId: uuidv4(),
@@ -32,6 +33,8 @@ const createJob = async (
       type: req.body.type,
       state: "pending",
       sourceUrl: direction === "import" ? req.body.url : undefined,
+      createdAt: now,
+      updatedAt: now,
     };
 
     // Validate job data for TaskRegistry

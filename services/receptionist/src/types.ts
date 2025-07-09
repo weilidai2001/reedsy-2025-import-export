@@ -23,8 +23,8 @@ export const JobSchema = z.object({
   state: JobStateSchema,
   sourceUrl: z.string().optional(),
   resultUrl: z.string().optional(),
-  createdAt: z.string().optional(),
-  updatedAt: z.string().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
 export const exportJobSchema = z.object({

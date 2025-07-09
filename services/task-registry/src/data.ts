@@ -1,16 +1,11 @@
 import { Job } from "types";
 
-type InternalJob = Job & {
-  createdAt: string;
-  updatedAt: string;
-};
-
-const db: InternalJob[] = [];
+const db: Job[] = [];
 
 class JobRecord {
-  private data: InternalJob;
+  private data: Job;
 
-  constructor(data: InternalJob) {
+  constructor(data: Job) {
     this.data = data;
   }
 
@@ -41,22 +36,15 @@ class JobRecord {
   async save(): Promise<void> {
     const index = db.findIndex((j) => j.requestId === this.data.requestId);
     if (index !== -1) {
-      this.data.updatedAt = new Date().toISOString();
       db[index] = this.data;
     }
   }
 }
 
 export class Jobs {
-  static create(job: Omit<Job, "createdAt" | "updatedAt">): JobRecord {
-    const now = new Date().toISOString();
-    const record: InternalJob = {
-      ...job,
-      createdAt: now,
-      updatedAt: now,
-    };
-    db.push(record);
-    return new JobRecord(record);
+  static create(job: Job): JobRecord {
+    db.push(job);
+    return new JobRecord(job);
   }
 
   static findAll(): JobRecord[] {

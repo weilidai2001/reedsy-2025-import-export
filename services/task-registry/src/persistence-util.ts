@@ -1,7 +1,7 @@
 import { Jobs } from "./data";
 import { Job } from "./types";
 
-export const insertJob = (job: Omit<Job, "createdAt" | "updatedAt">) => {
+export const insertJob = (job: Job) => {
   Jobs.create(job);
 };
 
