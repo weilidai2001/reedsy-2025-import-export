@@ -40,6 +40,8 @@ export async function startPollingLoop() {
 
   logger.info("Starting job polling loop");
 
+  await delay(2000); // Initial delay to allow scheduler to start
+
   while (true) {
     if (!state.isIdle) {
       await delay(1000);
@@ -54,7 +56,7 @@ export async function startPollingLoop() {
           {},
           {
             timeout: 5000,
-            validateStatus: (status) => status === 200,
+            validateStatus: (status) => status === 200 || status === 204,
           }
         );
         if (response.status === 204) {

@@ -28,7 +28,6 @@ queueRouter.post("/dequeue", async (req, res) => {
 
   const job: Job | undefined = await queueService.consume();
   if (!job) {
-    logger.info("No jobs available for dequeue");
     return res.status(204).json({ message: "No jobs available for dequeue" });
   }
 
