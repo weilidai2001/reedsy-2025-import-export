@@ -27,6 +27,21 @@ export const initialiseJob = (
   return jobData;
 };
 
+export const transformJobToMatchOutputSchema = (job: Job) => {
+  return {
+    bookId: job.bookId,
+    type: job.type,
+    url: job.url,
+    created_at: job.createdAt,
+    updated_at: job.updatedAt,
+  };
+};
+
 export const groupJobsByState = (jobs: Job[]) => {
-  return groupBy(jobs, "state");
+  return Object.fromEntries(
+    Object.entries(groupBy(jobs, "state")).map(([state, jobs]) => [
+      state,
+      jobs.map(transformJobToMatchOutputSchema),
+    ])
+  );
 };

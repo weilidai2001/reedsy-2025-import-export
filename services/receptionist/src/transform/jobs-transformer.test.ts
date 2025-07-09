@@ -1,5 +1,5 @@
-import { initialiseJob, groupJobsByState } from "./jobs-transformer";
-import { exportJobSchema, importJobSchema, Job } from "../types";
+import { initialiseJob, groupJobsByState, transformJobToMatchOutputSchema } from "./jobs-transformer";
+import { Job, exportJobSchema, importJobSchema } from "../types";
 import { z } from "zod";
 
 jest.mock("uuid", () => ({
@@ -69,6 +69,65 @@ describe("initialiseJob", () => {
   });
 });
 
+describe("transformJobToMatchOutputSchema", () => {
+  it("should return the correct output schema for a normal job", () => {
+    const job: Job = {
+      requestId: "abc",
+      bookId: "book123",
+      direction: "import",
+      type: "epub",
+      state: "pending",
+      url: "http://test.com",
+      createdAt: "2025-07-09T13:51:49.000Z",
+      updatedAt: "2025-07-09T13:51:49.000Z",
+      resultUrl: undefined,
+    };
+    expect(transformJobToMatchOutputSchema(job)).toEqual({
+      bookId: "book123",
+      type: "epub",
+      url: "http://test.com",
+      created_at: "2025-07-09T13:51:49.000Z",
+      updated_at: "2025-07-09T13:51:49.000Z",
+    });
+  });
+
+  it("should handle missing optional fields", () => {
+    const job = {
+      bookId: "b1",
+      type: "pdf",
+      url: undefined,
+      createdAt: undefined,
+      updatedAt: undefined,
+    } as unknown as Job;
+    expect(transformJobToMatchOutputSchema(job)).toEqual({
+      bookId: "b1",
+      type: "pdf",
+      url: undefined,
+      created_at: undefined,
+      updated_at: undefined,
+    });
+  });
+
+  it("should ignore extra fields in the job object", () => {
+    const job = {
+      bookId: "b2",
+      type: "epub",
+      url: "foo",
+      createdAt: "2025-01-01",
+      updatedAt: "2025-01-02",
+      foo: "bar",
+      extra: 123,
+    } as unknown as Job;
+    expect(transformJobToMatchOutputSchema(job)).toEqual({
+      bookId: "b2",
+      type: "epub",
+      url: "foo",
+      created_at: "2025-01-01",
+      updated_at: "2025-01-02",
+    });
+  });
+});
+
 describe("groupJobsByState", () => {
   const now = "2025-07-09T13:51:49.000Z";
   const baseJob: Omit<
@@ -125,10 +184,49 @@ describe("groupJobsByState", () => {
     ];
     const grouped = groupJobsByState(jobs);
     expect(grouped).toEqual({
-      pending: [jobs[0], jobs[2]],
-      processing: [jobs[1]],
-      failed: [jobs[3]],
-      finished: [jobs[4]],
+      pending: [
+        {
+          bookId: "b1",
+          type: "epub",
+          url: undefined,
+          created_at: now,
+          updated_at: now,
+        },
+        {
+          bookId: "b3",
+          type: "epub",
+          url: undefined,
+          created_at: now,
+          updated_at: now,
+        },
+      ],
+      processing: [
+        {
+          bookId: "b2",
+          type: "pdf",
+          url: undefined,
+          created_at: now,
+          updated_at: now,
+        },
+      ],
+      failed: [
+        {
+          bookId: "b4",
+          type: "pdf",
+          url: undefined,
+          created_at: now,
+          updated_at: now,
+        },
+      ],
+      finished: [
+        {
+          bookId: "b5",
+          type: "epub",
+          url: undefined,
+          created_at: now,
+          updated_at: now,
+        },
+      ],
     });
   });
 
@@ -156,7 +254,7 @@ describe("groupJobsByState", () => {
       },
     ];
     expect(groupJobsByState(jobs)).toEqual({
-      pending: jobs,
+      pending: jobs.map(transformJobToMatchOutputSchema),
     });
   });
 
@@ -188,9 +286,9 @@ describe("groupJobsByState", () => {
       },
     ];
     expect(groupJobsByState(jobs)).toEqual({
-      pending: [jobs[0]],
-      processing: [jobs[1]],
-      failed: [jobs[2]],
+      pending: [transformJobToMatchOutputSchema(jobs[0])],
+      processing: [transformJobToMatchOutputSchema(jobs[1])],
+      failed: [transformJobToMatchOutputSchema(jobs[2])],
     });
   });
 });
