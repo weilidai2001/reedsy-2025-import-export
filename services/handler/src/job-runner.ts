@@ -3,41 +3,12 @@ import { Job, JobSchema } from "./types";
 import { processJob } from "./job-processor";
 import { state } from "./job-state";
 import logger from "./logger";
-import { z } from "zod";
+import { dequeue } from "./clients/scheduler-client";
 
 const POLL_INTERVAL_MS = 5000;
-const ERROR_RETRY_INTERVAL_MS = 10000; // Longer retry interval for errors
-const SCHEDULER_URL = process.env.SCHEDULER_URL!;
 const REGISTRY_URL = process.env.TASK_REGISTRY_URL!;
 
-// Validate that required environment variables are set
-function validateEnvironment() {
-  const requiredVars = ["SCHEDULER_URL", "TASK_REGISTRY_URL"];
-  const missing = requiredVars.filter((varName) => !process.env[varName]);
-
-  if (missing.length > 0) {
-    throw new Error(
-      `Missing required environment variables: ${missing.join(", ")}`
-    );
-  }
-
-  logger.info("Environment validated", {
-    schedulerUrl: SCHEDULER_URL,
-    registryUrl: REGISTRY_URL,
-  });
-}
-
 export async function startPollingLoop() {
-  // Validate environment before starting the polling loop
-  try {
-    validateEnvironment();
-  } catch (err: any) {
-    logger.error("Environment validation failed", {
-      error: err?.message || String(err),
-    });
-    throw err; // Stop the polling loop if environment is not properly configured
-  }
-
   logger.info("Starting job polling loop");
 
   await delay(2000); // Initial delay to allow scheduler to start
@@ -48,74 +19,15 @@ export async function startPollingLoop() {
       continue;
     }
 
-    try {
-      let job: Job | undefined;
-      try {
-        const response = await axios.post(
-          `${SCHEDULER_URL}/queue/dequeue`,
-          {},
-          {
-            timeout: 5000,
-            validateStatus: (status) => status === 200 || status === 204,
-          }
-        );
-        if (response.status === 204) {
-          logger.info("No jobs available for dequeue");
-          await delay(POLL_INTERVAL_MS);
-          continue;
-        } else if (response.status === 200) {
-          job = response.data as Job;
-        }
-      } catch (dequeueErr: any) {
-        const status = dequeueErr.response?.status;
-        const data = dequeueErr.response?.data;
+    const job = await dequeue();
 
-        logger.error("Failed to dequeue job", {
-          error: dequeueErr?.message || String(dequeueErr),
-          status,
-          data,
-          url: `${SCHEDULER_URL}/queue/dequeue`,
-        });
-
-        await delay(ERROR_RETRY_INTERVAL_MS);
-        continue;
-      }
-
-      // Step 3: Validate job schema
-      const parsed = JobSchema.safeParse(job);
-      if (!parsed.success) {
-        logger.error("Invalid job schema", {
-          jobId:
-            typeof job === "object" && job !== null && "id" in job
-              ? job.id
-              : "unknown",
-          errors: parsed.error.format(),
-          job: JSON.stringify(job),
-        });
-        await delay(POLL_INTERVAL_MS);
-        continue;
-      }
-
-      // Step 4: Process the job
-      await handleJob(parsed.data);
-    } catch (err: any) {
-      const requestUrl = err.config?.url || "unknown";
-      const requestMethod = err.config?.method?.toUpperCase() || "unknown";
-      const responseData = err.response?.data || {};
-      const status = err.response?.status;
-
-      logger.error("Polling error", {
-        service: "Handler",
-        error: err?.message || String(err),
-        status,
-        statusText: err.response?.statusText,
-        requestUrl,
-        requestMethod,
-        responseData,
-      });
-
-      await delay(ERROR_RETRY_INTERVAL_MS);
+    if (!job) {
+      logger.info("No jobs available for dequeue");
+      await delay(POLL_INTERVAL_MS);
+      continue;
     }
+
+    await handleJob(job);
   }
 }
 
