@@ -31,46 +31,30 @@ const createJob = async (
       updatedAt: now,
     };
 
-    // TODO: Check this returns 201
-
-    // Create job in TaskRegistry
     const taskRegistryRes = await axios.post(
       `${process.env.TASK_REGISTRY_URL}/jobs`,
       jobData
     );
 
-    logger.info(
-      `${direction} job created in TaskRegistry`,
-      taskRegistryRes.data
-    );
-
-    // Validate TaskRegistry response
-    const parsedTaskRegistryRes = JobSchema.safeParse(taskRegistryRes.data);
-    if (!parsedTaskRegistryRes.success) {
-      logger.error("Invalid job schema from TaskRegistry", {
-        errors: parsedTaskRegistryRes.error.format(),
-        job: JSON.stringify(taskRegistryRes.data),
-      });
-      res.status(400).json({ error: parsedTaskRegistryRes.error.format() });
-      return;
+    if (taskRegistryRes.status !== 201) {
+      throw new Error(
+        `Failed to create job in TaskRegistry. Status: ${taskRegistryRes.status}`
+      );
     }
 
-    logger.info(
-      `${direction} job created in TaskRegistry`,
-      parsedTaskRegistryRes.data
-    );
+    logger.info(`${direction} job created in TaskRegistry`, jobData);
 
     // Send job to Scheduler
-    await axios.post(
-      `${process.env.SCHEDULER_URL}/queue`,
-      parsedTaskRegistryRes.data
-    );
+    const schedulerRes = await axios.post(`${process.env.SCHEDULER_URL}/queue`, jobData);
+    if (schedulerRes.status !== 201) {
+      throw new Error(
+        `Failed to queue job in Scheduler. Status: ${schedulerRes.status}`
+      );
+    }
 
-    // Return response based on job type
-    const response = {
-      jobId: parsedTaskRegistryRes.data.requestId,
-    };
-    res.status(201).json(response);
+    res.status(201).json({
+      jobId: jobData.requestId,
+    });
   } catch (err: any) {
     logger.error(`Error creating ${direction} job`, err);
     res.status(500).json({ error: "internal server error" });
