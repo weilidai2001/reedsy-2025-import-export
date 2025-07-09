@@ -1,29 +1,49 @@
-// TypeScript interfaces for Receptionist API
+import { z } from "zod";
 
-export interface ExportJobRequest {
-  bookId: string;
-  type: 'epub' | 'pdf';
-}
+export const JobDirectionSchema = z.enum(["import", "export"]);
+export const JobTypeSchema = z.enum([
+  "epub",
+  "pdf",
+  "word",
+  "wattpad",
+  "evernote",
+]);
+export const JobStateSchema = z.enum([
+  "pending",
+  "processing",
+  "finished",
+  "failed",
+]);
 
-export interface ExportJobResponse {
-  jobId: string;
-}
+export const JobSchema = z.object({
+  requestId: z.string(),
+  bookId: z.string(),
+  direction: JobDirectionSchema,
+  type: JobTypeSchema,
+  state: JobStateSchema,
+  sourceUrl: z.string().optional(),
+  resultUrl: z.string().optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
 
-export interface ImportJobRequest {
-  bookId: string;
-  type: 'word' | 'pdf' | 'wattpad' | 'evernote';
-  url: string;
-}
+export const exportJobSchema = z.object({
+  bookId: z.string(),
+  type: z.enum(["epub", "pdf"]),
+});
 
-export interface ImportJobResponse {
-  jobId: string;
-}
+export const importJobSchema = z.object({
+  bookId: z.string(),
+  type: z.enum(["word", "pdf", "wattpad", "evernote"]),
+  url: z.string().url(),
+});
 
-export type JobState = 'pending' | 'processing' | 'finished' | 'failed';
+export const TaskRegistryCreateJobSchema = z.object({
+  requestId: z.string().uuid(),
+  bookId: z.string().uuid(),
+  direction: JobDirectionSchema,
+  type: JobTypeSchema,
+  sourceUrl: z.string().optional(),
+});
 
-export interface JobListResponse {
-  pending: any[];
-  processing: any[];
-  finished: any[];
-  failed: any[];
-}
+export type Job = z.infer<typeof JobSchema>;

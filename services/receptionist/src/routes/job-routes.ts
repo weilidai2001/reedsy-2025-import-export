@@ -1,49 +1,17 @@
 import { Router, Request, Response } from "express";
 import axios from "axios";
 import {
-  ExportJobRequest,
-  ImportJobRequest,
-  ExportJobResponse,
-  ImportJobResponse,
-  JobListResponse,
+  Job,
+  TaskRegistryCreateJobSchema,
+  JobSchema,
+  exportJobSchema,
+  importJobSchema,
 } from "../types";
 import { validate } from "../middleware/validate";
 import logger from "../logger";
-import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
 
 const router = Router();
-
-const JobSchema = z.object({
-  requestId: z.string(),
-  bookId: z.string(),
-  direction: z.enum(["import", "export"]),
-  type: z.enum(["epub", "pdf", "word", "wattpad", "evernote"]),
-  state: z.enum(["pending", "processing", "finished", "failed"]),
-  sourceUrl: z.string().optional(),
-  resultUrl: z.string().optional(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-});
-
-const exportJobSchema = z.object({
-  bookId: z.string(),
-  type: z.enum(["epub", "pdf"]),
-});
-
-const importJobSchema = z.object({
-  bookId: z.string(),
-  type: z.enum(["word", "pdf", "wattpad", "evernote"]),
-  url: z.string().url(),
-});
-
-const TaskRegistryCreateJobSchema = z.object({
-  requestId: z.string().uuid(),
-  bookId: z.string().uuid(),
-  direction: z.enum(["import", "export"]),
-  type: z.enum(["epub", "pdf", "word", "wattpad", "evernote"]),
-  sourceUrl: z.string().optional(),
-});
 
 /**
  * Creates a job in the TaskRegistry and queues it in the Scheduler
@@ -57,14 +25,14 @@ const createJob = async (
   logger.info(`Received ${direction} job request`, { body: req.body });
   try {
     // Prepare job data based on direction
-    const jobData: any = {
+    const jobData: Job = {
       requestId: uuidv4(),
       bookId: req.body.bookId,
       direction,
       type: req.body.type,
+      state: "pending",
       sourceUrl: direction === "import" ? req.body.url : undefined,
     };
-
 
     // Validate job data for TaskRegistry
     const parsed = TaskRegistryCreateJobSchema.safeParse(jobData);
@@ -86,9 +54,7 @@ const createJob = async (
     );
 
     logger.info(
-      `${
-        direction.charAt(0).toUpperCase() + direction.slice(1)
-      } job created in TaskRegistry`,
+      `${direction} job created in TaskRegistry`,
       taskRegistryRes.data
     );
 
@@ -104,9 +70,7 @@ const createJob = async (
     }
 
     logger.info(
-      `${
-        direction.charAt(0).toUpperCase() + direction.slice(1)
-      } job created in TaskRegistry`,
+      `${direction} job created in TaskRegistry`,
       parsedTaskRegistryRes.data
     );
 
@@ -151,7 +115,7 @@ router.get("/exports", async (req: Request, res: Response) => {
     const taskRegistryRes = await axios.get(
       `${process.env.TASK_REGISTRY_URL}/jobs?direction=export`
     );
-    const jobs = taskRegistryRes.data as JobListResponse;
+    const jobs = taskRegistryRes.data;
     res.json(jobs);
   } catch (err: any) {
     logger.error(`Error fetching exports`, err);
@@ -165,7 +129,7 @@ router.get("/imports", async (req: Request, res: Response) => {
     const taskRegistryRes = await axios.get(
       `${process.env.TASK_REGISTRY_URL}/jobs?direction=import`
     );
-    const jobs = taskRegistryRes.data as JobListResponse;
+    const jobs = taskRegistryRes.data;
     res.json(jobs);
   } catch (err: any) {
     logger.error(`Error fetching imports`, err);
