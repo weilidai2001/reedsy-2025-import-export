@@ -9,19 +9,14 @@ import {
   selectJobsByDirection,
   updateJob,
 } from "./persistence-util";
-import {
-  Job,
-  TaskRegistryCreateJobSchema,
-  TaskRegistryUpdateJobSchema,
-} from "./types";
+import { JobSchema } from "./types";
 
 const router = express.Router();
 
 // POST /jobs - Create a new job
 router.post("/jobs", (req: Request, res: Response) => {
   try {
-    // Validate request body against schema
-    const validatedData = TaskRegistryCreateJobSchema.safeParse(req.body);
+    const validatedData = JobSchema.safeParse(req.body);
 
     if (!validatedData.success) {
       const issues = validatedData.error.errors.map((e) => ({
@@ -50,11 +45,9 @@ router.post("/jobs", (req: Request, res: Response) => {
   }
 });
 
-// PATCH /jobs/:id - Update job state or result
-router.patch("/jobs/:id", (req: Request, res: Response) => {
+router.put("/jobs/:id", (req: Request, res: Response) => {
   try {
-    // Validate request body against schema
-    const validatedData = TaskRegistryUpdateJobSchema.safeParse(req.body);
+    const validatedData = JobSchema.safeParse(req.body);
 
     if (!validatedData.success) {
       return res.status(400).json({
@@ -63,10 +56,7 @@ router.patch("/jobs/:id", (req: Request, res: Response) => {
       });
     }
 
-    updateJob({
-      requestId: req.params.id,
-      ...validatedData.data,
-    });
+    updateJob(validatedData.data);
     res.status(204).json();
   } catch (error) {
     if (error instanceof ZodError) {
@@ -80,7 +70,6 @@ router.patch("/jobs/:id", (req: Request, res: Response) => {
   }
 });
 
-// GET /jobs?direction=import|export - Return grouped job states
 router.get("/jobs", (req: Request, res: Response) => {
   const jobs = req.query.direction
     ? selectJobsByDirection(req.query.direction as "import" | "export")
@@ -89,14 +78,12 @@ router.get("/jobs", (req: Request, res: Response) => {
   res.json(jobs);
 });
 
-// GET /jobs/:id - Fetch job detail
 router.get("/jobs/:id", (req: Request, res: Response) => {
   const job = selectJobById(req.params.id);
   if (!job) return res.status(404).json({ error: "Job not found" });
   res.json(job);
 });
 
-// GET /health - Health check endpoint
 router.get("/health", (req: Request, res: Response) => {
   res.json({ status: "ok" });
 });

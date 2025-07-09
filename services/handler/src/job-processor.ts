@@ -9,11 +9,20 @@ const SIMULATED_PROCESS_TIMES: Record<string, number> = {
   evernote: 60000,
 };
 
-export async function processJob(job: Job): Promise<void> {
+const generateRandomUrl = () => {
+  return `https://example.com/${Math.random().toString(36).substring(2, 9)}`;
+};
+
+export async function processJob(job: Job): Promise<Job> {
   state.currentJob = job.requestId;
 
   const duration = SIMULATED_PROCESS_TIMES[job.type];
   if (!duration) throw new Error(`Unsupported job type: ${job.type}`);
 
   await new Promise((resolve) => setTimeout(resolve, duration));
+
+  return {
+    ...job,
+    url: generateRandomUrl(),
+  };
 }

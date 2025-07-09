@@ -16,18 +16,4 @@ export const JobSchema = z.object({
   updatedAt: z.string().optional(),
 });
 
-export const TaskRegistryCreateJobSchema = z.object({
-  requestId: z.string().uuid(),
-  bookId: z.string().uuid(),
-  state: JobStateSchema,
-  direction: JobDirectionSchema,
-  type: JobTypeSchema,
-  url: z.string().optional(),
-});
-
-export const TaskRegistryUpdateJobSchema = z.object({
-  state: JobStateSchema,
-  resultUrl: z.string().optional(),
-});
-
 export type Job = z.infer<typeof JobSchema>;

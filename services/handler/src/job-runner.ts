@@ -37,20 +37,20 @@ async function handleJob(job: Job) {
 
   logger.info("Starting job", { requestId: job.requestId });
 
-  await updateRegistry(job.requestId, "processing");
+  await updateRegistry({ ...job, state: "processing" });
 
   try {
-    await processJob(job);
+    const processedJob = await processJob(job);
     const duration = Date.now() - start;
-    await updateRegistry(job.requestId, "finished");
+    await updateRegistry({ ...processedJob, state: "finished" });
 
-    state.recordSuccess(job.requestId, duration);
+    state.recordSuccess(processedJob.requestId, duration);
     logger.info("Finished job", {
-      requestId: job.requestId,
+      requestId: processedJob.requestId,
     });
   } catch (err: any) {
     const duration = Date.now() - start;
-    await updateRegistry(job.requestId, "failed");
+    await updateRegistry({ ...job, state: "failed" });
     state.recordFailure(job.requestId, duration, err);
     logger.error("Failed job", {
       requestId: job.requestId,
