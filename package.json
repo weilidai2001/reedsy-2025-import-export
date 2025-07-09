@@ -19,6 +19,7 @@
     "handler:lint": "npm run lint --workspace services/handler",
     "receptionist:dev": "npm run dev --workspace services/receptionist",
     "receptionist:lint": "npm run lint --workspace services/receptionist",
+    "receptionist:test": "npm run test --workspace services/receptionist",
     "scheduler:dev": "npm run dev --workspace services/scheduler",
     "scheduler:lint": "npm run lint --workspace services/scheduler",
     "task-registry:dev": "npm run dev --workspace services/task-registry",
