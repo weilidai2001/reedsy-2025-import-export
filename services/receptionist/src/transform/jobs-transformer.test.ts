@@ -128,6 +128,7 @@ describe("groupJobsByState", () => {
       pending: [jobs[0], jobs[2]],
       processing: [jobs[1]],
       failed: [jobs[3]],
+      finished: [jobs[4]],
     });
   });
 
