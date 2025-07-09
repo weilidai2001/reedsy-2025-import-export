@@ -3,7 +3,7 @@ import { getPortFromUrl } from "../../shared/url-util";
 
 import express, { Request, Response } from "express";
 import { queueRouter } from "./routes/queue-routes";
-import { schedulerStateRouter } from "./scheduler-state";
+import { schedulerStateRouter } from "./queue-service/queue-state";
 import { setupSwagger } from "./swagger";
 
 const PORT = getPortFromUrl(process.env.SCHEDULER_URL);

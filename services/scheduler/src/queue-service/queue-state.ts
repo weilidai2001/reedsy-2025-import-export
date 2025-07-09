@@ -1,5 +1,5 @@
 import express from "express";
-import { getQueueLength } from "./queue-manager";
+import { queueService } from "./in-memory-queue";
 
 let totalJobsEnqueued = 0;
 let totalJobsDequeued = 0;
@@ -22,7 +22,7 @@ schedulerStateRouter.get("/", (req, res) => {
     totalJobsEnqueued,
     totalJobsDequeued,
     lastDequeuedJobId,
-    queueLength: getQueueLength(),
+    queueLength: queueService.getQueueLength(),
     uptimeSeconds: uptime,
   });
 });
