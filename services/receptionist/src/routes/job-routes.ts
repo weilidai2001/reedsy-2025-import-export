@@ -1,11 +1,10 @@
 import { Router, Request, Response } from "express";
 import axios from "axios";
-import { Job, exportJobSchema, importJobSchema } from "../types";
+import { exportJobSchema, importJobSchema } from "../types";
 import { validate } from "../middleware/validate";
 import logger from "../logger";
-import { v4 as uuidv4 } from "uuid";
-import { registerNewJob } from "clients/task-registry-client";
-import { addJobToScheduler } from "clients/scheduler-client";
+import { registerNewJob } from "../clients/task-registry-client";
+import { addJobToScheduler } from "../clients/scheduler-client";
 import { initialiseJob } from "../transform/jobs-transformer";
 
 const router = Router();
