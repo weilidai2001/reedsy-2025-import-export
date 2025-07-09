@@ -140,9 +140,4 @@ router.get("/imports", async (req: Request, res: Response) => {
   }
 });
 
-// Health check endpoint
-router.get("/health", (req: Request, res: Response) => {
-  res.status(200).json({ status: "ok" });
-});
-
 export default router;

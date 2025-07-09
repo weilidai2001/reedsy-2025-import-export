@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import logger from "./logger";
 import jobRoutes from "./routes/job-routes";
 import { errorHandler } from "./middleware/error-handler";
@@ -18,8 +18,8 @@ app.use((req, res, next) => {
 });
 
 // Health check endpoint
-app.get("/health", (req, res) => {
-  res.json({ status: "ok", service: "receptionist" });
+app.get("/health", (req: Request, res: Response) => {
+  res.status(200).json({ status: "ok" });
 });
 
 // Job endpoints
