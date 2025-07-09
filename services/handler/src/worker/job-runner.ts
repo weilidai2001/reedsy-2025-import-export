@@ -9,6 +9,7 @@ export async function startPollingLoop() {
   logger.info("Starting job polling loop");
 
   await delay(2000); // Initial delay to allow scheduler to start
+  // (in real world, this shouldn't be needed as the scheduler will always be up)
 
   while (true) {
     if (!state.isIdle) {
