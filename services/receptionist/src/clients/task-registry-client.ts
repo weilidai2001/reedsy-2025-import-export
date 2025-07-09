@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { Job } from "../types";
-import { JobDirectionSchema, JobSchema } from "../types";
+import { JobDirectionSchema } from "../types";
 import z from "zod";
 
 export const registerNewJob = async (jobData: Job) => {
@@ -30,14 +30,6 @@ export const getJobsByDirection = async (
     );
   }
 
-  const parsed = JobSchema.array().safeParse(taskRegistryRes.data);
-
-  if (!parsed.success) {
-    throw new Error(
-      `Failed to parse jobs from TaskRegistry. Errors: ${parsed.error.format()}`
-    );
-  }
-
-  const jobs = parsed.data;
+  const jobs = taskRegistryRes.data as Job[];
   return jobs;
 };
