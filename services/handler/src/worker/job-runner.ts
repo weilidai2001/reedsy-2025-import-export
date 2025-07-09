@@ -5,6 +5,23 @@ import { handleJob } from "./job-manager";
 
 const POLL_INTERVAL_MS = 5000;
 
+export async function runSinglePollIteration() {
+  if (!state.isIdle) {
+    await delay(1000);
+    return;
+  }
+
+  const job = await dequeue();
+
+  if (!job) {
+    logger.info("No jobs available for dequeue");
+    await delay(POLL_INTERVAL_MS);
+    return;
+  }
+
+  await handleJob(job);
+}
+
 export async function startPollingLoop() {
   logger.info("Starting job polling loop");
 
@@ -12,20 +29,7 @@ export async function startPollingLoop() {
   // (in real world, this shouldn't be needed as the scheduler will always be up)
 
   while (true) {
-    if (!state.isIdle) {
-      await delay(1000);
-      continue;
-    }
-
-    const job = await dequeue();
-
-    if (!job) {
-      logger.info("No jobs available for dequeue");
-      await delay(POLL_INTERVAL_MS);
-      continue;
-    }
-
-    await handleJob(job);
+    await runSinglePollIteration();
   }
 }
 
