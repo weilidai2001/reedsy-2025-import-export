@@ -11,8 +11,8 @@
     "./services/shared"
   ],
   "scripts": {
-    "dev": "concurrently --kill-others \"npm run receptionist:dev\" \"npm run scheduler:dev\" \"npm run task-registry:dev\" \"npm run handler:dev\"",
-    "lint": "concurrently \"npm run receptionist:lint\" \"npm run scheduler:lint\" \"npm run task-registry:lint\" \"npm run handler:lint\"",
+    "dev": "concurrently --kill-others \"npm run receptionist:dev\" \"npm run scheduler:dev\" \"npm run task-registry:dev\" \"npm run handler:dev\" \"npm run api-gateway:dev\"",
+    "lint": "concurrently \"npm run receptionist:lint\" \"npm run scheduler:lint\" \"npm run task-registry:lint\" \"npm run handler:lint\" \"npm run api-gateway:lint\"",
     "api-gateway:dev": "npm run dev --workspace services/api-gateway",
     "api-gateway:lint": "npm run lint --workspace services/api-gateway",
     "handler:dev": "npm run dev --workspace services/handler",
