@@ -38,12 +38,4 @@ export const importJobSchema = z.object({
   url: z.string().url(),
 });
 
-export const TaskRegistryCreateJobSchema = z.object({
-  requestId: z.string().uuid(),
-  bookId: z.string().uuid(),
-  direction: JobDirectionSchema,
-  type: JobTypeSchema,
-  sourceUrl: z.string().optional(),
-});
-
 export type Job = z.infer<typeof JobSchema>;

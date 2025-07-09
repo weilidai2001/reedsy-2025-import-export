@@ -1,12 +1,6 @@
 import { Router, Request, Response } from "express";
 import axios from "axios";
-import {
-  Job,
-  TaskRegistryCreateJobSchema,
-  JobSchema,
-  exportJobSchema,
-  importJobSchema,
-} from "../types";
+import { Job, JobSchema, exportJobSchema, importJobSchema } from "../types";
 import { validate } from "../middleware/validate";
 import logger from "../logger";
 import { v4 as uuidv4 } from "uuid";
@@ -37,23 +31,12 @@ const createJob = async (
       updatedAt: now,
     };
 
-    // Validate job data for TaskRegistry
-    const parsed = TaskRegistryCreateJobSchema.safeParse(jobData);
-    if (!parsed.success) {
-      logger.error("Invalid job schema", {
-        errors: parsed.error.format(),
-        job: JSON.stringify(jobData),
-      });
-      res.status(400).json({ error: parsed.error.format() });
-      return;
-    }
-
-    logger.info(`Validated ${direction} job data`, parsed.data);
+    // TODO: Check this returns 201
 
     // Create job in TaskRegistry
     const taskRegistryRes = await axios.post(
       `${process.env.TASK_REGISTRY_URL}/jobs`,
-      parsed.data
+      jobData
     );
 
     logger.info(

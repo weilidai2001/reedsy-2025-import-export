@@ -24,9 +24,16 @@ router.post("/jobs", (req: Request, res: Response) => {
     const validatedData = TaskRegistryCreateJobSchema.safeParse(req.body);
 
     if (!validatedData.success) {
+      const issues = validatedData.error.errors.map((e) => ({
+        field: e.path.join("."),
+        message: e.message,
+      }));
+
+      logger.warn("Zod validation failed", { issues });
+
       return res.status(400).json({
-        error: "Validation error",
-        details: validatedData.error.format(),
+        error: "Validation failed",
+        details: issues,
       });
     }
 
@@ -36,15 +43,8 @@ router.post("/jobs", (req: Request, res: Response) => {
 
     insertJob(job);
 
-    const createdJob = selectJobById(job.requestId);
-    res.status(201).json(createdJob);
+    res.status(201).json(job);
   } catch (error) {
-    if (error instanceof ZodError) {
-      return res.status(400).json({
-        error: "Validation error",
-        details: error.errors,
-      });
-    }
     logger.error("Internal server error", error);
     return res.status(500).json({ error: "Internal server error" });
   }
