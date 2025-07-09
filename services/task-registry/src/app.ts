@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
-import router from "./routes";
+import router from "./routes/jobs";
 import { setupSwagger } from "./swagger";
 
 const app = express();

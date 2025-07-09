@@ -1,5 +1,5 @@
 import { Jobs } from "./in-memory-db";
-import { Job } from "../src/types";
+import { Job } from "../types";
 
 const jobRepository = new Jobs();
 
