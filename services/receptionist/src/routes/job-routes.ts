@@ -6,6 +6,7 @@ import logger from "../logger";
 import { v4 as uuidv4 } from "uuid";
 import { registerNewJob } from "clients/task-registry-client";
 import { addJobToScheduler } from "clients/scheduler-client";
+import { initialiseJob } from "../transform/jobs-transformer";
 
 const router = Router();
 
@@ -20,11 +21,12 @@ const createJob = async (
 ) => {
   logger.info(`Received ${direction} job request`, { body: req.body });
   try {
+    const jobData = initialiseJob(req.body, direction);
+
     await registerNewJob(jobData);
 
     logger.info(`${direction} job created in TaskRegistry`, jobData);
 
-    // Send job to Scheduler
     await addJobToScheduler(jobData);
 
     res.status(201).json({
