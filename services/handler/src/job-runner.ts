@@ -48,16 +48,14 @@ export async function startPollingLoop() {
 
     try {
       // Step 1: Check for available jobs
-      logger.debug("Checking for available jobs", {
-        url: `${SCHEDULER_URL}/queue`,
-      });
-      let jobs;
+      let hasJobsInQueue = false;
       try {
-        const response = await axios.get(`${SCHEDULER_URL}/queue`, {
+        const response = await axios.get(`${SCHEDULER_URL}/status`, {
           timeout: 5000, // Add timeout to prevent hanging requests
           validateStatus: (status) => status === 200, // Only accept 200 status
         });
-        jobs = response.data;
+        hasJobsInQueue =
+          (response.data as { queueLength: number }).queueLength > 0;
       } catch (queueErr: any) {
         const status = queueErr.response?.status;
         const data = queueErr.response?.data;
@@ -66,7 +64,7 @@ export async function startPollingLoop() {
           error: queueErr?.message || String(queueErr),
           status,
           data,
-          url: `${SCHEDULER_URL}/queue`,
+          url: `${SCHEDULER_URL}/status`,
         });
 
         await delay(ERROR_RETRY_INTERVAL_MS);
@@ -74,16 +72,14 @@ export async function startPollingLoop() {
       }
 
       // Check if there are jobs available
-      if (!Array.isArray(jobs) || jobs.length === 0) {
+      if (!hasJobsInQueue) {
         logger.debug("No jobs available");
         await delay(POLL_INTERVAL_MS);
         continue;
       }
 
       // Step 2: Dequeue a job
-      logger.info("Jobs available, attempting to dequeue", {
-        count: jobs.length,
-      });
+      logger.info("Jobs available, attempting to dequeue");
       let job;
       try {
         const response = await axios.post(

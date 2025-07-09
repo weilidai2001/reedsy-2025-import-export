@@ -20,13 +20,6 @@ export function dequeueJob(): Job | null {
 }
 
 /**
- * Get all jobs currently in the queue
- */
-export function getAllJobs(): Job[] {
-  return [...queue];
-}
-
-/**
  * Get the current queue length
  */
 export function getQueueLength(): number {

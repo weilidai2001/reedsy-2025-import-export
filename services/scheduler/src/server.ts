@@ -2,9 +2,8 @@ import logger from "./logger";
 import { getPortFromUrl } from "../../shared/url-util";
 
 import express, { Request, Response } from "express";
-import { queueRouter } from "./queue-controller";
+import { queueRouter } from "./routes/queue-routes";
 import { schedulerStateRouter } from "./scheduler-state";
-import router from "./routes";
 import { setupSwagger } from "./swagger";
 
 const PORT = getPortFromUrl(process.env.SCHEDULER_URL);
@@ -15,7 +14,6 @@ app.use(express.json());
 // Set up routes
 app.use("/queue", queueRouter);
 app.use("/status", schedulerStateRouter);
-app.use("/", router);
 
 // Set up Swagger
 setupSwagger(app);
