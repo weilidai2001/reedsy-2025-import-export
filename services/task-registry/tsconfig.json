@@ -12,6 +12,10 @@
       "@reedsy/shared/*": ["../../shared/*"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "database/in-memory-db.ts",
+    "database/job-repository.ts"
+  ],
   "references": [{ "path": "../shared" }]
 }

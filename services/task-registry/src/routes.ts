@@ -8,13 +8,12 @@ import {
   selectJobById,
   selectJobsByDirection,
   updateJob,
-} from "./persistence-util";
+} from "../database/job-repository";
 import { JobSchema } from "./types";
 
 const router = express.Router();
 
-// POST /jobs - Create a new job
-router.post("/jobs", (req: Request, res: Response) => {
+router.post("/jobs", async (req: Request, res: Response) => {
   try {
     const validatedData = JobSchema.safeParse(req.body);
 
@@ -36,7 +35,7 @@ router.post("/jobs", (req: Request, res: Response) => {
 
     logger.info("Creating job:", job);
 
-    insertJob(job);
+    await insertJob(job);
 
     res.status(201).json(job);
   } catch (error) {
@@ -45,7 +44,7 @@ router.post("/jobs", (req: Request, res: Response) => {
   }
 });
 
-router.put("/jobs/:id", (req: Request, res: Response) => {
+router.put("/jobs/:id", async (req: Request, res: Response) => {
   try {
     const validatedData = JobSchema.safeParse(req.body);
 
@@ -56,7 +55,7 @@ router.put("/jobs/:id", (req: Request, res: Response) => {
       });
     }
 
-    updateJob(validatedData.data);
+    await updateJob(validatedData.data);
     res.status(204).json();
   } catch (error) {
     if (error instanceof ZodError) {
@@ -70,16 +69,16 @@ router.put("/jobs/:id", (req: Request, res: Response) => {
   }
 });
 
-router.get("/jobs", (req: Request, res: Response) => {
+router.get("/jobs", async (req: Request, res: Response) => {
   const jobs = req.query.direction
-    ? selectJobsByDirection(req.query.direction as "import" | "export")
-    : selectAllJobs();
+    ? await selectJobsByDirection(req.query.direction as "import" | "export")
+    : await selectAllJobs();
 
   res.json(jobs);
 });
 
-router.get("/jobs/:id", (req: Request, res: Response) => {
-  const job = selectJobById(req.params.id);
+router.get("/jobs/:id", async (req: Request, res: Response) => {
+  const job = await selectJobById(req.params.id);
   if (!job) return res.status(404).json({ error: "Job not found" });
   res.json(job);
 });

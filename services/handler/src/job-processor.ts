@@ -23,6 +23,6 @@ export async function processJob(job: Job): Promise<Job> {
 
   return {
     ...job,
-    url: generateRandomUrl(),
+    resultUrl: generateRandomUrl(),
   };
 }
