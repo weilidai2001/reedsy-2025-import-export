@@ -37,6 +37,28 @@ describe("job-routes", () => {
   });
 
   describe("POST /exports", () => {
+  it("should return 400 if validation fails", async () => {
+    // Temporarily restore the real validate, then mock to simulate validation error
+    jest.resetModules();
+    const realValidate = jest.requireActual("../middleware/validate");
+    jest.doMock("../middleware/validate", () => ({
+      validate: () => (_req: any, res: any, _next: any) => res.status(400).json({ error: "validation error" }),
+    }));
+    // Re-import router with new mock
+    const routerWithValidationError = require("./job-routes").default;
+    const appWithValidationError = express();
+    appWithValidationError.use(express.json());
+    appWithValidationError.use("/", routerWithValidationError);
+    const res = await request(appWithValidationError)
+      .post("/exports")
+      .send({});
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: "validation error" });
+    expect(initialiseJob).not.toHaveBeenCalled();
+    expect(registerNewJob).not.toHaveBeenCalled();
+    expect(addJobToScheduler).not.toHaveBeenCalled();
+    jest.resetModules(); // Restore mocks
+  });
     it("should create an export job and return jobId", async () => {
       (initialiseJob as jest.Mock).mockReturnValue({ requestId: "123", foo: "bar" });
       (registerNewJob as jest.Mock).mockResolvedValue(undefined);
@@ -64,6 +86,26 @@ describe("job-routes", () => {
   });
 
   describe("POST /imports", () => {
+  it("should return 400 if validation fails", async () => {
+    jest.resetModules();
+    const realValidate = jest.requireActual("../middleware/validate");
+    jest.doMock("../middleware/validate", () => ({
+      validate: () => (_req: any, res: any, _next: any) => res.status(400).json({ error: "validation error" }),
+    }));
+    const routerWithValidationError = require("./job-routes").default;
+    const appWithValidationError = express();
+    appWithValidationError.use(express.json());
+    appWithValidationError.use("/", routerWithValidationError);
+    const res = await request(appWithValidationError)
+      .post("/imports")
+      .send({});
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: "validation error" });
+    expect(initialiseJob).not.toHaveBeenCalled();
+    expect(registerNewJob).not.toHaveBeenCalled();
+    expect(addJobToScheduler).not.toHaveBeenCalled();
+    jest.resetModules();
+  });
     it("should create an import job and return jobId", async () => {
       (initialiseJob as jest.Mock).mockReturnValue({ requestId: "456", foo: "baz" });
       (registerNewJob as jest.Mock).mockResolvedValue(undefined);
