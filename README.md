@@ -37,13 +37,41 @@ npm run test # run tests for all services
 npm run lint # run lint for all services
 ```
 
-## Manual testing
+## Useful curl commands
+
+### POST /imports
 
 ```bash
-curl -X 'POST' 'http://localhost:3001/api/receptionist/exports' \
-  -H 'accept: */*' \
-  -H 'Content-Type: application/json' \
-  -d '{"bookId": "123", "type": "epub"}'
+curl --location 'http://localhost:8000/imports' \
+--header 'Content-Type: application/json' \
+--data '{
+  "bookId": "Intelligent Cotton Fish",
+  "type": "pdf",
+  "url": "http://laron.net"
+}'
+```
+
+### POST /exports
+
+```bash
+curl --location 'http://localhost:8000/exports' \
+--header 'Content-Type: application/json' \
+--data '{
+  "bookId": "Ergonomic Steel Car",
+  "type": "epub"
+}'
+```
+
+### GET /imports
+
+```bash
+curl --location 'http://localhost:8000/imports'
+```
+
+### GET /exports
+
+```bash
+curl --location 'http://localhost:8000/exports'
 ```
 
 # Component design in detail
