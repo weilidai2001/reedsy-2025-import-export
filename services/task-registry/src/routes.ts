@@ -67,7 +67,7 @@ router.patch("/jobs/:id", (req: Request, res: Response) => {
       requestId: req.params.id,
       ...validatedData.data,
     });
-    res.json(validatedData.data);
+    res.status(204).json();
   } catch (error) {
     if (error instanceof ZodError) {
       return res.status(400).json({

@@ -4,9 +4,9 @@ import { processJob } from "./job-processor";
 import { state } from "./job-state";
 import logger from "./logger";
 import { dequeue } from "./clients/scheduler-client";
+import { updateRegistry } from "./clients/task-registry-client";
 
 const POLL_INTERVAL_MS = 5000;
-const REGISTRY_URL = process.env.TASK_REGISTRY_URL!;
 
 export async function startPollingLoop() {
   logger.info("Starting job polling loop");
@@ -35,33 +35,25 @@ async function handleJob(job: Job) {
   state.setIdle(false);
   const start = Date.now();
 
-  logger.info("Starting job", {
-    jobId: job.requestId,
-    type: job.type,
-    direction: job.direction,
-    state: "startingProcessing",
-  });
+  logger.info("Starting job", { requestId: job.requestId });
 
-  await patchJobState(job.requestId, "processing");
+  await updateRegistry(job.requestId, "processing");
 
   try {
     await processJob(job);
     const duration = Date.now() - start;
-    await patchJobState(job.requestId, "finished");
+    await updateRegistry(job.requestId, "finished");
 
     state.recordSuccess(job.requestId, duration);
     logger.info("Finished job", {
-      jobId: job.requestId,
-      type: job.type,
-      direction: job.direction,
-      state: "finishedProcessing",
+      requestId: job.requestId,
     });
   } catch (err: any) {
     const duration = Date.now() - start;
-    await patchJobState(job.requestId, "failed");
+    await updateRegistry(job.requestId, "failed");
     state.recordFailure(job.requestId, duration, err);
     logger.error("Failed job", {
-      jobId: job.requestId,
+      requestId: job.requestId,
       error: err?.message || String(err),
     });
   } finally {
@@ -71,32 +63,4 @@ async function handleJob(job: Job) {
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function patchJobState(id: string, state: string) {
-  try {
-    await axios.patch(
-      `${REGISTRY_URL}/jobs/${id}`,
-      { state },
-      {
-        timeout: 5000,
-        validateStatus: (status) => status >= 200 && status < 300,
-      }
-    );
-    logger.debug("Updated job state", { jobId: id, state });
-  } catch (err: any) {
-    const status = err.response?.status;
-    const data = err.response?.data;
-
-    logger.error("Failed to update job state", {
-      jobId: id,
-      state,
-      error: err?.message || String(err),
-      status,
-      data,
-    });
-
-    // Re-throw to be handled by the caller
-    throw err;
-  }
 }
