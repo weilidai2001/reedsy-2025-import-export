@@ -1,5 +1,5 @@
 import express from "express";
-import { state } from "./job-state";
+import { state } from "./worker/job-state";
 
 export function createServer() {
   const app = express();

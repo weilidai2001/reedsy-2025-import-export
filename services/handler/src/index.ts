@@ -6,7 +6,7 @@ dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 import logger from "./logger";
 import { createServer } from "./server";
-import { startPollingLoop } from "./job-runner";
+import { startPollingLoop } from "./worker/job-runner";
 import { getPortFromUrl } from "../../shared/url-util";
 
 const app = createServer();

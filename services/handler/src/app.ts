@@ -1,5 +1,5 @@
 import { Job, JobType } from "./types";
-import { state } from "./job-state";
+import { state } from "./worker/job-state";
 
 const SIMULATED_PROCESS_TIMES: Record<JobType, number> = {
   epub: 10000,
