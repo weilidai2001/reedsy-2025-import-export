@@ -36,7 +36,7 @@ src/
   "bookId": "string-uuid",
   "direction": "import" | "export",
   "type": "epub" | "pdf" | "word" | "wattpad" | "evernote",
-  "sourceUrl": "string (optional, required for import)"
+  "url": "string (optional, required for import)"
 }
 ```
 
@@ -57,7 +57,7 @@ src/
   "direction": "import" | "export",
   "type": "epub" | "pdf" | "word" | "wattpad" | "evernote",
   "state": "pending",
-  "sourceUrl": "string",
+  "url": "string",
   "resultUrl": null,
   "createdAt": "2025-07-08T13:00:00.000Z",
   "updatedAt": "2025-07-08T13:00:00.000Z",
@@ -114,7 +114,7 @@ src/
   "direction": "import" | "export",
   "type": "epub" | "pdf" | "word" | "wattpad" | "evernote",
   "state": "pending" | "processing" | "finished" | "failed",
-  "sourceUrl": "string",
+  "url": "string",
   "resultUrl": "string | null",
   "createdAt": "ISO string",
   "updatedAt": "ISO string",
@@ -147,7 +147,7 @@ export const JobSchema = z.object({
   direction: JobDirectionEnum,
   type: JobTypeEnum,
   state: JobStateEnum,
-  sourceUrl: z.string().optional(),
+  url: z.string().optional(),
   resultUrl: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),

@@ -10,7 +10,7 @@ export const JobSchema = z.object({
   direction: JobDirectionSchema,
   type: JobTypeSchema,
   state: JobStateSchema,
-  sourceUrl: z.string().optional(),
+  url: z.string().optional(),
   resultUrl: z.string().optional(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
@@ -22,7 +22,7 @@ export const TaskRegistryCreateJobSchema = z.object({
   state: JobStateSchema,
   direction: JobDirectionSchema,
   type: JobTypeSchema,
-  sourceUrl: z.string().optional(),
+  url: z.string().optional(),
 });
 
 export const TaskRegistryUpdateJobSchema = z.object({

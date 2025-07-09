@@ -6,7 +6,7 @@ export const JobSchema = z.object({
   direction: z.enum(["import", "export"]),
   type: z.enum(["epub", "pdf", "word", "wattpad", "evernote"]),
   state: z.enum(["pending", "processing", "finished", "failed"]),
-  sourceUrl: z.string().optional(),
+  url: z.string().optional(),
   resultUrl: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),

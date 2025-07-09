@@ -1,9 +1,11 @@
 import { Router, Request, Response } from "express";
 import axios from "axios";
-import { Job, JobSchema, exportJobSchema, importJobSchema } from "../types";
+import { Job, exportJobSchema, importJobSchema } from "../types";
 import { validate } from "../middleware/validate";
 import logger from "../logger";
 import { v4 as uuidv4 } from "uuid";
+import { registerNewJob } from "clients/task-registry-client";
+import { addJobToScheduler } from "clients/scheduler-client";
 
 const router = Router();
 
@@ -18,39 +20,12 @@ const createJob = async (
 ) => {
   logger.info(`Received ${direction} job request`, { body: req.body });
   try {
-    const now = new Date().toISOString();
-    // Prepare job data based on direction
-    const jobData: Job = {
-      requestId: uuidv4(),
-      bookId: req.body.bookId,
-      direction,
-      type: req.body.type,
-      state: "pending",
-      sourceUrl: direction === "import" ? req.body.url : undefined,
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    const taskRegistryRes = await axios.post(
-      `${process.env.TASK_REGISTRY_URL}/jobs`,
-      jobData
-    );
-
-    if (taskRegistryRes.status !== 201) {
-      throw new Error(
-        `Failed to create job in TaskRegistry. Status: ${taskRegistryRes.status}`
-      );
-    }
+    await registerNewJob(jobData);
 
     logger.info(`${direction} job created in TaskRegistry`, jobData);
 
     // Send job to Scheduler
-    const schedulerRes = await axios.post(`${process.env.SCHEDULER_URL}/queue`, jobData);
-    if (schedulerRes.status !== 201) {
-      throw new Error(
-        `Failed to queue job in Scheduler. Status: ${schedulerRes.status}`
-      );
-    }
+    await addJobToScheduler(jobData);
 
     res.status(201).json({
       jobId: jobData.requestId,

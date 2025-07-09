@@ -21,7 +21,7 @@ export const JobSchema = z.object({
   direction: JobDirectionSchema,
   type: JobTypeSchema,
   state: JobStateSchema,
-  sourceUrl: z.string().optional(),
+  url: z.string().optional(),
   resultUrl: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),

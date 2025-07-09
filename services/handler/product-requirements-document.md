@@ -73,7 +73,7 @@ export type Job = {
   direction: JobDirection;
   type: JobType;
   state: JobState;
-  sourceUrl?: string;
+  url?: string;
   resultUrl?: string;
   createdAt: string;
   updatedAt: string;

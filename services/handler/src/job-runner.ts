@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Job } from "./types";
+import { Job, JobSchema } from "./types";
 import { processJob } from "./job-processor";
 import { state } from "./job-state";
 import logger from "./logger";
@@ -9,18 +9,6 @@ const POLL_INTERVAL_MS = 5000;
 const ERROR_RETRY_INTERVAL_MS = 10000; // Longer retry interval for errors
 const SCHEDULER_URL = process.env.SCHEDULER_URL!;
 const REGISTRY_URL = process.env.TASK_REGISTRY_URL!;
-
-export const JobSchema = z.object({
-  requestId: z.string(),
-  bookId: z.string(),
-  direction: z.enum(["import", "export"]),
-  type: z.enum(["epub", "pdf", "word", "wattpad", "evernote"]),
-  state: z.enum(["pending", "processing", "finished", "failed"]),
-  sourceUrl: z.string().optional(),
-  resultUrl: z.string().optional(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-});
 
 // Validate that required environment variables are set
 function validateEnvironment() {
