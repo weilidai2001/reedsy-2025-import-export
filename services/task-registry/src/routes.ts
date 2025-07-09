@@ -30,10 +30,7 @@ router.post("/jobs", (req: Request, res: Response) => {
       });
     }
 
-    const job: Job = {
-      ...validatedData.data,
-      state: "pending",
-    };
+    const job = validatedData.data;
 
     logger.info("Creating job:", job);
 

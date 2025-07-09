@@ -1,11 +1,15 @@
 import { z } from "zod";
 
+const JobDirectionSchema = z.enum(["import", "export"]);
+const JobTypeSchema = z.enum(["epub", "pdf", "word", "wattpad", "evernote"]);
+const JobStateSchema = z.enum(["pending", "processing", "finished", "failed"]);
+
 export const JobSchema = z.object({
   requestId: z.string(),
   bookId: z.string(),
-  direction: z.enum(["import", "export"]),
-  type: z.enum(["epub", "pdf", "word", "wattpad", "evernote"]),
-  state: z.enum(["pending", "processing", "finished", "failed"]),
+  direction: JobDirectionSchema,
+  type: JobTypeSchema,
+  state: JobStateSchema,
   sourceUrl: z.string().optional(),
   resultUrl: z.string().optional(),
   createdAt: z.string().optional(),
@@ -15,13 +19,14 @@ export const JobSchema = z.object({
 export const TaskRegistryCreateJobSchema = z.object({
   requestId: z.string().uuid(),
   bookId: z.string().uuid(),
-  direction: z.enum(["import", "export"]),
-  type: z.enum(["epub", "pdf", "word", "wattpad", "evernote"]),
+  state: JobStateSchema,
+  direction: JobDirectionSchema,
+  type: JobTypeSchema,
   sourceUrl: z.string().optional(),
 });
 
 export const TaskRegistryUpdateJobSchema = z.object({
-  state: z.enum(["pending", "processing", "finished", "failed"]),
+  state: JobStateSchema,
   resultUrl: z.string().optional(),
 });
 
