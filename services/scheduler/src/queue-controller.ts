@@ -22,7 +22,7 @@ queueRouter.post("/", (req: Request, res: Response) => {
   updateMetrics("enqueue", job.requestId);
 
   logger.info("Job enqueued successfully", { requestId: job.requestId });
-  return res.sendStatus(204);
+  return res.sendStatus(201);
 });
 
 queueRouter.post("/dequeue", (req, res) => {
