@@ -207,3 +207,4 @@ curl --location 'http://localhost:8000/exports'
   - Each service also has a health check endpoint at /health which returns a 200 OK if the service is healthy.
 - Implement service registration and discovery
   - Use a service registry to register and discover services so that for example one can spawn multiple Receptionist services and the API Gateway can discover them. Or one can spawn multiple Handler services when the queue exceeds a certain threshold.
+- Look into contract testing to ensure all the services are compatible with each other
