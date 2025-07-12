@@ -27,14 +27,37 @@ The system consists of six services:
 
 ![Figure 1: System Architecture](./system-architecture.png)
 
-## Setup
+## Setup and automated testing
+
+### Start all services
 
 ```bash
 nvm install
 npm install
 npm run dev # run all services using ts-node on local machine
-npm run test # run tests for all services
+
+```
+
+### Unit testing
+
+For unit tests, run:
+
+```bash
+npm run test # run unit tests for all services
 npm run lint # run lint for all services
+```
+
+### E2E testing
+
+There's end-to-end tests for the import and export flows. Imports should take up to 60s to finish, while exports should take up to 25s for PDF and 10s for EPUB to finish.
+For e2e tests, run:
+
+```bash
+# on one terminal
+npm run dev # run all services using ts-node on local machine
+
+# on another terminal
+npm run test:e2e
 ```
 
 ## Useful curl commands

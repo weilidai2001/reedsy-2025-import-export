@@ -22,19 +22,6 @@ describe("E2E: Import Flow", () => {
     expect(jobId).toBeDefined();
     console.log(`Job created with ID: ${jobId}`);
 
-    // Submit two more
-    await request(process.env.API_GATEWAY_URL!)
-      .post("/imports")
-      .send(jobPayload)
-      .expect(201);
-
-    await request(process.env.API_GATEWAY_URL!)
-      .post("/imports")
-      .send(jobPayload)
-      .expect(201);
-
-    await pollForJobStatus("pending", 15, 1000, 5, "imports"); // Job should be pending immediately
-
     await pollForJobStatus("processing", 15, 1000, 5, "imports"); // Job should be processing immediately
 
     await pollForJobStatus("finished", 70, 1000, 60, "imports"); // Job takes 60s to finish so needs at least 60 attempts

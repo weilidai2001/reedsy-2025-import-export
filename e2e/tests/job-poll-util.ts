@@ -20,7 +20,7 @@ export async function pollForJobStatus(
     console.log(
       `Polling for job status '${desiredStatus}'... Attempt ${
         attempts + 1
-      } (${expectedAttempts} attempts expected)`
+      } (up to ${expectedAttempts} attempts expected)`
     );
     const getJobResponse = await request(process.env.API_GATEWAY_URL!)
       .get(`/${importOrExport}`)
