@@ -4,21 +4,20 @@ import { pollForJobStatus } from "./job-poll-util";
 
 loadRootEnv();
 
-const timeoutForImportTest = 120000; // 120s timeout as the job takes 60s to finish
+describe("E2E: Export Flow", () => {
+  const timeoutForExportTest = 30000; // 30s timeout as the job takes 25s to finish
 
-describe("E2E: Import Flow", () => {
   it(
-    "should successfully create an import job and see it being processed",
+    "should successfully create a PDF export job and see it being processed to completion in 25s",
     async () => {
-      // 1. Submit a new import job to the API Gateway
+      // 1. Submit a new export job to the API Gateway
       const jobPayload = {
         bookId: "some-book-id",
         type: "pdf",
-        url: "http://example.com/book.pdf",
       };
 
       const createJobResponse = await request(process.env.API_GATEWAY_URL!)
-        .post("/imports")
+        .post("/exports")
         .send(jobPayload)
         .expect(201);
 
@@ -28,21 +27,21 @@ describe("E2E: Import Flow", () => {
 
       // Submit two more
       await request(process.env.API_GATEWAY_URL!)
-        .post("/imports")
+        .post("/exports")
         .send(jobPayload)
         .expect(201);
 
       await request(process.env.API_GATEWAY_URL!)
-        .post("/imports")
+        .post("/exports")
         .send(jobPayload)
         .expect(201);
 
-      await pollForJobStatus("pending", 15, 1000, 5, "imports"); // Job should be processing immediately
+      await pollForJobStatus("pending", 15, 1000, 5, "exports"); // Job should be pending immediately
 
-      await pollForJobStatus("processing", 15, 1000, 5, "imports"); // Job should be processing immediately
+      await pollForJobStatus("processing", 15, 1000, 5, "exports"); // Job should be processing immediately
 
-      await pollForJobStatus("finished", 70, 1000, 60, "imports"); // Job takes 60s to finish so needs at least 60 attempts
+      await pollForJobStatus("finished", 25, 1000, 30, "exports"); // Job takes 25s to finish so needs at least 60 attempts
     },
-    timeoutForImportTest
+    timeoutForExportTest
   );
 });

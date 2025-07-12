@@ -11,6 +11,11 @@ describe('processJob', () => {
   beforeEach(() => {
     // Reset state before each test
     state.currentJob = null;
+    jest.spyOn(global, 'setTimeout');
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should process an import job and wait 60s', async () => {

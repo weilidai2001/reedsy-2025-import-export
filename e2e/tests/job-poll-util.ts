@@ -10,7 +10,8 @@ export async function pollForJobStatus(
   desiredStatus: string,
   maxAttempts: number,
   pollIntervalMs: number = 1000,
-  expectedAttempts: number
+  expectedAttempts: number,
+  importOrExport: "imports" | "exports"
 ): Promise<void> {
   let attempts = 0;
   let jobStatus = "";
@@ -22,7 +23,7 @@ export async function pollForJobStatus(
       } (${expectedAttempts} attempts expected)`
     );
     const getJobResponse = await request(process.env.API_GATEWAY_URL!)
-      .get(`/imports`)
+      .get(`/${importOrExport}`)
       .expect(200);
     const statusOfAllImports = getJobResponse.body;
     if (desiredStatus in statusOfAllImports) {
