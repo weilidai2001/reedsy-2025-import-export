@@ -23,6 +23,11 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Scheduler Service Running");
 });
 
+// Health check endpoint
+app.get("/health", (req: Request, res: Response) => {
+  res.status(200).json({ status: "ok" });
+});
+
 export function startServer() {
   app.listen(PORT, () => {
     logger.info(`Scheduler service running on ${process.env.SCHEDULER_URL}`);
