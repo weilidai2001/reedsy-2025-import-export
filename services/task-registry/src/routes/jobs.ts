@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 
 import logger from "../logger";
 import {
+  deleteAllJobs,
   insertJob,
   selectAllJobs,
   selectJobById,
@@ -68,6 +69,16 @@ router.get("/jobs/:id", async (req: Request, res: Response) => {
     res.json(job);
   } catch (error) {
     logger.error("Internal server error while getting job", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/jobs", async (req: Request, res: Response) => {
+  try {
+    await deleteAllJobs();
+    res.status(204).json();
+  } catch (error) {
+    logger.error("Internal server error while deleting jobs", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 });

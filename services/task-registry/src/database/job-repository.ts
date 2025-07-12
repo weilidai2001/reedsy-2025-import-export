@@ -25,3 +25,7 @@ export const selectJobsByDirection = (direction: Job["direction"]) => {
 export const selectJobById = (requestId: Job["requestId"]) => {
   return jobRepository.findOne({ where: { requestId } });
 };
+
+export const deleteAllJobs = () => {
+  return jobRepository.deleteAll();
+};

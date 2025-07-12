@@ -5,6 +5,10 @@ import { pollForJobStatus } from "./job-poll-util";
 loadRootEnv();
 
 describe("E2E: Export Flow", () => {
+  beforeEach(async () => {
+    await request(process.env.TASK_REGISTRY_URL!).delete("/jobs").expect(204);
+  });
+
   it("should successfully create a PDF export job and see it being processed to completion in 25s", async () => {
     // 1. Submit a new export job to the API Gateway
     const jobPayload = {

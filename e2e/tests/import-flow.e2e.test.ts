@@ -5,6 +5,10 @@ import { pollForJobStatus } from "./job-poll-util";
 loadRootEnv();
 
 describe("E2E: Import Flow", () => {
+  beforeEach(async () => {
+    await request(process.env.TASK_REGISTRY_URL!).delete("/jobs").expect(204);
+  });
+
   it("should successfully create an import job and see it being processed", async () => {
     // 1. Submit a new import job to the API Gateway
     const jobPayload = {

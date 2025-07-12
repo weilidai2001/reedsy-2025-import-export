@@ -49,4 +49,9 @@ export class Jobs implements DatabaseInterface<Job> {
     this.db[index] = { ...this.db[index], ...data };
     return Promise.resolve(this.db[index]);
   }
+
+  deleteAll(): Promise<void> {
+    this.db = [];
+    return Promise.resolve();
+  }
 }
