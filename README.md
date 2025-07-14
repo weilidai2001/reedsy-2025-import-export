@@ -35,6 +35,7 @@ The system consists of six services:
 nvm install
 npm install
 npm run dev # run all services using ts-node on local machine
+npm run centralised-logging:dev # (optional) on another terminal
 
 ```
 
@@ -58,6 +59,9 @@ npm run dev # run all services using ts-node on local machine
 
 # on another terminal
 npm run test:e2e
+
+# (optional) on another terminal
+npm run centralised-logging:dev
 ```
 
 ## Useful curl commands
