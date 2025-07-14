@@ -1,0 +1,57 @@
+# Task ID: 3
+# Title: Implement TaskRegistry Service
+# Status: done
+# Dependencies: 2
+# Priority: high
+# Description: Develop the TaskRegistry service that will serve as the persistent job store using SQLite in WAL mode.
+# Details:
+Create an Express application for the TaskRegistry service with the following endpoints:
+
+1. POST `/jobs` - Create a new job
+2. PATCH `/jobs/:id` - Update job state or result
+3. GET `/jobs?direction=import|export` - Return grouped job states
+4. (Optional) GET `/jobs/:id` - Fetch job detail
+
+Implement SQLite database with WAL mode:
+```javascript
+const sqlite3 = require('sqlite3');
+const db = new sqlite3.Database('task-registry.sqlite');
+db.run('PRAGMA journal_mode = WAL;');
+```
+
+Create the jobs table with the required fields matching the Job type. Implement CRUD operations for jobs. Add Swagger UI at `/docs` endpoint for API documentation and testing.
+
+# Test Strategy:
+Write integration tests for each endpoint. Test database operations with mock data. Verify WAL mode is correctly enabled. Test concurrent read/write operations to ensure data integrity.
+
+# Subtasks:
+## 1. Set up Express application structure [done]
+### Dependencies: None
+### Description: Create the basic Express.js application structure for the TaskRegistry service
+### Details:
+Initialize a new Node.js project with npm, install Express.js and required dependencies, set up the server configuration, implement basic middleware (CORS, body-parser, error handling), create folder structure for routes, controllers, models, and services, and implement a basic health check endpoint.
+
+## 2. Configure SQLite database with WAL mode [done]
+### Dependencies: 3.1
+### Description: Set up SQLite database with Write-Ahead Logging mode for the TaskRegistry service
+### Details:
+Install SQLite dependencies, create database connection utility, configure the database to use WAL mode for better concurrency, implement connection pooling if needed, create database initialization script, and add database migration capabilities for future schema changes.
+
+## 3. Implement Jobs table schema and CRUD operations [done]
+### Dependencies: 3.2
+### Description: Design and implement the Jobs table schema and create data access layer with CRUD operations
+### Details:
+Define Jobs table schema with appropriate columns (job_id, status, created_at, updated_at, etc.), implement data models, create repository layer with CRUD operations (create, read, update, delete, list), add transaction support, and implement proper error handling for database operations.
+
+## 4. Develop TaskRegistry API endpoints [done]
+### Dependencies: 3.3
+### Description: Implement all required API endpoints for the TaskRegistry service
+### Details:
+Create route definitions, implement controller functions for each endpoint (create job, get job status, update job, list jobs, etc.), add input validation using a validation library, implement proper error responses, add pagination for list endpoints, and ensure proper HTTP status codes are used.
+
+## 5. Add Swagger documentation [done]
+### Dependencies: 3.4
+### Description: Create comprehensive Swagger/OpenAPI documentation for the TaskRegistry service API
+### Details:
+Install Swagger UI and related dependencies, create OpenAPI specification document, document all endpoints with request/response schemas, add examples, implement Swagger UI endpoint for interactive documentation, and ensure documentation is complete and accurate for all API endpoints.
+

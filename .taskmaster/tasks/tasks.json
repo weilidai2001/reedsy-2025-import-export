@@ -1,0 +1,501 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Setup Project Structure",
+        "description": "Initialize the project repository with the required directory structure and base configuration for all four services.",
+        "details": "Create the following structure:\n- src/\n  - receptionist/\n    - package.json\n  - scheduler/\n    - package.json\n  - handler/\n    - package.json\n  - task-registry/\n    - package.json\n  - shared/\n    - types.ts\n\nSetup the root package.json with scripts for building and starting all services. Configure TypeScript for the project. Ensure all filenames use kebab-case as specified in the PRD. Initialize git repository with appropriate .gitignore file.",
+        "testStrategy": "Verify the directory structure is correctly set up. Ensure all package.json files are valid and can be installed. Test that the build scripts work correctly for each service.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Directory Structure",
+            "description": "Set up the main project directory and all required subdirectories for the microservices architecture",
+            "dependencies": [],
+            "details": "Create the following directory structure:\n- root/\n  - auth-service/\n  - user-service/\n  - product-service/\n  - order-service/\n  - gateway/\n  - shared/\n  - docs/\nEnsure each service directory has appropriate subdirectories for src/, tests/, and config/",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Configure package.json for All Services",
+            "description": "Create and configure package.json files for each microservice and the root project",
+            "dependencies": [
+              1
+            ],
+            "details": "For each service directory:\n1. Initialize package.json with appropriate name, version, description\n2. Add common dependencies (express, typescript, etc.)\n3. Configure scripts for development, testing, building\n4. Set up workspace configuration in root package.json if using a monorepo approach\n5. Ensure consistent versioning across services",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Set Up TypeScript Configuration",
+            "description": "Configure TypeScript for all services with appropriate settings",
+            "dependencies": [
+              2
+            ],
+            "details": "1. Create tsconfig.json files for each service\n2. Configure compiler options (target, module, outDir, etc.)\n3. Set up path aliases if needed\n4. Configure type definitions\n5. Create a base tsconfig.json in the root that can be extended by services\n6. Ensure consistent TypeScript settings across all services",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Initialize Git Repository with .gitignore",
+            "description": "Set up version control for the project with appropriate ignore rules",
+            "dependencies": [
+              3
+            ],
+            "details": "1. Initialize git repository in the root directory\n2. Create comprehensive .gitignore file including:\n   - node_modules\n   - build/dist directories\n   - environment files (.env)\n   - logs\n   - IDE-specific files\n3. Add .gitattributes if needed\n4. Create initial commit with the project structure\n5. Set up branch protection rules if using GitHub/GitLab",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Ensure independent service directories with Node.js config",
+            "description": "Ensure the project structure contains one folder for each service (receptionist, scheduler, handler, task-registry), each with its own independent Node.js configuration (package.json, tsconfig.json, etc.) following kebab-case naming.",
+            "details": "For each service (receptionist, scheduler, handler, task-registry), create a dedicated directory in kebab-case. Each directory must include its own package.json and tsconfig.json, allowing for independent configuration and builds. Shared code should reside in a separate 'shared' directory. Verify that all service directories are correctly isolated and independently runnable as Node.js TypeScript projects.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Implement Shared Types",
+        "description": "Create a shared types module that will be used across all services to ensure type consistency.",
+        "details": "Create a types.ts file in the shared directory with the following types as specified in the PRD:\n\n```typescript\ntype JobDirection = \"import\" | \"export\";\ntype JobType = \"epub\" | \"pdf\" | \"word\" | \"wattpad\" | \"evernote\";\ntype JobState = \"pending\" | \"processing\" | \"finished\" | \"failed\";\n\ntype Job = {\n  id: string;\n  bookId: string;\n  direction: JobDirection;\n  type: JobType;\n  state: JobState;\n  sourceUrl?: string;\n  resultUrl?: string;\n  createdAt: string;\n  updatedAt: string;\n  startedAt?: string;\n};\n```\n\nEnsure this module can be imported by all services.",
+        "testStrategy": "Write unit tests to verify type definitions are correct and can be imported properly. Test with sample data to ensure type checking works as expected.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Implement TaskRegistry Service",
+        "description": "Develop the TaskRegistry service that will serve as the persistent job store using SQLite in WAL mode.",
+        "details": "Create an Express application for the TaskRegistry service with the following endpoints:\n\n1. POST `/jobs` - Create a new job\n2. PATCH `/jobs/:id` - Update job state or result\n3. GET `/jobs?direction=import|export` - Return grouped job states\n4. (Optional) GET `/jobs/:id` - Fetch job detail\n\nImplement SQLite database with WAL mode:\n```javascript\nconst sqlite3 = require('sqlite3');\nconst db = new sqlite3.Database('task-registry.sqlite');\ndb.run('PRAGMA journal_mode = WAL;');\n```\n\nCreate the jobs table with the required fields matching the Job type. Implement CRUD operations for jobs. Add Swagger UI at `/docs` endpoint for API documentation and testing.",
+        "testStrategy": "Write integration tests for each endpoint. Test database operations with mock data. Verify WAL mode is correctly enabled. Test concurrent read/write operations to ensure data integrity.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Express application structure",
+            "description": "Create the basic Express.js application structure for the TaskRegistry service",
+            "dependencies": [],
+            "details": "Initialize a new Node.js project with npm, install Express.js and required dependencies, set up the server configuration, implement basic middleware (CORS, body-parser, error handling), create folder structure for routes, controllers, models, and services, and implement a basic health check endpoint.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Configure SQLite database with WAL mode",
+            "description": "Set up SQLite database with Write-Ahead Logging mode for the TaskRegistry service",
+            "dependencies": [
+              1
+            ],
+            "details": "Install SQLite dependencies, create database connection utility, configure the database to use WAL mode for better concurrency, implement connection pooling if needed, create database initialization script, and add database migration capabilities for future schema changes.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement Jobs table schema and CRUD operations",
+            "description": "Design and implement the Jobs table schema and create data access layer with CRUD operations",
+            "dependencies": [
+              2
+            ],
+            "details": "Define Jobs table schema with appropriate columns (job_id, status, created_at, updated_at, etc.), implement data models, create repository layer with CRUD operations (create, read, update, delete, list), add transaction support, and implement proper error handling for database operations.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Develop TaskRegistry API endpoints",
+            "description": "Implement all required API endpoints for the TaskRegistry service",
+            "dependencies": [
+              3
+            ],
+            "details": "Create route definitions, implement controller functions for each endpoint (create job, get job status, update job, list jobs, etc.), add input validation using a validation library, implement proper error responses, add pagination for list endpoints, and ensure proper HTTP status codes are used.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Add Swagger documentation",
+            "description": "Create comprehensive Swagger/OpenAPI documentation for the TaskRegistry service API",
+            "dependencies": [
+              4
+            ],
+            "details": "Install Swagger UI and related dependencies, create OpenAPI specification document, document all endpoints with request/response schemas, add examples, implement Swagger UI endpoint for interactive documentation, and ensure documentation is complete and accurate for all API endpoints.",
+            "status": "done",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Implement Scheduler Service",
+        "description": "Develop the Scheduler service that will manage in-memory FIFO queues for different job types and dispatch jobs to Handlers.",
+        "details": "Create an Express application for the Scheduler service with a BullMQ-like interface. Implement the POST `/queue` endpoint to enqueue jobs. Create separate in-memory queues for each job type (epub, pdf, word, wattpad, evernote).\n\nImplement queue management logic:\n```javascript\nconst queues = {\n  import: {\n    word: [],\n    pdf: [],\n    wattpad: [],\n    evernote: []\n  },\n  export: {\n    epub: [],\n    pdf: []\n  }\n};\n\n// Enqueue function\nfunction enqueue(job) {\n  queues[job.direction][job.type].push(job);\n}\n\n// Dequeue function\nfunction dequeue(direction, type) {\n  return queues[direction][type].shift();\n}\n```\n\nImplement job dispatching to Handler services. Add Swagger UI at `/docs` endpoint.",
+        "testStrategy": "Test queue operations with various job types. Verify FIFO behavior. Test concurrent enqueue/dequeue operations. Verify job dispatching to Handler services works correctly.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Scaffold Scheduler Service",
+            "description": "Set up the initial project structure, TypeScript config, and Express boilerplate for the Scheduler microservice.",
+            "details": "- Create the scheduler directory under services/\n- Add package.json, tsconfig.json, and .gitignore\n- Set up Express app with a health check endpoint\n- Add Jest for testing\n- Ensure shared/types.ts is available for type imports\n- Use kebab-case for all files and directories\n",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 4
+          },
+          {
+            "id": 2,
+            "title": "Add/Configure TypeScript and Jest",
+            "description": "Add tsconfig.json, jest.config.js, and ensure TypeScript and Jest are configured for the Scheduler service.",
+            "details": "- Create tsconfig.json in services/scheduler\n- Add jest.config.js and configure Jest for TypeScript\n- Add test script to package.json\n- Ensure devDependencies include typescript, jest, ts-jest, @types/jest, @types/node\n- Use kebab-case for all files\n",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 4
+          },
+          {
+            "id": 3,
+            "title": "Set up Express app and entry points",
+            "description": "Add Express app boilerplate, server starter, and entry point for the Scheduler service.",
+            "details": "- Create src/app.ts with Express app and middleware\n- Create src/server.ts to start the app on a port\n- Create src/index.ts as entry point\n- Use kebab-case for all files\n",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 4
+          },
+          {
+            "id": 4,
+            "title": "Verify shared types import and paths",
+            "description": "Test import of types from services/shared/types.ts in Scheduler service to ensure path aliasing works.",
+            "details": "- Add sample import of Job type from shared/types.ts\n- Fix tsconfig.json paths if needed\n- Ensure no TypeScript errors\n",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 4
+          },
+          {
+            "id": 5,
+            "title": "Add health check endpoint and test",
+            "description": "Add a health check endpoint and test for the Scheduler service.",
+            "details": "- Add GET /health endpoint to app\n- Add Jest test to verify health endpoint returns 200 OK\n",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 4
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Implement Handler Service",
+        "description": "Develop the Handler service that will process jobs with simulated delays and update the TaskRegistry.",
+        "details": "Create a Node.js application for the Handler service. Implement long-polling or subscription mechanism to receive jobs from the Scheduler. Process jobs with simulated delays as specified in the PRD:\n- epub: 10 seconds\n- pdf (export): 25 seconds\n- import (all types): 60 seconds\n\nImplement job processing logic:\n```javascript\nasync function processJob(job) {\n  // Update job state to processing in TaskRegistry\n  await updateJobState(job.id, 'processing');\n  \n  // Simulate processing delay based on job type\n  const delay = getDelayForJobType(job.direction, job.type);\n  await new Promise(resolve => setTimeout(resolve, delay * 1000));\n  \n  // Generate a result URL\n  const resultUrl = `https://results.example.com/${job.id}.${job.type}`;\n  \n  // Update job as finished in TaskRegistry\n  await updateJobResult(job.id, 'finished', resultUrl);\n}\n```\n\nImplement error handling and retries for failed jobs.",
+        "testStrategy": "Test job processing with various job types. Verify correct delays are applied. Test error handling and recovery. Verify TaskRegistry updates are made correctly.",
+        "priority": "medium",
+        "dependencies": [
+          3,
+          4
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Handler Service structure",
+            "description": "Create the basic structure for the Handler Service including project setup, configuration, and core interfaces",
+            "dependencies": [],
+            "details": "1. Create a new directory 'handler-service' with proper TypeScript configuration\n2. Set up package.json with required dependencies (express, axios, etc.)\n3. Define interfaces for Job, JobStatus, and other core types\n4. Implement configuration loading for environment variables\n5. Create basic service structure with health check endpoint\n6. Set up logging infrastructure",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement job polling and subscription mechanism",
+            "description": "Create the system to poll the Scheduler service for new jobs and maintain subscriptions",
+            "dependencies": [
+              1
+            ],
+            "details": "1. Implement polling mechanism to fetch jobs from Scheduler service\n2. Create subscription manager to track active job subscriptions\n3. Implement job queue for processing jobs in order\n4. Add configurable polling interval\n5. Implement job status tracking\n6. Add logging for job acquisition events\n7. Create mechanism to acknowledge job receipt to Scheduler",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Develop job processing with simulated delays",
+            "description": "Implement the core job processing logic with appropriate simulated processing delays",
+            "dependencies": [
+              2
+            ],
+            "details": "1. Create job processor class with processing pipeline\n2. Implement configurable simulated delays based on job type\n3. Add progress tracking and reporting to TaskRegistry service\n4. Implement job completion notification\n5. Create job cancellation handling\n6. Add concurrent job processing with configurable limits\n7. Implement proper state transitions during job lifecycle",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement error handling and retry logic",
+            "description": "Add robust error handling and retry mechanisms for failed jobs",
+            "dependencies": [
+              3
+            ],
+            "details": "1. Implement error classification (transient vs. permanent failures)\n2. Create exponential backoff retry mechanism\n3. Add configurable retry limits and delay parameters\n4. Implement dead letter queue for permanently failed jobs\n5. Add detailed error reporting to TaskRegistry service\n6. Create recovery mechanisms for Handler service restarts\n7. Implement circuit breaker pattern for external service calls",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Implement Receptionist Service",
+        "description": "Develop the Receptionist service that will serve as the public-facing REST API gateway.",
+        "details": "Create an Express application for the Receptionist service with the following endpoints:\n\n1. POST `/exports` - Submit a new export job\n2. POST `/imports` - Submit a new import job\n3. GET `/exports` - Get export job listings grouped by state\n4. GET `/imports` - Get import job listings grouped by state\n\nImplement request validation for all endpoints. Generate UUIDs for new jobs. Create jobs in TaskRegistry via HTTP requests. Send jobs to Scheduler via HTTP requests. Add Swagger UI at `/docs` endpoint.\n\nExample implementation for POST `/exports`:\n```javascript\napp.post('/exports', async (req, res) => {\n  const { bookId, type } = req.body;\n  \n  // Validate request\n  if (!bookId || !['epub', 'pdf'].includes(type)) {\n    return res.status(400).json({ error: 'Invalid request' });\n  }\n  \n  // Generate job ID\n  const jobId = uuid();\n  \n  // Create job in TaskRegistry\n  await axios.post('http://task-registry:3000/jobs', {\n    id: jobId,\n    bookId,\n    direction: 'export',\n    type,\n    state: 'pending'\n  });\n  \n  // Send job to Scheduler\n  await axios.post('http://scheduler:3000/queue', {\n    id: jobId,\n    direction: 'export',\n    type\n  });\n  \n  return res.status(201).json({ jobId });\n});\n```",
+        "testStrategy": "Test all endpoints with valid and invalid requests. Verify job creation in TaskRegistry. Verify job submission to Scheduler. Test error handling and edge cases.",
+        "priority": "high",
+        "dependencies": [
+          3,
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Implement Service Communication",
+        "description": "Set up HTTP communication between services and ensure proper error handling and retries.",
+        "details": "Implement HTTP client with retry logic for inter-service communication. Use axios or similar library for HTTP requests. Configure appropriate timeouts and error handling.\n\nExample implementation:\n```javascript\nconst axios = require('axios');\nconst axiosRetry = require('axios-retry');\n\nconst client = axios.create({\n  timeout: 5000\n});\n\naxiosRetry(client, {\n  retries: 3,\n  retryDelay: axiosRetry.exponentialDelay,\n  retryCondition: (error) => {\n    return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.response.status >= 500;\n  }\n});\n\nasync function makeRequest(url, method, data) {\n  try {\n    const response = await client[method](url, data);\n    return response.data;\n  } catch (error) {\n    console.error(`Error making ${method} request to ${url}:`, error);\n    throw error;\n  }\n}\n```\n\nImplement health check endpoints for each service to monitor availability.",
+        "testStrategy": "Test communication between services with various scenarios including network failures. Verify retry logic works correctly. Test timeout handling. Verify health check endpoints.",
+        "priority": "medium",
+        "dependencies": [
+          3,
+          4,
+          5,
+          6
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Scaffold POST /exports endpoint",
+            "description": "Implement endpoint to submit new export jobs as per PRD. Validate input, create job in TaskRegistry, send job to Scheduler, return jobId.",
+            "details": "- Accepts { bookId: string, type: 'epub' | 'pdf' }\n- Validates input\n- Calls TaskRegistry to create job\n- Calls Scheduler to enqueue job\n- Returns { jobId: string }",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 2,
+            "title": "Scaffold POST /imports endpoint",
+            "description": "Implement endpoint to submit new import jobs as per PRD. Validate input, create job in TaskRegistry, send job to Scheduler, return jobId.",
+            "details": "- Accepts { bookId: string, type: 'word' | 'pdf' | 'wattpad' | 'evernote', url: string }\n- Validates input\n- Calls TaskRegistry to create job\n- Calls Scheduler to enqueue job\n- Returns { jobId: string }",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 3,
+            "title": "Scaffold GET /exports and /imports endpoints",
+            "description": "Implement endpoints to list export/import jobs grouped by state as per PRD. Query TaskRegistry for job status.",
+            "details": "- Returns jobs grouped by state (pending, processing, finished, failed)\n- Calls TaskRegistry to fetch jobs\n- Returns grouped job lists",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 4,
+            "title": "Add Swagger UI at /docs",
+            "description": "Expose OpenAPI/Swagger UI for Receptionist API documentation and testing.",
+            "details": "- Use swagger-ui-express or similar\n- Document all endpoints as per PRD\n- Serve docs at /docs",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 5,
+            "title": "Add health check endpoint",
+            "description": "Implement a health check endpoint for service monitoring.",
+            "details": "- Add GET /health endpoint\n- Should return basic service status",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 6,
+            "title": "Add config loading",
+            "description": "Implement configuration loading for environment variables and config files.",
+            "details": "- Use dotenv or similar for env loading\n- Provide config interface for service",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 7,
+            "title": "Add basic logging",
+            "description": "Integrate beginner-friendly logging library for structured logs.",
+            "details": "- Use winston or pino (with simple config)\n- Add request/response logging\n- Log errors and important events",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 8,
+            "title": "Implement API error handling",
+            "description": "Add middleware for consistent API error responses and validation errors.",
+            "details": "- Return structured error objects\n- Handle validation and internal errors\n- Log errors appropriately",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 9,
+            "title": "Define typed interfaces for requests/responses",
+            "description": "Define and export TypeScript interfaces/types for all API requests and responses as per PRD.",
+            "details": "- Define types for import/export job requests and responses\n- Use throughout codebase for type safety",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 10,
+            "title": "Implement business logic for job creation/dispatch",
+            "description": "Implement logic to validate input, create job in TaskRegistry, and dispatch job to Scheduler for both import and export endpoints.",
+            "details": "- Integrate with TaskRegistry and Scheduler services via HTTP\n- Ensure jobs are correctly created and dispatched\n- Handle errors and edge cases",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 7
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Implement Swagger Documentation",
+        "description": "Add Swagger UI to all services for API documentation and testing.",
+        "details": "Implement Swagger documentation for all services using swagger-ui-express and OpenAPI specifications. Create OpenAPI specification files for each service describing all endpoints, request/response schemas, and examples.\n\nExample implementation:\n```javascript\nconst swaggerUi = require('swagger-ui-express');\nconst swaggerDocument = require('./swagger.json');\n\napp.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));\n```\n\nCreate swagger.json files for each service with complete API documentation. Ensure all endpoints, parameters, request bodies, and responses are properly documented.",
+        "testStrategy": "Verify Swagger UI is accessible at /docs for each service. Test that all endpoints are properly documented. Verify that API calls can be made directly from the Swagger UI.",
+        "priority": "medium",
+        "dependencies": [
+          3,
+          4,
+          5,
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Implement Horizontal Scaling Support",
+        "description": "Ensure all services are horizontally scalable except for Scheduler and TaskRegistry which should be singletons.",
+        "details": "Make Receptionist and Handler services stateless to support horizontal scaling. Implement singleton pattern for Scheduler and TaskRegistry services to ensure only one instance runs at a time.\n\nFor Scheduler singleton:\n```javascript\nconst lockfile = require('proper-lockfile');\nconst fs = require('fs');\n\ntry {\n  // Create lock file if it doesn't exist\n  if (!fs.existsSync('scheduler.lock')) {\n    fs.writeFileSync('scheduler.lock', '');\n  }\n  \n  // Try to acquire lock\n  const release = await lockfile.lock('scheduler.lock', { retries: 0 });\n  \n  // Start server if lock acquired\n  const server = app.listen(3000, () => {\n    console.log('Scheduler running on port 3000');\n  });\n  \n  // Release lock on shutdown\n  process.on('SIGTERM', async () => {\n    await release();\n    server.close();\n  });\n} catch (error) {\n  console.error('Another instance of Scheduler is already running');\n  process.exit(1);\n}\n```\n\nImplement similar logic for TaskRegistry service. Configure SQLite in WAL mode to support concurrent reads.",
+        "testStrategy": "Test running multiple instances of each service. Verify Receptionist and Handler can scale horizontally. Verify only one instance of Scheduler and TaskRegistry can run at a time. Test failover scenarios.",
+        "priority": "medium",
+        "dependencies": [
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Implement Build and Deployment Scripts",
+        "description": "Create scripts for building and deploying all services.",
+        "details": "Implement npm scripts in the root package.json for building and starting all services. Create Docker configuration for containerized deployment.\n\nExample root package.json:\n```json\n{\n  \"name\": \"receptionist-system\",\n  \"version\": \"1.0.0\",\n  \"scripts\": {\n    \"build\": \"npm run build:shared && npm run build:task-registry && npm run build:scheduler && npm run build:handler && npm run build:receptionist\",\n    \"build:shared\": \"cd src/shared && tsc\",\n    \"build:task-registry\": \"cd src/task-registry && npm install && npm run build\",\n    \"build:scheduler\": \"cd src/scheduler && npm install && npm run build\",\n    \"build:handler\": \"cd src/handler && npm install && npm run build\",\n    \"build:receptionist\": \"cd src/receptionist && npm install && npm run build\",\n    \"start\": \"concurrently \\\"npm run start:task-registry\\\" \\\"npm run start:scheduler\\\" \\\"npm run start:handler\\\" \\\"npm run start:receptionist\\\"\",\n    \"start:task-registry\": \"cd src/task-registry && npm start\",\n    \"start:scheduler\": \"cd src/scheduler && npm start\",\n    \"start:handler\": \"cd src/handler && npm start\",\n    \"start:receptionist\": \"cd src/receptionist && npm start\"\n  },\n  \"devDependencies\": {\n    \"concurrently\": \"^7.0.0\",\n    \"typescript\": \"^4.5.5\"\n  }\n}\n```\n\nCreate Dockerfile for each service and a docker-compose.yml file for orchestrating the entire system.",
+        "testStrategy": "Test build scripts to ensure all services can be built successfully. Test start scripts to verify all services start correctly. Test Docker builds and container orchestration.",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Convert Echo-Server to API Gateway",
+        "description": "Transform the existing echo-server service into a fully-functional API gateway that can redirect traffic to appropriate services, log all incoming requests, and provide a UI dashboard showing the status of all proxied services.",
+        "details": "This task involves converting the echo-server into a robust API gateway with the following implementation steps:\n\n1. **Enable Traffic Redirection**:\n   - Implement a routing configuration system that maps incoming request paths to appropriate backend services\n   - Use a library like `http-proxy-middleware` to handle the actual proxying\n   - Create a configuration file for defining service routes:\n   ```javascript\n   // gateway-config.js\n   module.exports = {\n     routes: [\n       {\n         path: '/exports',\n         target: 'http://receptionist-service:3000',\n         pathRewrite: { '^/exports': '/exports' }\n       },\n       {\n         path: '/imports',\n         target: 'http://receptionist-service:3000',\n         pathRewrite: { '^/imports': '/imports' }\n       },\n       {\n         path: '/registry',\n         target: 'http://task-registry:3001',\n         pathRewrite: { '^/registry': '/' }\n       },\n       // Add routes for other services\n     ]\n   };\n   ```\n   - Implement the proxy middleware:\n   ```javascript\n   const express = require('express');\n   const { createProxyMiddleware } = require('http-proxy-middleware');\n   const config = require('./gateway-config');\n   \n   const app = express();\n   \n   // Set up proxy routes\n   config.routes.forEach(route => {\n     app.use(route.path, createProxyMiddleware({\n       target: route.target,\n       pathRewrite: route.pathRewrite,\n       changeOrigin: true,\n     }));\n   });\n   \n   app.listen(8000, () => {\n     console.log('API Gateway running on port 8000');\n   });\n   ```\n\n2. **Log All Incoming Requests**:\n   - Implement a logging middleware that captures details of all requests\n   - Store logs in a structured format with timestamps, request paths, methods, response codes, and response times\n   - Use a library like Winston or Pino for structured logging\n   ```javascript\n   const winston = require('winston');\n   \n   // Configure logger\n   const logger = winston.createLogger({\n     level: 'info',\n     format: winston.format.json(),\n     defaultMeta: { service: 'api-gateway' },\n     transports: [\n       new winston.transports.File({ filename: 'gateway-logs.log' }),\n       new winston.transports.Console()\n     ]\n   });\n   \n   // Add logging middleware\n   app.use((req, res, next) => {\n     const start = Date.now();\n     \n     // Once response is finished\n     res.on('finish', () => {\n       const duration = Date.now() - start;\n       logger.info({\n         method: req.method,\n         path: req.originalUrl,\n         statusCode: res.statusCode,\n         responseTime: duration,\n         userAgent: req.get('User-Agent'),\n         ip: req.ip\n       });\n     });\n     \n     next();\n   });\n   ```\n\n3. **Create UI for Proxied Service Status**:\n   - Develop a dashboard UI that shows the status of all proxied services\n   - Implement health check endpoints for each service\n   - Create a service registry that maintains the status of each service\n   - Use a frontend framework like React or Vue.js for the dashboard\n   \n   ```javascript\n   // Service health monitoring\n   const services = [\n     { name: 'Receptionist', url: 'http://receptionist-service:3000/health' },\n     { name: 'TaskRegistry', url: 'http://task-registry:3001/health' },\n     { name: 'Scheduler', url: 'http://scheduler:3002/health' },\n     { name: 'Handler', url: 'http://handler:3003/health' }\n   ];\n   \n   // Health check function\n   async function checkServiceHealth(service) {\n     try {\n       const response = await axios.get(service.url, { timeout: 3000 });\n       return { \n         name: service.name, \n         status: response.status === 200 ? 'healthy' : 'unhealthy',\n         lastChecked: new Date().toISOString()\n       };\n     } catch (error) {\n       return { \n         name: service.name, \n         status: 'unhealthy', \n         error: error.message,\n         lastChecked: new Date().toISOString()\n       };\n     }\n   }\n   \n   // Periodically check all services\n   let serviceStatuses = [];\n   \n   async function updateServiceStatuses() {\n     const statuses = await Promise.all(services.map(checkServiceHealth));\n     serviceStatuses = statuses;\n   }\n   \n   // Update every 30 seconds\n   setInterval(updateServiceStatuses, 30000);\n   updateServiceStatuses(); // Initial check\n   \n   // Endpoint to get service statuses\n   app.get('/api/service-status', (req, res) => {\n     res.json(serviceStatuses);\n   });\n   \n   // Serve the dashboard UI\n   app.use('/dashboard', express.static('public/dashboard'));\n   ```\n\n4. **Dashboard UI Implementation**:\n   - Create a simple HTML/CSS/JS dashboard in the public/dashboard directory\n   - Use fetch or axios to retrieve service status data\n   - Display service statuses with appropriate visual indicators\n   - Implement auto-refresh functionality to keep the dashboard updated\n\n5. **Error Handling and Fallbacks**:\n   - Implement circuit breaker patterns for service calls\n   - Add fallback responses for when services are unavailable\n   - Configure appropriate timeouts for proxied requests\n\n6. **Security Considerations**:\n   - Add rate limiting to protect backend services\n   - Implement basic authentication for the dashboard UI\n   - Configure CORS appropriately for the API gateway",
+        "testStrategy": "1. **Traffic Redirection Testing**:\n   - Test each configured route to verify requests are correctly proxied to the appropriate service\n   - Verify path rewrites are working as expected\n   - Test with various HTTP methods (GET, POST, PUT, DELETE) to ensure all are properly proxied\n   - Simulate backend service failures and verify appropriate error responses\n   - Test with large payloads to ensure data is correctly transmitted\n\n2. **Request Logging Testing**:\n   - Verify all incoming requests are properly logged with the required information\n   - Check log format and ensure it contains method, path, status code, and response time\n   - Test high-volume scenarios to ensure logging doesn't impact performance\n   - Verify logs are correctly written to the configured destinations\n   - Test log rotation and ensure no log data is lost\n\n3. **Service Status UI Testing**:\n   - Verify the dashboard UI correctly displays the status of all services\n   - Test the UI in different browsers to ensure compatibility\n   - Verify the auto-refresh functionality works correctly\n   - Simulate service failures and verify the UI updates accordingly\n   - Test the responsiveness of the UI on different screen sizes\n\n4. **Integration Testing**:\n   - Perform end-to-end tests with all services running\n   - Verify the API gateway correctly routes requests to the appropriate services\n   - Test scenarios where multiple services are involved in a single transaction\n   - Verify error propagation from backend services to the client\n\n5. **Performance Testing**:\n   - Measure response times with and without the API gateway to quantify overhead\n   - Test with increasing load to identify performance bottlenecks\n   - Verify memory usage remains stable under load\n   - Test concurrent connections to ensure the gateway can handle multiple simultaneous requests\n\n6. **Security Testing**:\n   - Verify rate limiting correctly blocks excessive requests\n   - Test authentication mechanisms for the dashboard UI\n   - Verify CORS settings are correctly applied\n   - Perform basic penetration testing to identify security vulnerabilities",
+        "status": "pending",
+        "dependencies": [
+          6,
+          7
+        ],
+        "priority": "high",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Implement API Gateway Dashboard for Service Health Monitoring",
+        "description": "Create a dashboard UI component for the API gateway that displays real-time health status, metrics, and logs for all proxied services in the system.",
+        "details": "This task involves implementing a dashboard UI for the API gateway to monitor service health and status with the following implementation steps:\n\n1. **Create Dashboard UI Framework**:\n   - Set up a React-based dashboard that will be served by the API gateway\n   - Implement a responsive layout with service cards showing health status\n   - Use a UI library like Material-UI or Bootstrap for consistent styling\n\n2. **Implement Service Health Monitoring**:\n   - Create a health check system that periodically pings all services\n   - Store health status history with timestamps for trend visualization\n   - Implement status indicators (green/yellow/red) based on service availability\n\n3. **Add Real-time Metrics Display**:\n   - Implement metrics collection for:\n     - Request count per service\n     - Average response time\n     - Error rate\n     - CPU/Memory usage (if available)\n   - Create time-series charts for visualizing metrics over time\n   - Use a charting library like Chart.js or D3.js\n\n4. **Implement Request Logging UI**:\n   - Create a log viewer component with filtering capabilities\n   - Display recent requests with timestamp, method, path, status code, and response time\n   - Add search functionality to find specific requests\n\n5. **Add Real-time Updates**:\n   - Implement WebSocket connection for pushing real-time updates to the dashboard\n   - Update service status and metrics without page refresh\n   - Add notifications for service status changes\n\nExample dashboard component:\n```jsx\nimport React, { useState, useEffect } from 'react';\nimport { Grid, Card, Typography, CircularProgress } from '@material-ui/core';\nimport { LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts';\n\nfunction ServiceDashboard() {\n  const [services, setServices] = useState([]);\n  const [metrics, setMetrics] = useState({});\n  const [logs, setLogs] = useState([]);\n\n  useEffect(() => {\n    // Initial data fetch\n    fetchServiceStatus();\n    fetchMetrics();\n    fetchRecentLogs();\n    \n    // Set up WebSocket for real-time updates\n    const ws = new WebSocket('ws://localhost:3000/dashboard');\n    ws.onmessage = (event) => {\n      const data = JSON.parse(event.data);\n      if (data.type === 'status') setServices(data.services);\n      if (data.type === 'metrics') setMetrics(data.metrics);\n      if (data.type === 'logs') setLogs(prevLogs => [...data.logs, ...prevLogs].slice(0, 100));\n    };\n    \n    return () => ws.close();\n  }, []);\n\n  const fetchServiceStatus = async () => {\n    const response = await fetch('/api/services/status');\n    const data = await response.json();\n    setServices(data);\n  };\n\n  const fetchMetrics = async () => {\n    const response = await fetch('/api/metrics');\n    const data = await response.json();\n    setMetrics(data);\n  };\n\n  const fetchRecentLogs = async () => {\n    const response = await fetch('/api/logs/recent');\n    const data = await response.json();\n    setLogs(data);\n  };\n\n  return (\n    <Grid container spacing={3}>\n      <Grid item xs={12}>\n        <Typography variant=\"h4\">Service Health Dashboard</Typography>\n      </Grid>\n      \n      {/* Service Status Cards */}\n      <Grid item xs={12}>\n        <Typography variant=\"h5\">Service Status</Typography>\n        <Grid container spacing={2}>\n          {services.map(service => (\n            <Grid item xs={12} sm={6} md={4} key={service.id}>\n              <Card>\n                <div className={`status-indicator ${service.status}`}></div>\n                <Typography variant=\"h6\">{service.name}</Typography>\n                <Typography>Status: {service.status}</Typography>\n                <Typography>Uptime: {service.uptime}</Typography>\n                <Typography>Last checked: {new Date(service.lastChecked).toLocaleTimeString()}</Typography>\n              </Card>\n            </Grid>\n          ))}\n        </Grid>\n      </Grid>\n      \n      {/* Metrics Charts */}\n      <Grid item xs={12}>\n        <Typography variant=\"h5\">Request Metrics</Typography>\n        <Card>\n          <LineChart width={800} height={300} data={metrics.requestsPerMinute}>\n            <XAxis dataKey=\"time\" />\n            <YAxis />\n            <Tooltip />\n            <Line type=\"monotone\" dataKey=\"count\" stroke=\"#8884d8\" />\n          </LineChart>\n        </Card>\n      </Grid>\n      \n      {/* Request Logs */}\n      <Grid item xs={12}>\n        <Typography variant=\"h5\">Recent Requests</Typography>\n        <Card>\n          <table>\n            <thead>\n              <tr>\n                <th>Time</th>\n                <th>Method</th>\n                <th>Path</th>\n                <th>Status</th>\n                <th>Duration</th>\n                <th>Service</th>\n              </tr>\n            </thead>\n            <tbody>\n              {logs.map(log => (\n                <tr key={log.id} className={log.status >= 400 ? 'error-row' : ''}>\n                  <td>{new Date(log.timestamp).toLocaleTimeString()}</td>\n                  <td>{log.method}</td>\n                  <td>{log.path}</td>\n                  <td>{log.status}</td>\n                  <td>{log.duration}ms</td>\n                  <td>{log.service}</td>\n                </tr>\n              ))}\n            </tbody>\n          </table>\n        </Card>\n      </Grid>\n    </Grid>\n  );\n}\n```\n\n6. **Backend API Endpoints**:\n   - Implement the following endpoints in the API gateway:\n     - `GET /api/services/status` - Returns status of all services\n     - `GET /api/metrics` - Returns collected metrics\n     - `GET /api/logs/recent` - Returns recent request logs\n   - Create WebSocket endpoint for real-time updates\n\n7. **Service Health Check Implementation**:\n```javascript\n// health-checker.js\nconst axios = require('axios');\nconst serviceRegistry = require('./service-registry');\n\nclass HealthChecker {\n  constructor() {\n    this.statuses = {};\n    this.checkInterval = 30000; // 30 seconds\n    this.historyLength = 100; // Keep last 100 status checks\n  }\n\n  start() {\n    this.intervalId = setInterval(() => this.checkAllServices(), this.checkInterval);\n    this.checkAllServices(); // Initial check\n  }\n\n  stop() {\n    clearInterval(this.intervalId);\n  }\n\n  async checkAllServices() {\n    const services = serviceRegistry.getAllServices();\n    \n    for (const service of services) {\n      try {\n        const startTime = Date.now();\n        const response = await axios.get(`${service.url}/health`, { \n          timeout: 5000 \n        });\n        const responseTime = Date.now() - startTime;\n        \n        const status = response.status === 200 ? 'healthy' : 'degraded';\n        this.updateServiceStatus(service.id, status, responseTime);\n      } catch (error) {\n        this.updateServiceStatus(service.id, 'down', null);\n      }\n    }\n    \n    // Notify all connected dashboard clients\n    this.broadcastStatusUpdate();\n  }\n\n  updateServiceStatus(serviceId, status, responseTime) {\n    if (!this.statuses[serviceId]) {\n      this.statuses[serviceId] = {\n        current: status,\n        history: [],\n        responseTime: responseTime,\n        lastChecked: Date.now()\n      };\n    } else {\n      this.statuses[serviceId].current = status;\n      this.statuses[serviceId].responseTime = responseTime;\n      this.statuses[serviceId].lastChecked = Date.now();\n    }\n    \n    // Add to history\n    this.statuses[serviceId].history.unshift({\n      status,\n      timestamp: Date.now(),\n      responseTime\n    });\n    \n    // Trim history\n    if (this.statuses[serviceId].history.length > this.historyLength) {\n      this.statuses[serviceId].history = this.statuses[serviceId].history.slice(0, this.historyLength);\n    }\n  }\n\n  broadcastStatusUpdate() {\n    // Implementation depends on WebSocket setup\n    // This will be called to push updates to all connected clients\n  }\n\n  getServiceStatuses() {\n    return Object.entries(this.statuses).map(([id, data]) => ({\n      id,\n      status: data.current,\n      responseTime: data.responseTime,\n      lastChecked: data.lastChecked,\n      history: data.history\n    }));\n  }\n}\n\nmodule.exports = new HealthChecker();\n```\n\n8. **Integration with API Gateway**:\n   - Mount the dashboard UI at `/dashboard` route\n   - Ensure the dashboard has access to all necessary metrics and logs\n   - Implement proper authentication for dashboard access",
+        "testStrategy": "1. **Dashboard UI Testing**:\n   - Verify the dashboard loads correctly at the `/dashboard` endpoint\n   - Test responsive layout on different screen sizes\n   - Ensure all UI components render correctly with sample data\n   - Verify navigation between different dashboard sections works\n\n2. **Service Health Monitoring Testing**:\n   - Test health check functionality by:\n     - Starting all services and verifying they show as \"healthy\"\n     - Stopping a service and verifying it shows as \"down\"\n     - Introducing latency and verifying it shows as \"degraded\"\n   - Verify health history is correctly maintained and displayed\n   - Test that status indicators correctly reflect service health\n\n3. **Metrics Display Testing**:\n   - Generate test traffic to create metrics data\n   - Verify metrics are correctly calculated and displayed\n   - Test time-series charts with different time ranges\n   - Verify metrics update in real-time without page refresh\n\n4. **Request Logging UI Testing**:\n   - Make various API requests to generate log entries\n   - Verify logs are displayed correctly in the UI\n   - Test log filtering by service, status code, and time range\n   - Verify search functionality works correctly\n\n5. **Real-time Updates Testing**:\n   - Test WebSocket connection by:\n     - Opening multiple dashboard tabs\n     - Verifying all tabs receive updates simultaneously\n     - Testing reconnection after network interruption\n   - Verify notifications appear for service status changes\n\n6. **Integration Testing**:\n   - Test dashboard with all services running in a complete environment\n   - Verify metrics accuracy by comparing with actual request counts\n   - Test under load to ensure dashboard remains responsive\n   - Verify dashboard doesn't impact API gateway performance\n\n7. **Security Testing**:\n   - Verify dashboard requires proper authentication\n   - Test that unauthenticated users cannot access the dashboard\n   - Ensure sensitive information is not exposed in the dashboard\n\n8. **Browser Compatibility Testing**:\n   - Test dashboard in multiple browsers (Chrome, Firefox, Safari, Edge)\n   - Verify all functionality works consistently across browsers",
+        "status": "pending",
+        "dependencies": [
+          11,
+          7
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Enable traffic redirection through the gateway",
+            "description": "Implement proxy logic in the echo-server to forward incoming requests to appropriate backend services based on routing rules.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 12
+          },
+          {
+            "id": 2,
+            "title": "Log all incoming requests",
+            "description": "Integrate request logging into the API gateway to capture details of every request passing through the gateway.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 12
+          },
+          {
+            "id": 3,
+            "title": "Create a UI showing the status of all proxied services",
+            "description": "Develop a web-based dashboard that displays the health and status of all services proxied by the API gateway.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 12
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-07-07T12:27:36.774Z",
+      "updated": "2025-07-07T18:07:17.404Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

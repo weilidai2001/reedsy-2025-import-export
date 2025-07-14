@@ -1,0 +1,327 @@
+# Task ID: 12
+# Title: Implement API Gateway Dashboard for Service Health Monitoring
+# Status: pending
+# Dependencies: 11, 7
+# Priority: high
+# Description: Create a dashboard UI component for the API gateway that displays real-time health status, metrics, and logs for all proxied services in the system.
+# Details:
+This task involves implementing a dashboard UI for the API gateway to monitor service health and status with the following implementation steps:
+
+1. **Create Dashboard UI Framework**:
+   - Set up a React-based dashboard that will be served by the API gateway
+   - Implement a responsive layout with service cards showing health status
+   - Use a UI library like Material-UI or Bootstrap for consistent styling
+
+2. **Implement Service Health Monitoring**:
+   - Create a health check system that periodically pings all services
+   - Store health status history with timestamps for trend visualization
+   - Implement status indicators (green/yellow/red) based on service availability
+
+3. **Add Real-time Metrics Display**:
+   - Implement metrics collection for:
+     - Request count per service
+     - Average response time
+     - Error rate
+     - CPU/Memory usage (if available)
+   - Create time-series charts for visualizing metrics over time
+   - Use a charting library like Chart.js or D3.js
+
+4. **Implement Request Logging UI**:
+   - Create a log viewer component with filtering capabilities
+   - Display recent requests with timestamp, method, path, status code, and response time
+   - Add search functionality to find specific requests
+
+5. **Add Real-time Updates**:
+   - Implement WebSocket connection for pushing real-time updates to the dashboard
+   - Update service status and metrics without page refresh
+   - Add notifications for service status changes
+
+Example dashboard component:
+```jsx
+import React, { useState, useEffect } from 'react';
+import { Grid, Card, Typography, CircularProgress } from '@material-ui/core';
+import { LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts';
+
+function ServiceDashboard() {
+  const [services, setServices] = useState([]);
+  const [metrics, setMetrics] = useState({});
+  const [logs, setLogs] = useState([]);
+
+  useEffect(() => {
+    // Initial data fetch
+    fetchServiceStatus();
+    fetchMetrics();
+    fetchRecentLogs();
+    
+    // Set up WebSocket for real-time updates
+    const ws = new WebSocket('ws://localhost:3000/dashboard');
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'status') setServices(data.services);
+      if (data.type === 'metrics') setMetrics(data.metrics);
+      if (data.type === 'logs') setLogs(prevLogs => [...data.logs, ...prevLogs].slice(0, 100));
+    };
+    
+    return () => ws.close();
+  }, []);
+
+  const fetchServiceStatus = async () => {
+    const response = await fetch('/api/services/status');
+    const data = await response.json();
+    setServices(data);
+  };
+
+  const fetchMetrics = async () => {
+    const response = await fetch('/api/metrics');
+    const data = await response.json();
+    setMetrics(data);
+  };
+
+  const fetchRecentLogs = async () => {
+    const response = await fetch('/api/logs/recent');
+    const data = await response.json();
+    setLogs(data);
+  };
+
+  return (
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Typography variant="h4">Service Health Dashboard</Typography>
+      </Grid>
+      
+      {/* Service Status Cards */}
+      <Grid item xs={12}>
+        <Typography variant="h5">Service Status</Typography>
+        <Grid container spacing={2}>
+          {services.map(service => (
+            <Grid item xs={12} sm={6} md={4} key={service.id}>
+              <Card>
+                <div className={`status-indicator ${service.status}`}></div>
+                <Typography variant="h6">{service.name}</Typography>
+                <Typography>Status: {service.status}</Typography>
+                <Typography>Uptime: {service.uptime}</Typography>
+                <Typography>Last checked: {new Date(service.lastChecked).toLocaleTimeString()}</Typography>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Grid>
+      
+      {/* Metrics Charts */}
+      <Grid item xs={12}>
+        <Typography variant="h5">Request Metrics</Typography>
+        <Card>
+          <LineChart width={800} height={300} data={metrics.requestsPerMinute}>
+            <XAxis dataKey="time" />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="count" stroke="#8884d8" />
+          </LineChart>
+        </Card>
+      </Grid>
+      
+      {/* Request Logs */}
+      <Grid item xs={12}>
+        <Typography variant="h5">Recent Requests</Typography>
+        <Card>
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Method</th>
+                <th>Path</th>
+                <th>Status</th>
+                <th>Duration</th>
+                <th>Service</th>
+              </tr>
+            </thead>
+            <tbody>
+              {logs.map(log => (
+                <tr key={log.id} className={log.status >= 400 ? 'error-row' : ''}>
+                  <td>{new Date(log.timestamp).toLocaleTimeString()}</td>
+                  <td>{log.method}</td>
+                  <td>{log.path}</td>
+                  <td>{log.status}</td>
+                  <td>{log.duration}ms</td>
+                  <td>{log.service}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      </Grid>
+    </Grid>
+  );
+}
+```
+
+6. **Backend API Endpoints**:
+   - Implement the following endpoints in the API gateway:
+     - `GET /api/services/status` - Returns status of all services
+     - `GET /api/metrics` - Returns collected metrics
+     - `GET /api/logs/recent` - Returns recent request logs
+   - Create WebSocket endpoint for real-time updates
+
+7. **Service Health Check Implementation**:
+```javascript
+// health-checker.js
+const axios = require('axios');
+const serviceRegistry = require('./service-registry');
+
+class HealthChecker {
+  constructor() {
+    this.statuses = {};
+    this.checkInterval = 30000; // 30 seconds
+    this.historyLength = 100; // Keep last 100 status checks
+  }
+
+  start() {
+    this.intervalId = setInterval(() => this.checkAllServices(), this.checkInterval);
+    this.checkAllServices(); // Initial check
+  }
+
+  stop() {
+    clearInterval(this.intervalId);
+  }
+
+  async checkAllServices() {
+    const services = serviceRegistry.getAllServices();
+    
+    for (const service of services) {
+      try {
+        const startTime = Date.now();
+        const response = await axios.get(`${service.url}/health`, { 
+          timeout: 5000 
+        });
+        const responseTime = Date.now() - startTime;
+        
+        const status = response.status === 200 ? 'healthy' : 'degraded';
+        this.updateServiceStatus(service.id, status, responseTime);
+      } catch (error) {
+        this.updateServiceStatus(service.id, 'down', null);
+      }
+    }
+    
+    // Notify all connected dashboard clients
+    this.broadcastStatusUpdate();
+  }
+
+  updateServiceStatus(serviceId, status, responseTime) {
+    if (!this.statuses[serviceId]) {
+      this.statuses[serviceId] = {
+        current: status,
+        history: [],
+        responseTime: responseTime,
+        lastChecked: Date.now()
+      };
+    } else {
+      this.statuses[serviceId].current = status;
+      this.statuses[serviceId].responseTime = responseTime;
+      this.statuses[serviceId].lastChecked = Date.now();
+    }
+    
+    // Add to history
+    this.statuses[serviceId].history.unshift({
+      status,
+      timestamp: Date.now(),
+      responseTime
+    });
+    
+    // Trim history
+    if (this.statuses[serviceId].history.length > this.historyLength) {
+      this.statuses[serviceId].history = this.statuses[serviceId].history.slice(0, this.historyLength);
+    }
+  }
+
+  broadcastStatusUpdate() {
+    // Implementation depends on WebSocket setup
+    // This will be called to push updates to all connected clients
+  }
+
+  getServiceStatuses() {
+    return Object.entries(this.statuses).map(([id, data]) => ({
+      id,
+      status: data.current,
+      responseTime: data.responseTime,
+      lastChecked: data.lastChecked,
+      history: data.history
+    }));
+  }
+}
+
+module.exports = new HealthChecker();
+```
+
+8. **Integration with API Gateway**:
+   - Mount the dashboard UI at `/dashboard` route
+   - Ensure the dashboard has access to all necessary metrics and logs
+   - Implement proper authentication for dashboard access
+
+# Test Strategy:
+1. **Dashboard UI Testing**:
+   - Verify the dashboard loads correctly at the `/dashboard` endpoint
+   - Test responsive layout on different screen sizes
+   - Ensure all UI components render correctly with sample data
+   - Verify navigation between different dashboard sections works
+
+2. **Service Health Monitoring Testing**:
+   - Test health check functionality by:
+     - Starting all services and verifying they show as "healthy"
+     - Stopping a service and verifying it shows as "down"
+     - Introducing latency and verifying it shows as "degraded"
+   - Verify health history is correctly maintained and displayed
+   - Test that status indicators correctly reflect service health
+
+3. **Metrics Display Testing**:
+   - Generate test traffic to create metrics data
+   - Verify metrics are correctly calculated and displayed
+   - Test time-series charts with different time ranges
+   - Verify metrics update in real-time without page refresh
+
+4. **Request Logging UI Testing**:
+   - Make various API requests to generate log entries
+   - Verify logs are displayed correctly in the UI
+   - Test log filtering by service, status code, and time range
+   - Verify search functionality works correctly
+
+5. **Real-time Updates Testing**:
+   - Test WebSocket connection by:
+     - Opening multiple dashboard tabs
+     - Verifying all tabs receive updates simultaneously
+     - Testing reconnection after network interruption
+   - Verify notifications appear for service status changes
+
+6. **Integration Testing**:
+   - Test dashboard with all services running in a complete environment
+   - Verify metrics accuracy by comparing with actual request counts
+   - Test under load to ensure dashboard remains responsive
+   - Verify dashboard doesn't impact API gateway performance
+
+7. **Security Testing**:
+   - Verify dashboard requires proper authentication
+   - Test that unauthenticated users cannot access the dashboard
+   - Ensure sensitive information is not exposed in the dashboard
+
+8. **Browser Compatibility Testing**:
+   - Test dashboard in multiple browsers (Chrome, Firefox, Safari, Edge)
+   - Verify all functionality works consistently across browsers
+
+# Subtasks:
+## 1. Enable traffic redirection through the gateway [pending]
+### Dependencies: None
+### Description: Implement proxy logic in the echo-server to forward incoming requests to appropriate backend services based on routing rules.
+### Details:
+
+
+## 2. Log all incoming requests [pending]
+### Dependencies: None
+### Description: Integrate request logging into the API gateway to capture details of every request passing through the gateway.
+### Details:
+
+
+## 3. Create a UI showing the status of all proxied services [pending]
+### Dependencies: None
+### Description: Develop a web-based dashboard that displays the health and status of all services proxied by the API gateway.
+### Details:
+
+

@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "./",
+    "outDir": "../../dist/shared",
+    "esModuleInterop": true,
+    "moduleResolution": "node"
+  },
+  "include": ["types.ts"]
+}

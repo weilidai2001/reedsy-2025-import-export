@@ -1,0 +1,32 @@
+# Task ID: 2
+# Title: Implement Shared Types
+# Status: done
+# Dependencies: 1
+# Priority: high
+# Description: Create a shared types module that will be used across all services to ensure type consistency.
+# Details:
+Create a types.ts file in the shared directory with the following types as specified in the PRD:
+
+```typescript
+type JobDirection = "import" | "export";
+type JobType = "epub" | "pdf" | "word" | "wattpad" | "evernote";
+type JobState = "pending" | "processing" | "finished" | "failed";
+
+type Job = {
+  id: string;
+  bookId: string;
+  direction: JobDirection;
+  type: JobType;
+  state: JobState;
+  sourceUrl?: string;
+  resultUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+  startedAt?: string;
+};
+```
+
+Ensure this module can be imported by all services.
+
+# Test Strategy:
+Write unit tests to verify type definitions are correct and can be imported properly. Test with sample data to ensure type checking works as expected.

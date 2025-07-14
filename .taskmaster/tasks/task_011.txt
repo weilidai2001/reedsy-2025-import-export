@@ -1,0 +1,207 @@
+# Task ID: 11
+# Title: Convert Echo-Server to API Gateway
+# Status: pending
+# Dependencies: 6, 7
+# Priority: high
+# Description: Transform the existing echo-server service into a fully-functional API gateway that can redirect traffic to appropriate services, log all incoming requests, and provide a UI dashboard showing the status of all proxied services.
+# Details:
+This task involves converting the echo-server into a robust API gateway with the following implementation steps:
+
+1. **Enable Traffic Redirection**:
+   - Implement a routing configuration system that maps incoming request paths to appropriate backend services
+   - Use a library like `http-proxy-middleware` to handle the actual proxying
+   - Create a configuration file for defining service routes:
+   ```javascript
+   // gateway-config.js
+   module.exports = {
+     routes: [
+       {
+         path: '/exports',
+         target: 'http://receptionist-service:3000',
+         pathRewrite: { '^/exports': '/exports' }
+       },
+       {
+         path: '/imports',
+         target: 'http://receptionist-service:3000',
+         pathRewrite: { '^/imports': '/imports' }
+       },
+       {
+         path: '/registry',
+         target: 'http://task-registry:3001',
+         pathRewrite: { '^/registry': '/' }
+       },
+       // Add routes for other services
+     ]
+   };
+   ```
+   - Implement the proxy middleware:
+   ```javascript
+   const express = require('express');
+   const { createProxyMiddleware } = require('http-proxy-middleware');
+   const config = require('./gateway-config');
+   
+   const app = express();
+   
+   // Set up proxy routes
+   config.routes.forEach(route => {
+     app.use(route.path, createProxyMiddleware({
+       target: route.target,
+       pathRewrite: route.pathRewrite,
+       changeOrigin: true,
+     }));
+   });
+   
+   app.listen(8000, () => {
+     console.log('API Gateway running on port 8000');
+   });
+   ```
+
+2. **Log All Incoming Requests**:
+   - Implement a logging middleware that captures details of all requests
+   - Store logs in a structured format with timestamps, request paths, methods, response codes, and response times
+   - Use a library like Winston or Pino for structured logging
+   ```javascript
+   const winston = require('winston');
+   
+   // Configure logger
+   const logger = winston.createLogger({
+     level: 'info',
+     format: winston.format.json(),
+     defaultMeta: { service: 'api-gateway' },
+     transports: [
+       new winston.transports.File({ filename: 'gateway-logs.log' }),
+       new winston.transports.Console()
+     ]
+   });
+   
+   // Add logging middleware
+   app.use((req, res, next) => {
+     const start = Date.now();
+     
+     // Once response is finished
+     res.on('finish', () => {
+       const duration = Date.now() - start;
+       logger.info({
+         method: req.method,
+         path: req.originalUrl,
+         statusCode: res.statusCode,
+         responseTime: duration,
+         userAgent: req.get('User-Agent'),
+         ip: req.ip
+       });
+     });
+     
+     next();
+   });
+   ```
+
+3. **Create UI for Proxied Service Status**:
+   - Develop a dashboard UI that shows the status of all proxied services
+   - Implement health check endpoints for each service
+   - Create a service registry that maintains the status of each service
+   - Use a frontend framework like React or Vue.js for the dashboard
+   
+   ```javascript
+   // Service health monitoring
+   const services = [
+     { name: 'Receptionist', url: 'http://receptionist-service:3000/health' },
+     { name: 'TaskRegistry', url: 'http://task-registry:3001/health' },
+     { name: 'Scheduler', url: 'http://scheduler:3002/health' },
+     { name: 'Handler', url: 'http://handler:3003/health' }
+   ];
+   
+   // Health check function
+   async function checkServiceHealth(service) {
+     try {
+       const response = await axios.get(service.url, { timeout: 3000 });
+       return { 
+         name: service.name, 
+         status: response.status === 200 ? 'healthy' : 'unhealthy',
+         lastChecked: new Date().toISOString()
+       };
+     } catch (error) {
+       return { 
+         name: service.name, 
+         status: 'unhealthy', 
+         error: error.message,
+         lastChecked: new Date().toISOString()
+       };
+     }
+   }
+   
+   // Periodically check all services
+   let serviceStatuses = [];
+   
+   async function updateServiceStatuses() {
+     const statuses = await Promise.all(services.map(checkServiceHealth));
+     serviceStatuses = statuses;
+   }
+   
+   // Update every 30 seconds
+   setInterval(updateServiceStatuses, 30000);
+   updateServiceStatuses(); // Initial check
+   
+   // Endpoint to get service statuses
+   app.get('/api/service-status', (req, res) => {
+     res.json(serviceStatuses);
+   });
+   
+   // Serve the dashboard UI
+   app.use('/dashboard', express.static('public/dashboard'));
+   ```
+
+4. **Dashboard UI Implementation**:
+   - Create a simple HTML/CSS/JS dashboard in the public/dashboard directory
+   - Use fetch or axios to retrieve service status data
+   - Display service statuses with appropriate visual indicators
+   - Implement auto-refresh functionality to keep the dashboard updated
+
+5. **Error Handling and Fallbacks**:
+   - Implement circuit breaker patterns for service calls
+   - Add fallback responses for when services are unavailable
+   - Configure appropriate timeouts for proxied requests
+
+6. **Security Considerations**:
+   - Add rate limiting to protect backend services
+   - Implement basic authentication for the dashboard UI
+   - Configure CORS appropriately for the API gateway
+
+# Test Strategy:
+1. **Traffic Redirection Testing**:
+   - Test each configured route to verify requests are correctly proxied to the appropriate service
+   - Verify path rewrites are working as expected
+   - Test with various HTTP methods (GET, POST, PUT, DELETE) to ensure all are properly proxied
+   - Simulate backend service failures and verify appropriate error responses
+   - Test with large payloads to ensure data is correctly transmitted
+
+2. **Request Logging Testing**:
+   - Verify all incoming requests are properly logged with the required information
+   - Check log format and ensure it contains method, path, status code, and response time
+   - Test high-volume scenarios to ensure logging doesn't impact performance
+   - Verify logs are correctly written to the configured destinations
+   - Test log rotation and ensure no log data is lost
+
+3. **Service Status UI Testing**:
+   - Verify the dashboard UI correctly displays the status of all services
+   - Test the UI in different browsers to ensure compatibility
+   - Verify the auto-refresh functionality works correctly
+   - Simulate service failures and verify the UI updates accordingly
+   - Test the responsiveness of the UI on different screen sizes
+
+4. **Integration Testing**:
+   - Perform end-to-end tests with all services running
+   - Verify the API gateway correctly routes requests to the appropriate services
+   - Test scenarios where multiple services are involved in a single transaction
+   - Verify error propagation from backend services to the client
+
+5. **Performance Testing**:
+   - Measure response times with and without the API gateway to quantify overhead
+   - Test with increasing load to identify performance bottlenecks
+   - Verify memory usage remains stable under load
+   - Test concurrent connections to ensure the gateway can handle multiple simultaneous requests
+
+6. **Security Testing**:
+   - Verify rate limiting correctly blocks excessive requests
+   - Test authentication mechanisms for the dashboard UI
+   - Verify CORS settings are correctly applied
+   - Perform basic penetration testing to identify security vulnerabilities

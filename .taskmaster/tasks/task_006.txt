@@ -1,0 +1,51 @@
+# Task ID: 6
+# Title: Implement Receptionist Service
+# Status: pending
+# Dependencies: 3, 4
+# Priority: high
+# Description: Develop the Receptionist service that will serve as the public-facing REST API gateway.
+# Details:
+Create an Express application for the Receptionist service with the following endpoints:
+
+1. POST `/exports` - Submit a new export job
+2. POST `/imports` - Submit a new import job
+3. GET `/exports` - Get export job listings grouped by state
+4. GET `/imports` - Get import job listings grouped by state
+
+Implement request validation for all endpoints. Generate UUIDs for new jobs. Create jobs in TaskRegistry via HTTP requests. Send jobs to Scheduler via HTTP requests. Add Swagger UI at `/docs` endpoint.
+
+Example implementation for POST `/exports`:
+```javascript
+app.post('/exports', async (req, res) => {
+  const { bookId, type } = req.body;
+  
+  // Validate request
+  if (!bookId || !['epub', 'pdf'].includes(type)) {
+    return res.status(400).json({ error: 'Invalid request' });
+  }
+  
+  // Generate job ID
+  const jobId = uuid();
+  
+  // Create job in TaskRegistry
+  await axios.post('http://task-registry:3000/jobs', {
+    id: jobId,
+    bookId,
+    direction: 'export',
+    type,
+    state: 'pending'
+  });
+  
+  // Send job to Scheduler
+  await axios.post('http://scheduler:3000/queue', {
+    id: jobId,
+    direction: 'export',
+    type
+  });
+  
+  return res.status(201).json({ jobId });
+});
+```
+
+# Test Strategy:
+Test all endpoints with valid and invalid requests. Verify job creation in TaskRegistry. Verify job submission to Scheduler. Test error handling and edge cases.

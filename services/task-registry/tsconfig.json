@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "outDir": "dist",
+    "rootDir": "../",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "baseUrl": "src",
+    "paths": {
+      "@reedsy/shared/*": ["../../shared/*"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/database/in-memory-db.ts",
+    "src/database/job-repository.ts"
+  ],
+  "references": [{ "path": "../shared" }]
+}

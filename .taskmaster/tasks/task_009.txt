@@ -1,0 +1,43 @@
+# Task ID: 9
+# Title: Implement Horizontal Scaling Support
+# Status: pending
+# Dependencies: 3, 4, 5, 6, 7
+# Priority: medium
+# Description: Ensure all services are horizontally scalable except for Scheduler and TaskRegistry which should be singletons.
+# Details:
+Make Receptionist and Handler services stateless to support horizontal scaling. Implement singleton pattern for Scheduler and TaskRegistry services to ensure only one instance runs at a time.
+
+For Scheduler singleton:
+```javascript
+const lockfile = require('proper-lockfile');
+const fs = require('fs');
+
+try {
+  // Create lock file if it doesn't exist
+  if (!fs.existsSync('scheduler.lock')) {
+    fs.writeFileSync('scheduler.lock', '');
+  }
+  
+  // Try to acquire lock
+  const release = await lockfile.lock('scheduler.lock', { retries: 0 });
+  
+  // Start server if lock acquired
+  const server = app.listen(3000, () => {
+    console.log('Scheduler running on port 3000');
+  });
+  
+  // Release lock on shutdown
+  process.on('SIGTERM', async () => {
+    await release();
+    server.close();
+  });
+} catch (error) {
+  console.error('Another instance of Scheduler is already running');
+  process.exit(1);
+}
+```
+
+Implement similar logic for TaskRegistry service. Configure SQLite in WAL mode to support concurrent reads.
+
+# Test Strategy:
+Test running multiple instances of each service. Verify Receptionist and Handler can scale horizontally. Verify only one instance of Scheduler and TaskRegistry can run at a time. Test failover scenarios.

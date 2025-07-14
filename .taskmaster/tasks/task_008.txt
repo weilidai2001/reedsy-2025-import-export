@@ -1,0 +1,21 @@
+# Task ID: 8
+# Title: Implement Swagger Documentation
+# Status: pending
+# Dependencies: 3, 4, 5, 6
+# Priority: medium
+# Description: Add Swagger UI to all services for API documentation and testing.
+# Details:
+Implement Swagger documentation for all services using swagger-ui-express and OpenAPI specifications. Create OpenAPI specification files for each service describing all endpoints, request/response schemas, and examples.
+
+Example implementation:
+```javascript
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+```
+
+Create swagger.json files for each service with complete API documentation. Ensure all endpoints, parameters, request bodies, and responses are properly documented.
+
+# Test Strategy:
+Verify Swagger UI is accessible at /docs for each service. Test that all endpoints are properly documented. Verify that API calls can be made directly from the Swagger UI.

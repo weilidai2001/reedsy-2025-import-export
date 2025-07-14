@@ -1,0 +1,124 @@
+# Task ID: 7
+# Title: Implement Service Communication
+# Status: pending
+# Dependencies: 3, 4, 5, 6
+# Priority: medium
+# Description: Set up HTTP communication between services and ensure proper error handling and retries.
+# Details:
+Implement HTTP client with retry logic for inter-service communication. Use axios or similar library for HTTP requests. Configure appropriate timeouts and error handling.
+
+Example implementation:
+```javascript
+const axios = require('axios');
+const axiosRetry = require('axios-retry');
+
+const client = axios.create({
+  timeout: 5000
+});
+
+axiosRetry(client, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error) => {
+    return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.response.status >= 500;
+  }
+});
+
+async function makeRequest(url, method, data) {
+  try {
+    const response = await client[method](url, data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error making ${method} request to ${url}:`, error);
+    throw error;
+  }
+}
+```
+
+Implement health check endpoints for each service to monitor availability.
+
+# Test Strategy:
+Test communication between services with various scenarios including network failures. Verify retry logic works correctly. Test timeout handling. Verify health check endpoints.
+
+# Subtasks:
+## 1. Scaffold POST /exports endpoint [pending]
+### Dependencies: None
+### Description: Implement endpoint to submit new export jobs as per PRD. Validate input, create job in TaskRegistry, send job to Scheduler, return jobId.
+### Details:
+- Accepts { bookId: string, type: 'epub' | 'pdf' }
+- Validates input
+- Calls TaskRegistry to create job
+- Calls Scheduler to enqueue job
+- Returns { jobId: string }
+
+## 2. Scaffold POST /imports endpoint [pending]
+### Dependencies: None
+### Description: Implement endpoint to submit new import jobs as per PRD. Validate input, create job in TaskRegistry, send job to Scheduler, return jobId.
+### Details:
+- Accepts { bookId: string, type: 'word' | 'pdf' | 'wattpad' | 'evernote', url: string }
+- Validates input
+- Calls TaskRegistry to create job
+- Calls Scheduler to enqueue job
+- Returns { jobId: string }
+
+## 3. Scaffold GET /exports and /imports endpoints [pending]
+### Dependencies: None
+### Description: Implement endpoints to list export/import jobs grouped by state as per PRD. Query TaskRegistry for job status.
+### Details:
+- Returns jobs grouped by state (pending, processing, finished, failed)
+- Calls TaskRegistry to fetch jobs
+- Returns grouped job lists
+
+## 4. Add Swagger UI at /docs [pending]
+### Dependencies: None
+### Description: Expose OpenAPI/Swagger UI for Receptionist API documentation and testing.
+### Details:
+- Use swagger-ui-express or similar
+- Document all endpoints as per PRD
+- Serve docs at /docs
+
+## 5. Add health check endpoint [pending]
+### Dependencies: None
+### Description: Implement a health check endpoint for service monitoring.
+### Details:
+- Add GET /health endpoint
+- Should return basic service status
+
+## 6. Add config loading [pending]
+### Dependencies: None
+### Description: Implement configuration loading for environment variables and config files.
+### Details:
+- Use dotenv or similar for env loading
+- Provide config interface for service
+
+## 7. Add basic logging [pending]
+### Dependencies: None
+### Description: Integrate beginner-friendly logging library for structured logs.
+### Details:
+- Use winston or pino (with simple config)
+- Add request/response logging
+- Log errors and important events
+
+## 8. Implement API error handling [pending]
+### Dependencies: None
+### Description: Add middleware for consistent API error responses and validation errors.
+### Details:
+- Return structured error objects
+- Handle validation and internal errors
+- Log errors appropriately
+
+## 9. Define typed interfaces for requests/responses [pending]
+### Dependencies: None
+### Description: Define and export TypeScript interfaces/types for all API requests and responses as per PRD.
+### Details:
+- Define types for import/export job requests and responses
+- Use throughout codebase for type safety
+
+## 10. Implement business logic for job creation/dispatch [pending]
+### Dependencies: None
+### Description: Implement logic to validate input, create job in TaskRegistry, and dispatch job to Scheduler for both import and export endpoints.
+### Details:
+- Integrate with TaskRegistry and Scheduler services via HTTP
+- Ensure jobs are correctly created and dispatched
+- Handle errors and edge cases
+
