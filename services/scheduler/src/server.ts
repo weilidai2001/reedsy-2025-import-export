@@ -1,5 +1,5 @@
 import logger from "./logger";
-import { getPortFromUrl } from "../../shared/url-util";
+import { getPortFromUrl } from "@reedsy/shared";
 
 import express, { Request, Response } from "express";
 import { queueRouter } from "./routes/queue-routes";

@@ -1,4 +1,4 @@
-import { getPortFromUrl } from "../../shared/url-util";
+import { getPortFromUrl } from "@reedsy/shared";
 import app from "./app";
 import logger from "./logger";
 

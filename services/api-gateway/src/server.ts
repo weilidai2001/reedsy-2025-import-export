@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import rateLimit from "express-rate-limit";
 import { createProxyMiddleware, Options } from "http-proxy-middleware";
-import { getPortFromUrl } from "../../shared/url-util";
+import { getPortFromUrl } from "@reedsy/shared";
 
 const app = express();
 const port = getPortFromUrl(process.env.API_GATEWAY_URL);

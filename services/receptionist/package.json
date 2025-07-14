@@ -11,6 +11,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@reedsy/shared": "*",
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
     "@types/joi": "^17.2.2",
