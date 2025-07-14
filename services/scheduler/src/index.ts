@@ -1,7 +1,7 @@
-import path from "path";
-import dotenv from "dotenv";
+import { loadRootEnv } from "@reedsy/shared";
 
-dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
+// Load environment variables from root .env file
+loadRootEnv();
 
 import { startServer } from "./server";
 

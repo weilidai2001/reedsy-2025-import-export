@@ -1,8 +1,7 @@
-import dotenv from 'dotenv';
-import path from 'path';
+import { loadRootEnv } from "@reedsy/shared";
 
 // Load environment variables from root .env file
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+loadRootEnv();
 
 export const config = {
   port: process.env.HANDLER_PORT ? parseInt(process.env.HANDLER_PORT, 10) : 3001,

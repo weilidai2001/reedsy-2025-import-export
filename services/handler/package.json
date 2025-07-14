@@ -23,7 +23,8 @@
     "supertest": "^6.3.3",
     "ts-jest": "^29.4.0",
     "winston": "^3.17.0",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "@reedsy/shared": "*"
   },
   "devDependencies": {
     "ts-node": "^10.9.2",

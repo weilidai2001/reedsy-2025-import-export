@@ -1,13 +1,12 @@
-import path from "path";
-import dotenv from "dotenv";
+import { loadRootEnv } from "@reedsy/shared";
 
 // Load environment variables from root .env file
-dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
+loadRootEnv();
 
 import logger from "./logger";
 import { createServer } from "./server";
 import { startPollingLoop } from "./worker/job-runner";
-import { getPortFromUrl } from "../../shared/url-util";
+import { getPortFromUrl } from "@reedsy/shared";
 
 const app = createServer();
 const PORT = getPortFromUrl(process.env.HANDLER_URL);

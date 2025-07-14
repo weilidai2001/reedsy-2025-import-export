@@ -2,7 +2,7 @@ import express from "express";
 
 import path from "path";
 import dotenv from "dotenv";
-import { getPortFromUrl } from "../../shared/url-util";
+import { getPortFromUrl } from "@reedsy/shared";
 
 dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 

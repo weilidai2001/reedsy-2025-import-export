@@ -1,4 +1,4 @@
-import createLogger from "../../shared/logger-factory";
+import { createLogger } from "@reedsy/shared";
 
 const logger = createLogger("Scheduler");
 
